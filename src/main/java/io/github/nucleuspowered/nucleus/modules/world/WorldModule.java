@@ -11,8 +11,10 @@ import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
 import javax.inject.Inject;
 
-@ModuleData(id = "world", name = "World")
+@ModuleData(id = WorldModule.ID, name = "World")
 public class WorldModule extends ConfigurableModule<WorldConfigAdapter> {
+
+    public static final String ID = "world";
 
     @Inject private Logger logger;
 
