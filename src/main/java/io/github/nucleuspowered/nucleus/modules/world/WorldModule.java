@@ -15,6 +15,7 @@ import javax.inject.Inject;
 public class WorldModule extends ConfigurableModule<WorldConfigAdapter> {
 
     public static final String ID = "world";
+
     @Inject private Logger logger;
 
     @Override public WorldConfigAdapter createAdapter() {
