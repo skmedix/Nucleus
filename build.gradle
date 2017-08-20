@@ -11,7 +11,7 @@ plugins {
 
 project.ext.versionno = '1.1.1'
 project.ext.spongeapiversion = '5.1'
-project.ext.suffix = '-LTS-SNAPSHOT'
+project.ext.suffix = ''
 
 allprojects {
     apply plugin: 'java'
