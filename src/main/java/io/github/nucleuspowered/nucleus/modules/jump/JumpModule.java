@@ -8,8 +8,10 @@ import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.jump.config.JumpConfigAdapter;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
-@ModuleData(id = "jump", name = "Jump")
+@ModuleData(id = JumpModule.ID, name = "Jump")
 public class JumpModule extends ConfigurableModule<JumpConfigAdapter> {
+
+    public final static String ID = "jump";
 
     @Override
     public JumpConfigAdapter createAdapter() {

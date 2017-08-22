@@ -16,6 +16,9 @@ public class JumpConfig {
     @Setting(value = "max-thru-distance", comment = "config.thru.maxdist")
     private int maxthru = 25;
 
+    @Setting(value = "unstuck-distances")
+    private UnstuckConfig unstuckConfig = new UnstuckConfig();
+
     public int getMaxJump() {
         return maxjump;
     }
@@ -23,4 +26,24 @@ public class JumpConfig {
     public int getMaxThru() {
         return maxthru;
     }
+
+    public int getMaxUnstuckRadius() {
+        return Math.max(1, this.unstuckConfig.hr);
+    }
+
+    public int getMaxUnstuckHeight() {
+        return Math.max(1, this.unstuckConfig.h);
+    }
+
+    @ConfigSerializable
+    public static class UnstuckConfig {
+
+        @Setting(value = "horizontal-radius", comment = "config.unstuck.radius")
+        int hr = 1;
+
+        @Setting(value = "height", comment = "config.unstuck.height")
+        int h = 1;
+
+    }
+
 }
