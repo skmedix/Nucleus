@@ -129,7 +129,8 @@ public class TeleportCommand extends AbstractCommand<CommandSource> {
         User to;
         Player from;
         if (oTo.isPresent()) { // Two player argument.
-            from = args.<Player>getOne(playerKey).get(); // Checked in argument.
+            from = args.<User>getOne(playerKey).map(x -> x.getPlayer().orElse(null))
+                .orElseThrow(() -> ReturnMessageException.fromKey("command.playeronly"));
             to = oTo.get();
             if (to.equals(src)) {
                 throw ReturnMessageException.fromKey("command.teleport.player.noself");
