@@ -102,7 +102,7 @@ public class HomeHandler implements NucleusHomeService {
         postEvent(event);
 
         // Just in case.
-        if (!plugin.getUserDataManager().get(home.getUser()).get().get(HomeUserDataModule.class).setHome(home.getName(), location, rotation, true)) {
+        if (!plugin.getUserDataManager().getUnchecked(home.getUser()).get(HomeUserDataModule.class).setHome(home.getName(), location, rotation, true)) {
             throw new NucleusException(
                 plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.seterror", home.getName()),
                 NucleusException.ExceptionType.UNKNOWN_ERROR);
