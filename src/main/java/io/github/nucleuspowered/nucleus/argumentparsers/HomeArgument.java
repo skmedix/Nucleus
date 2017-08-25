@@ -9,7 +9,6 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
-import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.home.datamodules.HomeUserDataModule;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
@@ -35,12 +34,10 @@ import javax.annotation.Nullable;
 public class HomeArgument extends CommandElement {
 
     private final Nucleus plugin;
-    private final CoreConfigAdapter cca;
 
-    public HomeArgument(@Nullable Text key, Nucleus plugin, CoreConfigAdapter cca) {
+    public HomeArgument(@Nullable Text key, Nucleus plugin) {
         super(key);
         this.plugin = plugin;
-        this.cca = cca;
     }
 
     @Nullable
@@ -60,7 +57,7 @@ public class HomeArgument extends CommandElement {
                 return owl.get();
             }
         } catch (Exception e) {
-            if (cca.getNodeOrDefault().isDebugmode()) {
+            if (this.plugin.isDebugMode()) {
                 e.printStackTrace();
             }
 

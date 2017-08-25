@@ -38,6 +38,26 @@ public interface NucleusHomeService {
     Pattern HOME_NAME_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9]{1,15}$");
 
     /**
+     * Gets the number of homes the player currently has.
+     *
+     * @param user The {@link UUID} of the player
+     * @return The number of homes.
+     */
+    default int getHomeCount(UUID user) {
+        return getHomes(user).size();
+    }
+
+    /**
+     * Gets the number of homes the player currently has.
+     *
+     * @param user The {@link User}
+     * @return The number of homes.
+     */
+    default int getHomeCount(User user) {
+        return getHomeCount(user.getUniqueId());
+    }
+
+    /**
      * Gets the {@link Home}s for the specified user, identified by their UUID.
      *
      * @param user The {@link UUID}

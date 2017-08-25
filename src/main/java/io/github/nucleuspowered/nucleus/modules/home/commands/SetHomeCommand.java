@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.home.config.HomeConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.home.handlers.HomeHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -24,6 +25,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,11 +37,24 @@ import javax.inject.Inject;
 @Permissions(prefix = "home", mainOverride = "set", suggestedLevel = SuggestedLevel.USER)
 @RegisterCommand(value = {"homeset"}, rootAliasRegister = "sethome")
 @EssentialsEquivalent({"sethome", "createhome"})
-public class SetHomeCommand extends AbstractCommand<Player> {
+@NonnullByDefault
+public class SetHomeCommand extends AbstractCommand<Player> implements AbstractCommand.Reloadable {
 
     private final String homeKey = "home";
 
-    @Inject private HomeHandler homeHandler;
+    private final HomeHandler homeHandler;
+    private final HomeConfigAdapter homeConfigAdapter;
+    private boolean preventOverhang = true;
+
+    @Inject
+    public SetHomeCommand(HomeHandler homeHandler, HomeConfigAdapter homeConfigAdapter) {
+        this.homeHandler = homeHandler;
+        this.homeConfigAdapter = homeConfigAdapter;
+        try {
+            onReload();
+        } catch (Exception ignored) {
+        }
+    }
 
     @Override
     public CommandElement[] getArguments() {
@@ -48,6 +63,11 @@ public class SetHomeCommand extends AbstractCommand<Player> {
                 GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.string(Text.of(homeKey))))
             )
         };
+    }
+
+    @Override
+    public void onReload() {
+        this.preventOverhang = this.homeConfigAdapter.getNodeOrDefault().isPreventHomeCountOverhang();
     }
 
     @Override
@@ -78,6 +98,13 @@ public class SetHomeCommand extends AbstractCommand<Player> {
         Cause cause = Cause.of(NamedCause.owner(src));
         try {
             if (overwrite) {
+                int max = this.homeHandler.getMaximumHomes(src) ;
+                int c = this.homeHandler.getHomeCount(src) ;
+                if (this.preventOverhang && max < c) {
+                    // If the player has too many homes, tell them
+                    throw ReturnMessageException.fromKey("command.sethome.overhang", String.valueOf(c), String.valueOf(max));
+                }
+
                 Home current = currentHome.get();
                 homeHandler.modifyHomeInternal(cause, current, src.getLocation(), src.getRotation());
                 src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.overwrite", home));
