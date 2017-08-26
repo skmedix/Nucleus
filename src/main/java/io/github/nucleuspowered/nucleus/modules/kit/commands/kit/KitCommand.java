@@ -5,7 +5,11 @@
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
 import com.google.common.collect.Maps;
+import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
+import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.EconHelper;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
@@ -14,6 +18,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoCost;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -33,8 +38,6 @@ import javax.inject.Inject;
 
 /**
  * Allows a user to redeem a kit.
- *
- * Command Usage: /kit Permission: plugin.kit.base
  */
 @Permissions(suggestedLevel = SuggestedLevel.ADMIN)
 @RegisterCommand("kit")
@@ -42,17 +45,20 @@ import javax.inject.Inject;
 @NoCost // This is determined by the kit itself.
 @NonnullByDefault
 @EssentialsEquivalent(value = "kit, kits", isExact = false, notes = "'/kit' redeems, '/kits' lists.")
-public class KitCommand extends AbstractCommand<Player> {
+public class KitCommand extends AbstractCommand<Player> implements AbstractCommand.Reloadable {
 
-    private final String kit = "kit";
+    private final String kitKey = "kit";
 
-    private final KitHandler kitConfig;
+    private final KitHandler kitHandler;
     private final KitConfigAdapter kca;
     private final EconHelper econHelper;
 
+    private boolean isDrop;
+    private boolean mustGetAll;
+
     @Inject
-    public KitCommand(KitHandler kitConfig, KitConfigAdapter kca, EconHelper econHelper) {
-        this.kitConfig = kitConfig;
+    public KitCommand(KitHandler kitHandler, KitConfigAdapter kca, EconHelper econHelper) {
+        this.kitHandler = kitHandler;
         this.kca = kca;
         this.econHelper = econHelper;
     }
@@ -60,7 +66,7 @@ public class KitCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(kit), true))
+            GenericArguments.onlyOne(new KitArgument(Text.of(kitKey), true))
         };
     }
 
@@ -82,12 +88,10 @@ public class KitCommand extends AbstractCommand<Player> {
     }
 
     @Override
-    public CommandResult executeCommand(Player player, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(kit).get();
-        Kit kit = kitInfo.kit;
-        String kitName = kitInfo.name;
+    public CommandResult executeCommand(Player player, CommandContext args) throws ReturnMessageException {
+        Kit kit = args.<Kit>getOne(this.kitKey).get();
 
-        double cost = kitInfo.kit.getCost();
+        double cost = kit.getCost();
         if (permissions.testCostExempt(player)) {
             // If exempt - no cost.
             cost = 0;
@@ -95,21 +99,58 @@ public class KitCommand extends AbstractCommand<Player> {
 
         // If we have a cost for the kit, check we have funds.
         if (cost > 0 && !econHelper.hasBalance(player, cost)) {
-            player.sendMessage(plugin.getMessageProvider()
-                    .getTextMessageWithFormat("command.kit.notenough", kitName, econHelper.getCurrencySymbol(cost)));
-            return CommandResult.empty();
+            throw ReturnMessageException.fromKey("command.kit.notenough", kit.getName(), econHelper.getCurrencySymbol(cost));
         }
 
-        boolean success = kitConfig.redeemKit(kit, kitName, player, player, true);
-        if (success) {
+        try {
+            NucleusKitService.RedeemResult redeemResult =
+                    this.kitHandler.redeemKit(kit, player, true, this.mustGetAll);
+            if (!redeemResult.rejected().isEmpty()) {
+                // If we drop them, tell the user
+                if (this.isDrop) {
+                    player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.itemsdropped"));
+                    redeemResult.rejected().forEach(x -> Util.dropItemOnFloorAtLocation(x, player.getLocation()));
+                } else {
+                    player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.fullinventory"));
+                }
+            }
+
+            if (kit.isDisplayMessageOnRedeem()) {
+                player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.spawned", kit.getName()));
+            }
+
             // Charge, if necessary
             if (cost > 0 && econHelper.economyServiceExists()) {
                 econHelper.withdrawFromPlayer(player, cost);
             }
 
             return CommandResult.success();
+        } catch (KitRedeemException ex) {
+            switch (ex.getReason()) {
+                case ALREADY_REDEEMED:
+                    throw ReturnMessageException.fromKey("command.kit.onetime.alreadyredeemed", kit.getName());
+                case COOLDOWN_NOT_EXPIRED:
+                    KitRedeemException.Cooldown kre = (KitRedeemException.Cooldown) ex;
+                    throw ReturnMessageException.fromKey("command.kit.cooldown",
+                            Util.getTimeStringFromSeconds(kre.getTimeLeft().getSeconds()), kit.getName());
+                case PRE_EVENT_CANCELLED:
+                    KitRedeemException.PreCancelled krepe = (KitRedeemException.PreCancelled) ex;
+                    throw new ReturnMessageException(krepe.getCancelMessage()
+                            .orElseGet(() -> (Nucleus.getNucleus()
+                                    .getMessageProvider().getTextMessageWithFormat("command.kit.cancelledpre", kit.getName()))));
+                case NO_SPACE:
+                    throw ReturnMessageException.fromKey("command.kit.fullinventorynosave", kit.getName());
+                case UNKNOWN:
+                default:
+                    throw ReturnMessageException.fromKey("command.kit.fail", kit.getName());
+            }
         }
 
-        return CommandResult.empty();
+    }
+
+    @Override
+    public void onReload() {
+        this.isDrop = kca.getNodeOrDefault().isDropKitIfFull();
+        this.mustGetAll = kca.getNodeOrDefault().isMustGetAll();
     }
 }

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -48,15 +49,15 @@ public class KitRedeemMessageCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(kit).get();
         boolean b = args.<Boolean>getOne(toggle).get();
 
         // This Kit is a reference back to the version in list, so we don't need
         // to update it explicitly
-        kitInfo.kit.setDisplayMessageOnRedeem(b);
-        handler.saveKit(kitInfo.name, kitInfo.kit);
+        kitInfo.setDisplayMessageOnRedeem(b);
+        handler.saveKit(kitInfo);
         player.sendMessage(plugin.getMessageProvider()
-                .getTextMessageWithFormat(b ? "command.kit.displaymessage.on" : "command.kit.displaymessage.off", kitInfo.name));
+                .getTextMessageWithFormat(b ? "command.kit.displaymessage.on" : "command.kit.displaymessage.off", kitInfo.getName()));
 
         return CommandResult.success();
     }

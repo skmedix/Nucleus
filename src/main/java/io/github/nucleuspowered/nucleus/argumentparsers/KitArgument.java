@@ -20,7 +20,6 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.text.Text;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -48,17 +47,14 @@ public class KitArgument extends CommandElement {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.kit.noname"));
         }
 
-        Optional<Kit> kit = kitHandler.getKit(kitName);
+        Kit kit = kitHandler.getKit(kitName)
+                .orElseThrow(() -> args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.kit.noexist")));
 
-        if (!kit.isPresent()) {
-            throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.kit.noexist"));
-        }
-
-        if (!checkPermission(source, kitName, kit.get())) {
+        if (!checkPermission(source, kit)) {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.kit.noperms"));
         }
 
-        return new KitInfo(kit.get(), kitName);
+        return kit;
     }
 
     @Override
@@ -66,34 +62,26 @@ public class KitArgument extends CommandElement {
         try {
             final boolean showhidden = src.hasPermission(showhiddenperm);
             String name = args.peek().toLowerCase();
-            return this.kitHandler.getKits().entrySet().stream()
-                    .filter(s -> s.getKey().toLowerCase().startsWith(name))
-                    .filter(x -> checkPermission(src, x.getKey(), x.getValue()))
-                    .filter(x -> this.permissionCheck && (showhidden || !x.getValue().isHiddenFromList()))
-                    .map(x -> x.getKey().toLowerCase())
+            return this.kitHandler.getKitNames().stream()
+                    .filter(s -> s.toLowerCase().startsWith(name))
+                    .map(x -> this.kitHandler.getKit(x).get())
+                    .filter(x -> checkPermission(src, x))
+                    .filter(x -> this.permissionCheck && (showhidden || !x.isHiddenFromList()))
+                    .map(x -> x.getName().toLowerCase())
                     .collect(Collectors.toList());
         } catch (ArgumentParseException e) {
             return Lists.newArrayList();
         }
     }
 
-    private boolean checkPermission(CommandSource src, String name, Kit kit) {
+    private boolean checkPermission(CommandSource src, Kit kit) {
         if (!this.permissionCheck ||
                 !this.config.getNodeOrDefault().isSeparatePermissions() || kit.ignoresPermission()) {
             return true;
         }
 
         // No permissions, no entry!
-        return src.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + name.toLowerCase());
+        return src.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + kit.getName().toLowerCase());
     }
 
-    public final class KitInfo {
-        public final Kit kit;
-        public final String name;
-
-        public KitInfo(Kit kit, String name) {
-            this.kit = kit;
-            this.name = name;
-        }
-    }
 }

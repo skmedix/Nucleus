@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -49,9 +50,9 @@ public class KitRemoveCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitName = args.<KitArgument.KitInfo>getOne(kit).get();
-        kitConfig.removeKit(kitName.name);
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.remove.success", kitName.name));
+        Kit kitName = args.<Kit>getOne(kit).get();
+        kitConfig.removeKit(kitName.getName());
+        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.remove.success", kitName.getName()));
         return CommandResult.success();
     }
 }

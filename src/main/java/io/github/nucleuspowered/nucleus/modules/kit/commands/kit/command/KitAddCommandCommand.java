@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -47,12 +48,12 @@ public class KitAddCommandCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(key).get();
+        Kit kitInfo = args.<Kit>getOne(key).get();
         String c = args.<String>getOne(command).get().replace(" {player} ", " {{player}} ");
-        kitInfo.kit.addCommand(c);
-        handler.saveKit(kitInfo.name, kitInfo.kit);
+        kitInfo.addCommand(c);
+        handler.saveKit(kitInfo);
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.add.command", c, kitInfo.name));
+        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.add.command", c, kitInfo.getName()));
         return CommandResult.success();
     }
 }

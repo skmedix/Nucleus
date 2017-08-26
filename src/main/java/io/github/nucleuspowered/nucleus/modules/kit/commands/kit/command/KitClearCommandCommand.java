@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -30,7 +31,6 @@ import javax.inject.Inject;
 public class KitClearCommandCommand extends AbstractCommand<CommandSource> {
 
     private final String key = "kit";
-    private final String command = "command";
 
     private final KitHandler handler;
 
@@ -46,11 +46,11 @@ public class KitClearCommandCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(key).get();
-        kitInfo.kit.setCommands(Lists.newArrayList());
-        handler.saveKit(kitInfo.name, kitInfo.kit);
+        Kit kitInfo = args.<Kit>getOne(key).get();
+        kitInfo.setCommands(Lists.newArrayList());
+        handler.saveKit(kitInfo);
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.clear.command", kitInfo.name));
+        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.clear.command", kitInfo.getName()));
         return CommandResult.success();
     }
 }

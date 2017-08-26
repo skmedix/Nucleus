@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -23,59 +24,68 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.Tuple;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 @Permissions(prefix = "kit", suggestedLevel = SuggestedLevel.ADMIN)
-@RegisterCommand(value = {"edit", "ed"}, subcommandOf = KitCommand.class)
+@RegisterCommand(value = {"view"}, subcommandOf = KitCommand.class)
 @NoModifiers
 @NonnullByDefault
-@Since(spongeApiVersion = "5.0", minecraftVersion = "1.10.2", nucleusVersion = "0.13")
-public class KitEditCommand extends AbstractCommand<Player> {
+@Since(spongeApiVersion = "7.0", minecraftVersion = "1.12.1", nucleusVersion = "1.2")
+public class KitViewCommand extends AbstractCommand<Player> implements AbstractCommand.Reloadable {
 
+    private final KitConfigAdapter kitConfigAdapter;
     private final KitHandler kitHandler;
     private final String kitKey = "kit";
+    private boolean processTokens = false;
 
     @Inject
-    public KitEditCommand(KitHandler kitHandler) {
+    public KitViewCommand(KitHandler kitHandler, KitConfigAdapter kca) {
         this.kitHandler = kitHandler;
+        this.kitConfigAdapter = kca;
     }
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(kitKey), false))
+                GenericArguments.onlyOne(new KitArgument(Text.of(this.kitKey), true))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        final Kit kitInfo = args.<Kit>getOne(kitKey).get();
-
-        if (kitHandler.isOpen(kitInfo.getName())) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.current", kitInfo.getName()));
-        }
+        final Kit kitInfo = args.<Kit>getOne(this.kitKey).get();
 
         Inventory inventory = Util.getKitInventoryBuilder()
-            .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(plugin.getMessageProvider()
-                    .getTextMessageWithFormat("command.kit.edit.title", kitInfo.getName())))
-            .build(plugin);
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(plugin.getMessageProvider()
+                        .getTextMessageWithFormat("command.kit.view.title", kitInfo.getName())))
+                .build(this.plugin);
 
-        kitInfo.getStacks().stream().filter(x -> !x.getType().equals(ItemTypes.NONE)).forEach(x -> inventory.offer(x.createStack()));
-        Optional<Container> openedInventory = src.openInventory(inventory, Cause.of(NamedCause.owner(plugin), NamedCause.source(src)));
-
-        if (openedInventory.isPresent()) {
-            kitHandler.addKitInventoryToListener(Tuple.of(kitInfo, inventory), openedInventory.get());
-            return CommandResult.success();
+        List<ItemStack> lis = kitInfo.getStacks().stream().filter(x -> !x.getType().equals(ItemTypes.NONE)).map(ItemStackSnapshot::createStack)
+                .collect(Collectors.toList());
+        if (this.processTokens) {
+            this.kitHandler.processTokensInItemStacks(src, lis);
         }
 
-        throw ReturnMessageException.fromKey("command.kit.edit.cantopen", kitInfo.getName());
+        lis.forEach(inventory::offer);
+        return src.openInventory(inventory, Cause.of(NamedCause.owner(this.plugin), NamedCause.source(src)))
+            .map(x -> {
+                kitHandler.addViewer(x);
+                return CommandResult.success();
+            })
+            .orElseThrow(() -> ReturnMessageException.fromKey("command.kit.view.cantopen", kitInfo.getName()));
+    }
+
+    @Override
+    public void onReload() {
+        this.processTokens = this.kitConfigAdapter.getNodeOrDefault().isProcessTokens();
     }
 }

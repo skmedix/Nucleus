@@ -23,14 +23,12 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
     public static class Redeem extends KitEvent implements NucleusKitEvent.Redeem {
 
         private final Cause cause;
-        private final String name;
         private final Kit kit;
         @Nullable private final Instant lastTime;
         private final Player targetPlayer;
 
-        public Redeem(Cause cause, @Nullable Instant lastTime, String name, Kit kit, Player targetPlayer) {
+        public Redeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer) {
             this.cause = cause;
-            this.name = name;
             this.kit = kit;
             this.targetPlayer = targetPlayer;
             this.lastTime = lastTime;
@@ -41,7 +39,7 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         }
 
         @Override public String getName() {
-            return this.name;
+            return this.kit.getName();
         }
 
         @Override public Kit getRedeemedKit() {
@@ -62,8 +60,8 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         @Nullable private Text cancelMessage = null;
         private boolean isCancelled;
 
-        public PreRedeem(Cause cause, @Nullable Instant lastTime, String name, Kit kit, Player targetPlayer) {
-            super(cause, lastTime, name, kit, targetPlayer);
+        public PreRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer) {
+            super(cause, lastTime, kit, targetPlayer);
         }
 
         @Override public boolean isCancelled() {
@@ -85,15 +83,15 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
 
     public static class PostRedeem extends Redeem implements NucleusKitEvent.Redeem.Post {
 
-        public PostRedeem(Cause cause, @Nullable Instant lastTime, String name, Kit kit, Player targetPlayer) {
-            super(cause, lastTime, name, kit, targetPlayer);
+        public PostRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer) {
+            super(cause, lastTime, kit, targetPlayer);
         }
     }
 
     public static class FailedRedeem extends Redeem implements NucleusKitEvent.Redeem.Failed {
 
-        public FailedRedeem(Cause cause, @Nullable Instant lastTime, String name, Kit kit, Player targetPlayer) {
-            super(cause, lastTime, name, kit, targetPlayer);
+        public FailedRedeem(Cause cause, @Nullable Instant lastTime, Kit kit, Player targetPlayer) {
+            super(cause, lastTime, kit, targetPlayer);
         }
     }
 }

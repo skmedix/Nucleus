@@ -8,6 +8,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
@@ -49,12 +50,11 @@ public class KitAddCommand extends AbstractCommand<Player> {
         String kitName = args.<String>getOne(name).get();
 
         if (kitConfig.getKitNames().stream().noneMatch(kitName::equalsIgnoreCase)) {
-            kitConfig.saveKit(kitName, kitConfig.createKit().updateKitInventory(player));
+            kitConfig.saveKit(kitConfig.createKit(kitName).updateKitInventory(player));
             player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.success", kitName));
             return CommandResult.success();
         } else {
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", kitName));
-            return CommandResult.empty();
+            throw ReturnMessageException.fromKey("command.kit.add.alreadyexists", kitName);
         }
     }
 }
