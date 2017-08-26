@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -53,12 +54,13 @@ public class KitSetCooldownCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(kit).get();
         long seconds = args.<Long>getOne(duration).get();
 
-        kitInfo.kit.setInterval(Duration.ofSeconds(seconds));
-        kitHandler.saveKit(kitInfo.name, kitInfo.kit);
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.setcooldown.success", kitInfo.name, Util.getTimeStringFromSeconds(seconds)));
+        kitInfo.setCooldown(Duration.ofSeconds(seconds));
+        kitHandler.saveKit(kitInfo);
+        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.setcooldown.success",
+                kitInfo.getName(), Util.getTimeStringFromSeconds(seconds)));
         return CommandResult.success();
     }
 }

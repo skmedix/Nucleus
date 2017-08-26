@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -45,11 +46,11 @@ public class KitCommandCommand extends AbstractCommand<CommandSource> {
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // List all commands on a kit.
-        KitArgument.KitInfo kit = args.<KitArgument.KitInfo>getOne(key).get();
-        List<String> commands = kit.kit.getCommands();
+        Kit kit = args.<Kit>getOne(key).get();
+        List<String> commands = kit.getCommands();
 
         if (commands.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.nocommands", kit.name));
+            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.nocommands", kit.getName()));
         } else {
             List<Text> cc = Lists.newArrayList();
             for (int i = 0; i < commands.size(); i++) {
@@ -57,7 +58,7 @@ public class KitCommandCommand extends AbstractCommand<CommandSource> {
                 if (src.hasPermission(removePermission)) {
                     t = Text.of(
                             Text.builder().append(removeIcon)
-                                .onClick(TextActions.runCommand("/nucleus:kit command remove " + kit.name + " " + commands.get(i)))
+                                .onClick(TextActions.runCommand("/nucleus:kit command remove " + kit.getName() + " " + commands.get(i)))
                                 .onHover(TextActions.showText(
                                     plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.removehover"))).build()
                             , " ", t);
@@ -67,7 +68,7 @@ public class KitCommandCommand extends AbstractCommand<CommandSource> {
             }
 
             Util.getPaginationBuilder(src)
-                .title(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.title", kit.name))
+                .title(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.title", kit.getName()))
                 .contents(cc)
                 .sendTo(src);
         }

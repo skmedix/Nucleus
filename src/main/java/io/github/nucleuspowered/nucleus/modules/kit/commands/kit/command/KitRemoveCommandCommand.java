@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
@@ -55,8 +56,8 @@ public class KitRemoveCommandCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(key).get();
-        List<String> commands = kitInfo.kit.getCommands();
+        Kit kitInfo = args.<Kit>getOne(key).get();
+        List<String> commands = kitInfo.getCommands();
 
         String cmd;
         if (args.hasAny(index)) {
@@ -66,20 +67,20 @@ public class KitRemoveCommandCommand extends AbstractCommand<CommandSource> {
             }
 
             if (idx > commands.size()) {
-                throw ReturnMessageException.fromKey("command.kit.command.remove.overidx", String.valueOf(commands.size()), kitInfo.name);
+                throw ReturnMessageException.fromKey("command.kit.command.remove.overidx", String.valueOf(commands.size()), kitInfo.getName());
             }
 
             cmd = commands.remove(idx - 1);
         } else {
             cmd = args.<String>getOne(command).get().replace(" {player} ", " {{player}} ");
             if (!commands.remove(cmd)) {
-                throw ReturnMessageException.fromKey("command.kit.command.remove.noexist", cmd, kitInfo.name);
+                throw ReturnMessageException.fromKey("command.kit.command.remove.noexist", cmd, kitInfo.getName());
             }
         }
 
-        kitInfo.kit.setCommands(commands);
-        handler.saveKit(kitInfo.name, kitInfo.kit);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.remove.success", cmd, kitInfo.name));
+        kitInfo.setCommands(commands);
+        handler.saveKit(kitInfo);
+        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.remove.success", cmd, kitInfo.getName()));
         return CommandResult.success();
     }
 }

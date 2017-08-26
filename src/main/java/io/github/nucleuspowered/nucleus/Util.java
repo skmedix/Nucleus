@@ -4,15 +4,12 @@
  */
 package io.github.nucleuspowered.nucleus;
 
-import com.flowpowered.math.TrigMath;
 import com.flowpowered.math.vector.Vector3d;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.internal.data.EndTimestamp;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
-import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.util.Action;
 import io.github.nucleuspowered.nucleus.util.PaginationBuilderWrapper;
 import io.github.nucleuspowered.nucleus.util.ThrownFunction;
@@ -31,7 +28,6 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
@@ -39,7 +35,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
-import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.item.inventory.type.GridInventory;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.pagination.PaginationList;
@@ -49,10 +44,8 @@ import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextRepresentable;
 import org.spongepowered.api.text.TextTemplate;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.translation.Translatable;
 import org.spongepowered.api.util.Identifiable;
-import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -77,7 +70,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -100,8 +92,6 @@ public class Util {
 
     public static final UUID consoleFakeUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-    private static final Pattern inventory = Pattern.compile("\\{\\{.+?}}");
-
     public static Inventory getStandardInventory(Carrier player) {
         return player.getInventory().query(Hotbar.class, GridInventory.class);
     }
@@ -116,73 +106,6 @@ public class Util {
                 MessageEvent.PARAM_MESSAGE_HEADER, header,
                 MessageEvent.PARAM_MESSAGE_BODY, body,
                 MessageEvent.PARAM_MESSAGE_FOOTER, footer)).build();
-    }
-
-    /**
-     * Adds items to a {@link Player}s {@link Inventory}
-     * @param player The {@link Player}
-     * @param itemStacks The {@link ItemStackSnapshot}s to add.
-     * @param dropRejected If true, drop items that are rejected from the inventory.
-     * @param replaceTokensInLore If true, the display name
-     * @return {@link Tristate#TRUE} if everything is successful, {@link Tristate#FALSE} if nothing was added, {@link Tristate#UNDEFINED}
-     * if some stacks were added.
-     */
-    public static Tristate addToStandardInventory(Player player, Collection<ItemStackSnapshot> itemStacks, boolean dropRejected, boolean replaceTokensInLore) {
-        Tristate ts = Tristate.FALSE;
-        Inventory target = Util.getStandardInventory(player);
-        boolean dropItems = false;
-        final Matcher m = inventory.matcher("");
-        for (ItemStackSnapshot stack : itemStacks) {
-            if (dropItems) {
-                Util.dropItemOnFloorAtLocation(stack, player.getWorld(), player.getLocation().getPosition());
-            } else {
-
-                // Ignore anything that is NONE
-                if (stack.getType() != ItemTypes.NONE) {
-                    ItemStack itemStack = stack.createStack();
-
-                    if (replaceTokensInLore) {
-                        itemStack.get(Keys.DISPLAY_NAME).ifPresent(x -> {
-                            if (m.reset(x.toPlain()).find()) {
-                                itemStack.offer(Keys.DISPLAY_NAME,
-                                    NucleusTextTemplateFactory.createFromAmpersandString(TextSerializers.FORMATTING_CODE.serialize(x))
-                                            .getForCommandSource(player, null, null));
-                            }
-                        });
-
-                        itemStack.get(Keys.ITEM_LORE).ifPresent(x -> {
-                            if (x.stream().map(Text::toPlain).anyMatch(y -> m.reset(y).find())) {
-                                itemStack.offer(Keys.ITEM_LORE,
-                                        x.stream().map(y ->
-                                            NucleusTextTemplateFactory.createFromAmpersandString(TextSerializers.FORMATTING_CODE.serialize(y))
-                                        .getForCommandSource(player, null, null)).collect(Collectors.toList()));
-                            }
-                        });
-                    }
-
-                    // Give them the kit.
-                    InventoryTransactionResult itr = target.offer(itemStack);
-
-                    // If some items were rejected...
-                    if (!itr.getRejectedItems().isEmpty()) {
-                        // ...tell the user and break out.
-                        if (dropRejected) {
-                            dropItems = true;
-                            itr.getRejectedItems()
-                                .forEach(x -> Util.dropItemOnFloorAtLocation(x, player.getWorld(), player.getLocation().getPosition()));
-                        } else {
-                            return ts;
-                        }
-                    }
-
-                    if (!dropItems) {
-                        ts = Tristate.UNDEFINED;
-                    }
-                }
-            }
-        }
-
-        return dropItems ? ts : Tristate.TRUE;
     }
 
     public static UUID getUUID(CommandSource src) {
@@ -450,8 +373,18 @@ public class Util {
      * @return An {@link Optional}, which contains the key if it exists.
      */
     public static Optional<String> getKeyIgnoreCase(Map<String, ?> map, String key) {
-        return map.entrySet().stream().filter(x -> x.getKey().equalsIgnoreCase(key))
-                .map(Map.Entry::getKey).findFirst();
+        return getKeyIgnoreCase(map.keySet(), key);
+    }
+
+    /**
+     * Gets a key from a map based on a case insensitive key.
+     *
+     * @param collection The {@link Collection} to check.
+     * @param key The {@link String} key.
+     * @return An {@link Optional}, which contains the key if it exists.
+     */
+    public static Optional<String> getKeyIgnoreCase(Collection<String> collection, String key) {
+        return collection.stream().filter(x -> x.equalsIgnoreCase(key)).findFirst();
     }
 
     /**
@@ -563,10 +496,15 @@ public class Util {
         return is.getItem();
     }
 
-    public static void dropItemOnFloorAtLocation(ItemStackSnapshot itemStackSnapshotToDrop, World world, Vector3d position) {
+    public static ItemStack dropItemOnFloorAtLocation(ItemStackSnapshot itemStackSnapshotToDrop, Location<World> location) {
+        return dropItemOnFloorAtLocation(itemStackSnapshotToDrop, location.getExtent(), location.getPosition());
+    }
+
+    public static ItemStack dropItemOnFloorAtLocation(ItemStackSnapshot itemStackSnapshotToDrop, World world, Vector3d position) {
         Entity entityToDrop = world.createEntity(EntityTypes.ITEM, position);
         entityToDrop.offer(Keys.REPRESENTED_ITEM, itemStackSnapshotToDrop);
         world.spawnEntity(entityToDrop, Cause.of(NamedCause.owner(Nucleus.getNucleus())));
+        return itemStackSnapshotToDrop.createStack();
     }
 
 }

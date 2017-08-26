@@ -25,6 +25,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.World;
@@ -39,6 +40,7 @@ import java.util.Optional;
 @Permissions
 @RegisterCommand({"blockinfo"})
 @RunAsync
+@NonnullByDefault
 public class BlockInfoCommand extends AbstractCommand<Player> {
 
     @Override

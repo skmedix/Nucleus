@@ -56,7 +56,7 @@ public class KitCreateCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(final CommandSource source, CommandContext args) throws Exception {
+    public CommandResult executeCommand(final CommandSource source, CommandContext args) throws ReturnMessageException {
         String kitName = args.<String>getOne(name).get();
 
         if (kitConfig.getKitNames().stream().anyMatch(kitName::equalsIgnoreCase)) {
@@ -71,11 +71,15 @@ public class KitCreateCommand extends AbstractCommand<CommandSource> {
                     .build(plugin);
             Container container = player.openInventory(inventory, Cause.of(NamedCause.owner(plugin), NamedCause.source(player)))
                     .orElseThrow(
-                            () -> new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.create.notcreated")));
+                            () -> ReturnMessageException.fromKey("command.kit.create.notcreated"));
             Sponge.getEventManager().registerListeners(plugin, new TemporaryEventListener(inventory, container, kitName));
         } else {
-            kitConfig.saveKit(kitName, kitConfig.createKit());
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.addempty.success", kitName));
+            try {
+                kitConfig.saveKit(kitConfig.createKit(kitName));
+                source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.addempty.success", kitName));
+            } catch (IllegalArgumentException ex) {
+                throw ReturnMessageException.fromKey("command.kit.create.failed", kitName);
+            }
         }
 
         return CommandResult.success();
@@ -101,7 +105,7 @@ public class KitCreateCommand extends AbstractCommand<CommandSource> {
                 Sponge.getEventManager().unregisterListeners(this);
 
                 if (kitConfig.getKitNames().stream().noneMatch(kitName::equalsIgnoreCase)) {
-                    kitConfig.saveKit(kitName, kitConfig.createKit().updateKitInventory(this.inventory));
+                    kitConfig.saveKit(kitConfig.createKit(kitName).updateKitInventory(this.inventory));
                     player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.success", this.kitName));
                 } else {
                     player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", this.kitName));

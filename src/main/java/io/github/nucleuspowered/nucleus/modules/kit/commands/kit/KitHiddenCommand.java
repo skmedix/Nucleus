@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -49,15 +50,14 @@ public class KitHiddenCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(kit).get();
         boolean b = args.<Boolean>getOne(toggle).get();
 
         // This Kit is a reference back to the version in list, so we don't need
         // to update it explicitly
-        kitInfo.kit.setHiddenFromList(b);
-        kitConfig.saveKit(kitInfo.name, kitInfo.kit);
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(b ? "command.kit.hidden.off" : "command.kit.hidden.on", kitInfo
-                .name));
+        kitInfo.setHiddenFromList(b);
+        kitConfig.saveKit(kitInfo);
+        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(b ? "command.kit.hidden.off" : "command.kit.hidden.on", kitInfo.getName()));
 
         return CommandResult.success();
     }

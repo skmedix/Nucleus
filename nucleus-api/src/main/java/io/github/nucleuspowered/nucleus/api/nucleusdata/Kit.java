@@ -4,17 +4,34 @@
  */
 package io.github.nucleuspowered.nucleus.api.nucleusdata;
 
+import io.github.nucleuspowered.nucleus.api.NucleusAPI;
+import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
+import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a kit in Nucleus.
+ *
+ * <p>Note that this kit requires explicit saving, see {@link #save()}</p>
  */
+@NonnullByDefault
 public interface Kit {
+
+    /**
+     * Gets the name of the kit.
+     *
+     * @return The name
+     */
+    String getName();
 
     /**
      * Gets the stacks that would be given out by this kit.
@@ -31,20 +48,45 @@ public interface Kit {
      */
     Kit setStacks(List<ItemStackSnapshot> stacks);
 
+
+    /**
+     * Gets the cooldown time for the kit, or {@link Duration#ZERO}
+     * if there is no cooldown.
+     *
+     * @return The {@link Duration}
+     * @deprecated Use {@link #getCooldown()}
+     */
+    @Deprecated
+    default Duration getInterval() {
+        return getCooldown().orElse(Duration.ZERO);
+    }
+
     /**
      * Gets the cooldown time for the kit.
      *
      * @return The {@link Duration}
      */
-    Duration getInterval();
+    Optional<Duration> getCooldown();
 
     /**
      * Sets the cooldown time for the kit.
      *
      * @param interval The time the user has to wait before claiming the kit again.
      * @return This {@link Kit}, for chaining.
+     * @deprecated Use {@link #setCooldown(Duration)} instead.
      */
-    Kit setInterval(Duration interval);
+    @Deprecated
+    default Kit setInterval(Duration interval) {
+        return setCooldown(interval);
+    }
+
+    /**
+     * Sets the cooldown time for the kit.
+     *
+     * @param cooldown The time the user has to wait before claiming the kit again.
+     * @return This {@link Kit}, for chaining.
+     */
+    Kit setCooldown(Duration cooldown);
 
     /**
      * The cost for claiming the kit.
@@ -135,9 +177,34 @@ public interface Kit {
     Kit updateKitInventory(Player player);
 
     /**
-     * Redeems the commands in this kit for the specified player.
+     * Obtains a collection of items that a player would obtain when redeeming the kit.
      *
-     * @param player The player.
+     * @see NucleusKitService#getItemsForPlayer(Kit, Player)
+     *
+     * @param player The player
+     * @return The items
+     */
+    default Collection<ItemStack> getItemsForPlayer(Player player) {
+        return NucleusAPI.getKitService().orElseThrow(() -> new IllegalStateException("No Kit module")).getItemsForPlayer(this, player);
+    }
+
+    /**
+     * Attempts to redeem this kit, saving it beforehand.
+     *
+     * @param player The player to redeem the kit for
+     * @return The result
+     * @throws KitRedeemException If the kit was not redeemed.
+     */
+    default NucleusKitService.RedeemResult redeem(Player player) throws KitRedeemException {
+        save();
+        NucleusKitService kitService = NucleusAPI.getKitService().orElseThrow(() -> new IllegalStateException("No Kit module"));
+        return kitService.redeemKit(this, player, true);
+    }
+
+    /**
+     * Redeems the commands in the kit, without redeeming the items.
+     *
+     * @param player The {@link Player} that should redeem the commands.
      */
     void redeemKitCommands(Player player);
 
@@ -209,4 +276,14 @@ public interface Kit {
      * @return This {@link Kit}, for chaining.
      */
     Kit setFirstJoinKit(boolean firstJoinKit);
+
+    /**
+     * Saves this current kit's state.
+     *
+     * @throws IllegalStateException if the kit module isn't active.
+     */
+    default void save() {
+        NucleusAPI.getKitService().orElseThrow(() -> new IllegalStateException("No Kit module")).saveKit(this);
+    }
+
 }

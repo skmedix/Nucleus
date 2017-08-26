@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -49,10 +50,10 @@ public class KitSetCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandResult executeCommand(final Player player, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(kit).get();
-        kitInfo.kit.updateKitInventory(player);
-        kitConfig.saveKit(kitInfo.name, kitInfo.kit);
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.set.success", kitInfo.name));
+        Kit kitInfo = args.<Kit>getOne(kit).get();
+        kitInfo.updateKitInventory(player);
+        kitConfig.saveKit(kitInfo);
+        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.set.success", kitInfo.getName()));
         return CommandResult.success();
     }
 }

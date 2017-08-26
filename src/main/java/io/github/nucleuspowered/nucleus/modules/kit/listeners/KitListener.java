@@ -5,14 +5,14 @@
 package io.github.nucleuspowered.nucleus.modules.kit.listeners;
 
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
+import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.dataservices.KitService;
 import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
-import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
-import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
@@ -42,22 +42,32 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 @SuppressWarnings("ALL")
-public class KitListener extends ListenerBase {
+public class KitListener extends ListenerBase.Reloadable {
 
-    @Inject private UserDataManager loader;
-    @Inject private CoreConfigAdapter coreConfigAdapter;
-    @Inject private KitHandler handler;
-    @Inject private KitService gds;
-    @Inject private KitConfigAdapter kca;
+    private final UserDataManager loader;
+    private final KitHandler handler;
+    private final KitService gds;
+    private final KitConfigAdapter kca;
+
+    private boolean mustGetAll;
+
+    @Inject
+    public KitListener(UserDataManager loader, KitHandler handler, KitService gds,
+            KitConfigAdapter kca) {
+        this.loader = loader;
+        this.handler = handler;
+        this.gds = gds;
+        this.kca = kca;
+    }
 
     @Listener
     public void onPlayerFirstJoin(NucleusFirstJoinEvent event, @Getter("getTargetEntity") Player player) {
         loader.get(player).ifPresent(p -> {
-            gds.getKits().entrySet().stream().filter(x -> x.getValue().isFirstJoinKit())
+            gds.getFirstJoinKits().stream().filter(x -> x.isFirstJoinKit())
                 .forEach(kit -> {
                     try {
-                        handler.redeemKit(kit.getValue(), kit.getKey(), player, player, false, true);
-                    } catch (ReturnMessageException e) {
+                        handler.redeemKit(kit, player, false, true);
+                    } catch (KitRedeemException e) {
                         // ignored
                     }
                 });
@@ -68,18 +78,15 @@ public class KitListener extends ListenerBase {
     public void onPlayerJoin(ClientConnectionEvent.Join event, @Root Player player) {
         loader.get(player).ifPresent(p -> {
             KitUserDataModule user = loader.get(player.getUniqueId()).get().get(KitUserDataModule.class);
-            gds.getKits().entrySet().stream()
-                .filter(k -> k.getValue().isAutoRedeem())
-                .filter(k -> k.getValue().getCost() <= 0)
-                .filter(k ->
-                    k.getValue().ignoresPermission() ||
+            gds.getAutoRedeemable().stream()
+                .filter(k -> k.ignoresPermission() ||
                         (!kca.getNodeOrDefault().isSeparatePermissions() &&
-                        !player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getKey().toLowerCase())))
+                        !player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getName().toLowerCase())))
                 .forEach(k -> {
                     try {
-                        handler.redeemKit(k.getValue(), k.getKey(), player, player, true);
-                    } catch (ReturnMessageException e) {
-                        player.sendMessage(e.getText());
+                        handler.redeemKit(k, player, true, this.mustGetAll);
+                    } catch (KitRedeemException e) {
+                        // player.sendMessage(e.getText());
                     }
                 });
         });
@@ -90,21 +97,26 @@ public class KitListener extends ListenerBase {
     public void onPlayerInteractInventory(final InteractInventoryEvent event, @Root final Player player, @Getter("getTargetInventory") final Container inventory) {
         handler.getCurrentlyOpenInventoryKit(inventory).ifPresent(x -> {
             try {
-                x.getFirst().kit.updateKitInventory(x.getSecond());
+                x.getFirst().updateKitInventory(x.getSecond());
+                handler.saveKit(x.getFirst());
 
                 if (event instanceof InteractInventoryEvent.Close) {
                     gds.save();
-                    player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.success", x.getFirst().name));
+                    player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.success", x.getFirst().getName()));
                     handler.removeKitInventoryFromListener(inventory);
                 }
             } catch (Exception e) {
-                if (coreConfigAdapter.getNodeOrDefault().isDebugmode()) {
+                if (Nucleus.getNucleus().isDebugMode()) {
                     e.printStackTrace();
                 }
 
-                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.error", x.getFirst().name));
+                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.error", x.getFirst().getName()));
             }
         });
+
+        if (handler.isViewer(inventory)) {
+            event.setCancelled(true);
+        }
     }
 
     @Listener
@@ -112,7 +124,7 @@ public class KitListener extends ListenerBase {
             @Getter("getTargetInventory") final Container inventory) {
         handler.getCurrentlyOpenInventoryCommandKit(inventory).ifPresent(x -> {
             // Set the commands.
-            KitArgument.KitInfo kitInfo = x.getFirst();
+            Kit kitInfo = x.getFirst();
             List<String> c = Lists.newArrayList();
 
             // For each slot, is it a written book?
@@ -132,13 +144,15 @@ public class KitListener extends ListenerBase {
                     });
                 }
 
-                kitInfo.kit.setCommands(c);
-                handler.saveKit(kitInfo.name, kitInfo.kit);
+                kitInfo.setCommands(c);
+                handler.saveKit(kitInfo);
             }));
 
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.edit.success", kitInfo.name));
+            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.edit.success", kitInfo.getName()));
             handler.removeKitCommandInventoryFromListener(inventory);
         });
+
+        handler.removeViewer(inventory);
     }
 
     private String fixup(List<Text> texts) {
@@ -171,5 +185,9 @@ public class KitListener extends ListenerBase {
         }
 
         return builder.toString();
+    }
+
+    @Override public void onReload() throws Exception {
+        this.mustGetAll = kca.getNodeOrDefault().isMustGetAll();
     }
 }

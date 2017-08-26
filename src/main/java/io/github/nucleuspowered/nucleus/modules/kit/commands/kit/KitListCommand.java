@@ -10,7 +10,6 @@ import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
-import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -79,11 +78,10 @@ public class KitListCommand extends StandardAbstractCommand<CommandSource> {
 
         // Only show kits that the user has permission for, if needed. This is the permission "plugin.kits.<kit>".
         final boolean showHidden = kitPermissionHandler.testSuffix(src, "showhidden");
-        kitConfig.getKits().entrySet().stream()
-            .filter(x -> showHidden || !x.getValue().isHiddenFromList())
+        kitConfig.getKitNames(showHidden, src).stream()
             .filter(kit -> !kca.getNodeOrDefault().isSeparatePermissions() ||
-                    src.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + kit.getKey().toLowerCase()))
-            .forEach(kit -> kitText.add(createKit(spc, user, kit.getKey(), kit.getValue())));
+                    src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())))
+            .forEach(kit -> kitText.add(createKit(spc, user, kit, kitConfig.getKit(kit).get())));
 
         PaginationList.Builder paginationBuilder = paginationService.builder().contents(kitText)
                 .title(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.list.kits")).padding(Text.of(TextColors.GREEN, "-"));
@@ -104,7 +102,7 @@ public class KitListCommand extends StandardAbstractCommand<CommandSource> {
             }
 
             // If an intervalOld is used...
-            Duration interval = kitObj.getInterval();
+            Duration interval = kitObj.getCooldown().orElse(Duration.ZERO);
             if (!interval.isZero() && !kitPermissionHandler.testCooldownExempt(source)) {
 
                 // Get the next time the kit can be used.

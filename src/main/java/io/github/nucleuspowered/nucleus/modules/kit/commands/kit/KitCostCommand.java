@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -55,16 +56,16 @@ public class KitCostCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        KitArgument.KitInfo kitInfo = args.<KitArgument.KitInfo>getOne(kitKey).get();
+        Kit kit = args.<Kit>getOne(kitKey).get();
         double cost = args.<Double>getOne(costKey).get();
 
         if (cost < 0) {
             cost = 0;
         }
 
-        kitInfo.kit.setCost(cost);
-        kitConfig.saveKit(kitInfo.name, kitInfo.kit);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.cost.success", kitInfo.name, String.valueOf(cost)));
+        kit.setCost(cost);
+        kitConfig.saveKit(kit);
+        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.cost.success", kit.getName(), String.valueOf(cost)));
         return CommandResult.success();
     }
 }
