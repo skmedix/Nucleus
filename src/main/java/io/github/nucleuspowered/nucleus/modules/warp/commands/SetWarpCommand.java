@@ -32,7 +32,7 @@ import javax.inject.Inject;
  * Command Usage: /warp set [warp] Permission: nucleus.warp.set.base
  */
 @Permissions(prefix = "warp")
-@RegisterCommand(value = {"set"}, subcommandOf = WarpCommand.class)
+@RegisterCommand(value = {"set"}, subcommandOf = WarpCommand.class, rootAliasRegister = { "setwarp", "warpset" })
 @EssentialsEquivalent({"setwarp", "createwarp"})
 public class SetWarpCommand extends AbstractCommand<Player> {
 
