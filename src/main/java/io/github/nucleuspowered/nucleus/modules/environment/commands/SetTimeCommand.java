@@ -19,7 +19,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.storage.WorldProperties;
 
 @Permissions(prefix = "time")
-@RegisterCommand(value = "set", subcommandOf = TimeCommand.class)
+@RegisterCommand(value = "set", subcommandOf = TimeCommand.class, rootAliasRegister = { "settime", "timeset" })
 @EssentialsEquivalent(value = {"time", "day", "night"}, isExact = false, notes = "A time MUST be specified.")
 public class SetTimeCommand extends AbstractCommand<CommandSource> {
     private final String time = "time";
