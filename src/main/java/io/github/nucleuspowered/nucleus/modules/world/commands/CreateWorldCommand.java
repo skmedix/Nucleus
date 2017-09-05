@@ -24,6 +24,9 @@ import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.persistence.DataFormats;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.text.Text;
@@ -39,13 +42,23 @@ import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import org.spongepowered.api.world.storage.WorldProperties;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -54,6 +67,11 @@ import javax.inject.Inject;
 @Permissions(prefix = "world", suggestedLevel = SuggestedLevel.ADMIN)
 @RegisterCommand(value = {"create"}, subcommandOf = WorldCommand.class)
 public class CreateWorldCommand extends AbstractCommand<CommandSource> {
+
+    private final DataQuery uuidLeast = DataQuery.of("SpongeData", "UUIDLeast");
+    private final DataQuery uuidMost = DataQuery.of("SpongeData", "UUIDMost");
+    private final DataQuery levelName = DataQuery.of("Data", "LevelName");
+    private final DataQuery toId = DataQuery.of("SpongeData", "dimensionId");
 
     private final String preset = "preset";
     private final String name = "name";
@@ -108,12 +126,17 @@ public class CreateWorldCommand extends AbstractCommand<CommandSource> {
 
         // Does the world exist?
         Path worldPath = Sponge.getGame().getGameDirectory().resolve("world");
-        if (!args.hasAny("i") && Files.exists(worldPath.resolve(nameInput))) {
+        Path worldDir = worldPath.resolve(nameInput);
+        if (!args.hasAny("i") && Files.exists(worldDir)) {
             throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.import.noexist", nameInput));
         }
 
-        WorldArchetype.Builder worldSettingsBuilder = WorldArchetype.builder()
-            .enabled(true);
+        if (args.hasAny("i") && Files.exists(worldDir)) {
+            onImport(worldDir, nameInput);
+        }
+
+
+        WorldArchetype.Builder worldSettingsBuilder = WorldArchetype.builder().enabled(true);
 
         if (args.hasAny(preset)) {
             WorldArchetype preset1 = args.<WorldArchetype>getOne(preset).get();
@@ -178,6 +201,101 @@ public class CreateWorldCommand extends AbstractCommand<CommandSource> {
             return CommandResult.success();
         } else {
             throw ReturnMessageException.fromKey("command.world.create.worldfailedtoload", nameInput);
+        }
+    }
+
+    private OutputStream getOutput(boolean gzip, Path file) throws IOException {
+        OutputStream os = Files.newOutputStream(file);
+        if (gzip) {
+            return new GZIPOutputStream(os, true);
+        }
+
+        return os;
+    }
+
+    private void onImport(Path world, String name) {
+        // Get the file
+        Path level = world.resolve("level.dat");
+        Path levelSponge = world.resolve("level_sponge.dat");
+
+        if (Files.exists(level)) {
+            DataContainer dc;
+            boolean gz = false;
+            try {
+                try (InputStream is = Files.newInputStream(levelSponge, StandardOpenOption.READ)) {
+                    // Open it, get the Dimension ID
+                    dc = DataFormats.NBT.readFrom(is);
+                } catch (EOFException ex) {
+                    try (GZIPInputStream gzip = new GZIPInputStream(Files.newInputStream(levelSponge, StandardOpenOption.READ))) {
+                        dc = DataFormats.NBT.readFrom(gzip);
+                        gz = true;
+                    }
+                }
+
+                Files.copy(levelSponge, world.resolve("level.dat.nbak"), StandardCopyOption.REPLACE_EXISTING);
+                dc.set(this.levelName, name);
+                try (OutputStream os = getOutput(gz, level)) {
+                    DataFormats.NBT.writeTo(os, dc);
+                    os.flush();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Nucleus.getNucleus().getLogger().warn("Could not read the level.dat. Ignoring.");
+            }
+        }
+
+        if (Files.exists(levelSponge)) {
+            DataContainer dc;
+            boolean gz = false;
+            try {
+                try (InputStream is = Files.newInputStream(levelSponge, StandardOpenOption.READ)) {
+                    // Open it, get the Dimension ID
+                    dc = DataFormats.NBT.readFrom(is);
+                } catch (EOFException ex) {
+                    try (GZIPInputStream gzip = new GZIPInputStream(Files.newInputStream(levelSponge, StandardOpenOption.READ))) {
+                        dc = DataFormats.NBT.readFrom(gzip);
+                        gz = true;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Nucleus.getNucleus().getLogger().warn("Could not read the level_sponge.dat. Ignoring.");
+                return;
+            }
+
+            // For each world, get the dim ID.
+            Set<Integer> si = Sponge.getServer().getAllWorldProperties().stream()
+                    .map(x -> x.getAdditionalProperties().getInt(this.toId).orElse(0))
+                    .collect(Collectors.toSet());
+
+            if (!dc.getInt(this.toId).map(si::contains).orElse(false)) {
+                for (int i = 2; i < Integer.MAX_VALUE; i++) {
+                    if (!si.contains(i)) {
+                        dc.set(this.toId, i);
+                        break;
+                    }
+                }
+            }
+
+            UUID uuid = UUID.randomUUID();
+            dc.set(this.uuidLeast, uuid.getLeastSignificantBits());
+            dc.set(this.uuidMost, uuid.getMostSignificantBits());
+
+            try {
+                Files.copy(levelSponge, world.resolve("level_sponge.dat.nbak"), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Nucleus.getNucleus().getLogger().warn("Could not backup the level_sponge.dat. Ignoring.");
+                return;
+            }
+
+            try (OutputStream os = getOutput(gz, levelSponge)) {
+                DataFormats.NBT.writeTo(os, dc);
+                os.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Nucleus.getNucleus().getLogger().warn("Could not save the level_sponge.dat. Ignoring.");
+            }
         }
     }
 
