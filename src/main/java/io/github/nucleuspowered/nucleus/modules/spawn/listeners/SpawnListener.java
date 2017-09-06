@@ -77,13 +77,13 @@ public class SpawnListener extends ListenerBase.Reloadable {
                     Optional<Location<World>> location = plugin.getTeleportHandler().getSafeLocation(null, ofs.get().getLocation(), mode);
 
                     if (location.isPresent()) {
-                        loginEvent.setToTransform(new Transform<>(location.get().getExtent(), location.get().getPosition().add(0.5, 0, 0.5), ofs.get().getRotation()));
+                        loginEvent.setToTransform(new Transform<>(location.get().getExtent(), process(location.get().getPosition()), ofs.get().getRotation()));
                         return;
                     }
 
                     WorldProperties w = Sponge.getServer().getDefaultWorld().get();
                     loginEvent.setToTransform(
-                            new Transform<>(new Location<>(Sponge.getServer().getWorld(w.getUniqueId()).get(), w.getSpawnPosition().add(0.5, 0, 0.5))));
+                            new Transform<>(Sponge.getServer().getWorld(w.getUniqueId()).get(), w.getSpawnPosition().toDouble().add(0.5, 0, 0.5)));
 
                     // We don't want to boot them elsewhere.
                     return;
@@ -113,7 +113,7 @@ public class SpawnListener extends ListenerBase.Reloadable {
                     Optional<Vector3d> ov = wcl.getWorld(world.getUniqueId()).get().quickGet(SpawnWorldDataModule.class, SpawnWorldDataModule::getSpawnRotation);
                     if (ov.isPresent()) {
                         loginEvent.setToTransform(new Transform<>(safe.get().getExtent(),
-                                safe.get().getPosition().add(0.5, 0, 0.5),
+                                process(safe.get().getPosition()),
                                 ov.get()));
                         return;
                     }
@@ -121,7 +121,7 @@ public class SpawnListener extends ListenerBase.Reloadable {
                     //
                 }
 
-                loginEvent.setToTransform(new Transform<>(safe.get().add(0.5, 0, 0.5)));
+                loginEvent.setToTransform(new Transform<>(process(safe.get())));
             }
         }
     }
@@ -166,5 +166,13 @@ public class SpawnListener extends ListenerBase.Reloadable {
 
     @Override public void onReload() throws Exception {
         spawnConfig = sca.getNodeOrDefault();
+    }
+
+    private static Location<World> process(Location<World> v3d) {
+        return new Location<>(v3d.getExtent(), process(v3d.getPosition()));
+    }
+
+    private static Vector3d process(Vector3d v3d) {
+        return v3d.floor().add(0.5d, 0, 0.5d);
     }
 }
