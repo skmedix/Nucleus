@@ -12,7 +12,7 @@ plugins {
 project.ext.versionno = '1.1.3'
 project.ext.minecraftversion = '1.11.2'
 project.ext.spongeapiversion = '6.0'
-project.ext.suffix = '-LTS-SNAPSHOT'
+project.ext.suffix = '-LTS'
 
 allprojects {
     apply plugin: 'java'
