@@ -56,6 +56,9 @@ import javax.inject.Inject;
 
 public class KitHandler implements NucleusKitService {
 
+    private static final InventoryTransactionResult EMPTY_ITR =
+            InventoryTransactionResult.builder().type(InventoryTransactionResult.Type.SUCCESS).build();
+
     private static final Pattern inventory = Pattern.compile("\\{\\{.+?}}");
 
     public static String getPermissionForKit(String kitName) {
@@ -147,23 +150,26 @@ public class KitHandler implements NucleusKitService {
         List<Optional<ItemStackSnapshot>> slotList = Lists.newArrayList();
         Util.getStandardInventory(player).slots().forEach(x -> slotList.add(x.peek().map(ItemStack::createSnapshot)));
 
-        InventoryTransactionResult inventoryTransactionResult = addToStandardInventory(player, kit.getStacks(), isProcessTokens);
-        if (!isFirstJoin && inventoryTransactionResult.getType() != InventoryTransactionResult.Type.SUCCESS) {
-            if (isMustGetAll) {
-                Inventory inventory = Util.getStandardInventory(player);
+        InventoryTransactionResult inventoryTransactionResult = EMPTY_ITR;
+        if (!kit.getStacks().isEmpty()) {
+            inventoryTransactionResult = addToStandardInventory(player, kit.getStacks(), isProcessTokens);
+            if (!isFirstJoin && inventoryTransactionResult.getType() != InventoryTransactionResult.Type.SUCCESS) {
+                if (isMustGetAll) {
+                    Inventory inventory = Util.getStandardInventory(player);
 
-                // Slots
-                Iterator<Inventory> slot = inventory.slots().iterator();
+                    // Slots
+                    Iterator<Inventory> slot = inventory.slots().iterator();
 
-                // Slots to restore
-                slotList.forEach(x -> {
-                    Inventory i = slot.next();
-                    i.clear();
-                    x.ifPresent(y -> i.offer(y.createStack()));
-                });
+                    // Slots to restore
+                    slotList.forEach(x -> {
+                        Inventory i = slot.next();
+                        i.clear();
+                        x.ifPresent(y -> i.offer(y.createStack()));
+                    });
 
-                // My friend was playing No Man's Sky, I almost wrote "No free slots in suit inventory".
-                throw new KitRedeemException("No free slots in player inventory", KitRedeemException.Reason.NO_SPACE);
+                    // My friend was playing No Man's Sky, I almost wrote "No free slots in suit inventory".
+                    throw new KitRedeemException("No free slots in player inventory", KitRedeemException.Reason.NO_SPACE);
+                }
             }
         }
 
