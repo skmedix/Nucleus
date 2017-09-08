@@ -10,6 +10,7 @@ plugins {
 }
 
 project.ext.versionno = '1.1.3'
+project.ext.minecraftversion = '1.11.2'
 project.ext.spongeapiversion = '6.0'
 project.ext.suffix = '-LTS-SNAPSHOT'
 
@@ -155,7 +156,7 @@ shadowJar {
     }
 
     exclude "io/github/nucleuspowered/nucleus/api/NucleusAPIMod.class"
-    archiveName = "Nucleus-${version}-plugin.jar"
+    archiveName = "Nucleus-${version}-MC${project.ext.minecraftversion}-plugin.jar"
 }
 shadowJar.dependsOn([':nucleus-api:build'])
 
