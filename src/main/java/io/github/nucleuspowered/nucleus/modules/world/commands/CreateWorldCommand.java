@@ -222,24 +222,27 @@ public class CreateWorldCommand extends AbstractCommand<CommandSource> {
             DataContainer dc;
             boolean gz = false;
             try {
-                try (InputStream is = Files.newInputStream(levelSponge, StandardOpenOption.READ)) {
+                try (InputStream is = Files.newInputStream(level, StandardOpenOption.READ)) {
                     // Open it, get the Dimension ID
                     dc = DataFormats.NBT.readFrom(is);
                 } catch (EOFException ex) {
-                    try (GZIPInputStream gzip = new GZIPInputStream(Files.newInputStream(levelSponge, StandardOpenOption.READ))) {
+                    try (GZIPInputStream gzip = new GZIPInputStream(Files.newInputStream(level, StandardOpenOption.READ))) {
                         dc = DataFormats.NBT.readFrom(gzip);
                         gz = true;
                     }
                 }
 
-                Files.copy(levelSponge, world.resolve("level.dat.nbak"), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(level, world.resolve("level.dat.nbak"), StandardCopyOption.REPLACE_EXISTING);
                 dc.set(this.levelName, name);
                 try (OutputStream os = getOutput(gz, level)) {
                     DataFormats.NBT.writeTo(os, dc);
                     os.flush();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                if (Nucleus.getNucleus().isDebugMode()) {
+                    e.printStackTrace();
+                }
+
                 Nucleus.getNucleus().getLogger().warn("Could not read the level.dat. Ignoring.");
             }
         }
@@ -258,7 +261,10 @@ public class CreateWorldCommand extends AbstractCommand<CommandSource> {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                if (Nucleus.getNucleus().isDebugMode()) {
+                    e.printStackTrace();
+                }
+
                 Nucleus.getNucleus().getLogger().warn("Could not read the level_sponge.dat. Ignoring.");
                 return;
             }
@@ -284,7 +290,10 @@ public class CreateWorldCommand extends AbstractCommand<CommandSource> {
             try {
                 Files.copy(levelSponge, world.resolve("level_sponge.dat.nbak"), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                e.printStackTrace();
+                if (Nucleus.getNucleus().isDebugMode()) {
+                    e.printStackTrace();
+                }
+
                 Nucleus.getNucleus().getLogger().warn("Could not backup the level_sponge.dat. Ignoring.");
                 return;
             }
