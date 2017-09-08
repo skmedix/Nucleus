@@ -238,7 +238,7 @@ public class AFKHandler implements NucleusAFKService {
     }
 
     @Override public boolean isAFK(Player player) {
-        return this.data.putIfAbsent(player.getUniqueId(), new AFKData(player.getUniqueId())).isKnownAfk;
+        return this.data.computeIfAbsent(player.getUniqueId(), AFKData::new).isKnownAfk;
     }
 
     @Override public boolean setAFK(Cause cause, Player player, boolean isAfk) {
@@ -318,7 +318,7 @@ public class AFKHandler implements NucleusAFKService {
         return data;
     }
 
-    private class AFKData {
+    class AFKData {
 
         private final UUID uuid;
 
@@ -353,7 +353,7 @@ public class AFKHandler implements NucleusAFKService {
             return timeToKick > 0;
         }
 
-        private void updateFromPermissions() {
+        void updateFromPermissions() {
             synchronized (this) {
                 if (!cacheValid) {
                     // Get the subject.
