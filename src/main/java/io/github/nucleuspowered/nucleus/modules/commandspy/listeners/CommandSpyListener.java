@@ -39,33 +39,40 @@ import javax.inject.Inject;
 @ConditionalListener(CommandSpyListener.Test.class)
 public class CommandSpyListener extends ListenerBase.Reloadable {
 
-    private CommandPermissionHandler permissionHandler = null;
+    private CommandPermissionHandler permissionHandler =
+            Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(CommandSpyCommand.class);
 
     private CommandSpyConfig config;
-    @Inject private UserDataManager dataManager;
-    @Inject private TextParsingUtils textParsingUtils;
+    private final UserDataManager dataManager;
+    private final TextParsingUtils textParsingUtils;
+    private boolean listIsEmpty = true;
+
+    @Inject
+    public CommandSpyListener(UserDataManager dataManager, TextParsingUtils textParsingUtils) {
+        this.dataManager = dataManager;
+        this.textParsingUtils = textParsingUtils;
+    }
 
     @Listener(order = Order.LAST)
     public void onCommand(SendCommandEvent event, @Root Player player) {
-        if (permissionHandler == null) {
-            permissionHandler = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(CommandSpyCommand.class);
-        }
 
         if (!permissionHandler.testSuffix(player, "exempt.target")) {
-            boolean cont = !config.isUseWhitelist();
-            if (!cont) {
+            boolean isInList;
+            if (!this.listIsEmpty) {
                 String command = event.getCommand().toLowerCase();
                 Optional<? extends CommandMapping> oc = Sponge.getCommandManager().get(command, player);
                 Set<String> cmd;
 
                 // If the command exists, then get all aliases.
                 cmd = oc.map(commandMapping -> commandMapping.getAllAliases().stream().map(String::toLowerCase).collect(Collectors.toSet()))
-                    .orElseGet(() -> Sets.newHashSet(command));
-                cont = config.getCommands().stream().map(String::toLowerCase).anyMatch(cmd::contains);
+                        .orElseGet(() -> Sets.newHashSet(command));
+                isInList = config.getCommands().stream().map(String::toLowerCase).anyMatch(cmd::contains);
+            } else {
+                isInList = true;
             }
 
             // If the command is in the list, report it.
-            if (cont) {
+            if (isInList == this.config.isUseWhitelist()) {
                 List<Player> playerList = Sponge.getServer().getOnlinePlayers()
                     .stream()
                     .filter(x -> !x.getUniqueId().equals(player.getUniqueId()))
@@ -85,8 +92,9 @@ public class CommandSpyListener extends ListenerBase.Reloadable {
     }
 
     @Override public void onReload() throws Exception {
-        config = plugin.getModuleContainer().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
+        this.config = this.plugin.getModuleContainer().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
             .getNodeOrDefault();
+        this.listIsEmpty = this.config.getCommands().isEmpty();
     }
 
     public static class Test implements Predicate<Nucleus> {
