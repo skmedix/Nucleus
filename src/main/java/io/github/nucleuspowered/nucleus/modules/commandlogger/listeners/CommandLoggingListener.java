@@ -30,20 +30,32 @@ import javax.inject.Inject;
 
 public class CommandLoggingListener extends ListenerBase {
 
-    @Inject private CommandLoggerConfigAdapter clc;
-    @Inject private CommandLoggerHandler handler;
+    private final CommandLoggerConfigAdapter clc;
+    private final CommandLoggerHandler handler;
+
+    @Inject
+    public CommandLoggingListener(CommandLoggerConfigAdapter clc, CommandLoggerHandler handler) {
+        this.clc = clc;
+        this.handler = handler;
+    }
 
     @Listener(order = Order.LAST)
     public void onCommand(SendCommandEvent event, @First CommandSource source) {
         // Check source.
         CommandLoggerConfig c = clc.getNodeOrDefault();
-        if (source instanceof Player && !c.getLoggerTarget().isLogPlayer()) {
-            return;
-        } else if (source instanceof CommandBlockSource && !c.getLoggerTarget().isLogCommandBlock()) {
-            return;
-        } else if (source instanceof ConsoleSource && !c.getLoggerTarget().isLogConsole()) {
-            return;
-        } else if (!c.getLoggerTarget().isLogOther()) {
+        boolean accept;
+        if (source instanceof Player) {
+            accept = c.getLoggerTarget().isLogPlayer();
+        } else if (source instanceof CommandBlockSource) {
+            accept = c.getLoggerTarget().isLogCommandBlock();
+        } else if (source instanceof ConsoleSource) {
+            accept = c.getLoggerTarget().isLogConsole();
+        } else {
+            accept = c.getLoggerTarget().isLogOther();
+        }
+
+        if (!accept) {
+            // We're not logging this!
             return;
         }
 
