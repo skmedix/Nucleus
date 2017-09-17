@@ -21,12 +21,14 @@ public class CommandSpyConfig {
     @Default(value = "&7[CS: {{name}}]: ", saveDefaultIfNull = true)
     private NucleusTextTemplateImpl prefix;
 
-    @Setting(value = "use-whitelist", comment = "config.commandspy.usewhitelist")
+    // use-whitelist
+    @Setting(value = "filter-is-whitelist", comment = "config.commandspy.usewhitelist")
     private boolean useWhitelist = true;
 
+    // Was whitelisted-commands-to-spy-on
     // Removes the first "/" if it exists.
     @ProcessSetting(RemoveFirstSlashIfExistsSettingProcessor.class)
-    @Setting(value = "whitelisted-commands-to-spy-on", comment = "config.commandspy.whitelist")
+    @Setting(value = "command-filter", comment = "config.commandspy.filter")
     private List<String> commands = new ArrayList<>();
 
     public NucleusTextTemplateImpl getTemplate() {
