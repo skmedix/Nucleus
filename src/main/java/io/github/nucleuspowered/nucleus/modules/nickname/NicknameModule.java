@@ -27,6 +27,10 @@ public class NicknameModule extends ConfigurableModule<NicknameConfigAdapter> {
         nns.onReload();
     }
 
+    @Override public void postEnable() {
+        plugin.getInternalServiceManager().getServiceUnchecked(NicknameService.class).register();
+    }
+
     @Override
     public NicknameConfigAdapter createAdapter() {
         return new NicknameConfigAdapter();
