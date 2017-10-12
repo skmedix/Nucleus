@@ -28,7 +28,7 @@ public class NicknameModule extends ConfigurableModule<NicknameConfigAdapter> {
     }
 
     @Override public void postEnable() {
-        plugin.getInternalServiceManager().getServiceUnchecked(NicknameService.class).register();
+        plugin.getInternalServiceManager().getService(NicknameService.class).get().register();
     }
 
     @Override

@@ -4,10 +4,12 @@
  */
 package io.github.nucleuspowered.nucleus.modules.jump.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.modules.jump.config.JumpConfigAdapter;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandResult;
@@ -55,7 +57,8 @@ public class ThruCommand extends AbstractCommand<Player> {
                 }
 
                 // If we can go, do so.
-                if (player.setLocationSafely(b.getLocation())) {
+                if (Nucleus.getNucleus().getTeleportHandler()
+                        .teleportPlayer(player, b.getLocation(), NucleusTeleportHandler.TeleportMode.SAFE_TELEPORT).isSuccess()) {
                     player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.thru.success"));
                     return CommandResult.success();
                 } else {
