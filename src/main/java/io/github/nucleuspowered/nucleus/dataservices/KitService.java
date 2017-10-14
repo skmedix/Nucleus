@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class KitService extends AbstractService<KitConfigDataNode> {
 
     public KitService(DataProvider<KitConfigDataNode> dataProvider) throws Exception {
-        super(dataProvider, false);
+        super(dataProvider);
     }
 
     public Set<String> getKitNames(boolean showHidden) {
@@ -69,5 +69,9 @@ public class KitService extends AbstractService<KitConfigDataNode> {
         Map<String, KitDataNode> msk = data.getKits();
         Optional<String> key = msk.keySet().stream().filter(name::equalsIgnoreCase).findFirst();
         return key.isPresent() && data.getKits().remove(key.get()) != null;
+    }
+
+    @Override protected String serviceName() {
+        return "Kits";
     }
 }

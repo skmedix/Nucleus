@@ -92,7 +92,7 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
                 Files.copy(backupFile, file, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            throw e;
+            throw getException(e);
         }
     }
 
@@ -107,5 +107,9 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
 
     private IllegalStateException getException(String message) {
         return new IllegalStateException("The file " + file.getFileName() + " has not been saved.\n" + message);
+    }
+
+    private IOException getException(Throwable inner) {
+        return new IOException("The file " + file.getFileName() + " has not been saved - an exception was thrown.", inner);
     }
 }

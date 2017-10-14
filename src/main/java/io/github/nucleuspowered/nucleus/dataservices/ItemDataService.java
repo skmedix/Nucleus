@@ -31,11 +31,16 @@ public class ItemDataService extends AbstractService<Map<String, ItemDataNode>> 
     private final Set<Action> onItemUpdate = Sets.newHashSet();
 
     public ItemDataService(DataProvider<Map<String, ItemDataNode>> dataProvider) throws Exception {
-        super(dataProvider, true);
+        super(dataProvider);
     }
 
     public void addOnItemUpdate(Action onUpdate) {
         onItemUpdate.add(onUpdate);
+    }
+
+    @Override
+    protected String serviceName() {
+        return "Item Information";
     }
 
     @Override

@@ -18,7 +18,11 @@ import javax.annotation.Nonnull;
 public class NameBanService extends AbstractService<Map<String, String>> {
 
     public NameBanService(DataProvider<Map<String, String>> dataProvider) throws Exception {
-        super(dataProvider, false);
+        super(dataProvider);
+    }
+
+    @Override protected String serviceName() {
+        return "Name bans";
     }
 
     @Override public boolean load() {

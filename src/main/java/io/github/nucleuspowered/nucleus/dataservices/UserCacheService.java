@@ -28,7 +28,7 @@ public class UserCacheService extends AbstractService<UserCacheVersionNode> {
     private final Object lockingObject = new Object();
 
     public UserCacheService(DataProvider<UserCacheVersionNode> dataProvider) throws Exception {
-        super(dataProvider, false);
+        super(dataProvider);
     }
 
     public List<UUID> getForIp(String ip) {
@@ -56,6 +56,10 @@ public class UserCacheService extends AbstractService<UserCacheVersionNode> {
         updateCacheForOnlinePlayers();
         return data.getNode().entrySet().stream().filter(x -> x.getValue().isMuted())
                 .map(Map.Entry::getKey).collect(Collectors.toList());
+    }
+
+    @Override protected String serviceName() {
+        return "User Cache";
     }
 
     public void updateCacheForOnlinePlayers() {

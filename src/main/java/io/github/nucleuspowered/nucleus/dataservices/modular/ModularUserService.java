@@ -61,6 +61,10 @@ public class ModularUserService extends ModularDataService<ModularUserService> {
         return serviceLoadTime;
     }
 
+    @Override protected String serviceName() {
+        return "Nucleus Data for user " + this.uuid.toString() + " (" + getUser().getName() + ")";
+    }
+
     @Override <T extends TransientModule<ModularUserService>> Optional<T> tryGetTransient(Class<T> module) {
         return DataModuleFactory.getTransient(module, this);
     }

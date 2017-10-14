@@ -147,4 +147,6 @@ public abstract class Nucleus {
     protected abstract void registerPermissions();
 
     public abstract boolean isServer();
+
+    public abstract boolean isPrintingSavesAndLoads();
 }

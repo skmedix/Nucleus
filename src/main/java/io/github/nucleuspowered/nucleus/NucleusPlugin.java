@@ -160,6 +160,7 @@ public class NucleusPlugin extends Nucleus {
     private boolean isDebugMode = false;
     private boolean sessionDebugMode = false;
     private int isTraceUserCreations = 0;
+    private boolean savesandloads = false;
 
     // We inject this into the constructor so we can build the config path ourselves.
     @Inject
@@ -220,25 +221,26 @@ public class NucleusPlugin extends Nucleus {
             if (this.isServer) {
                 Files.createDirectories(this.dataDir.get());
             }
-            commandsConfig = new CommandsConfig(Paths.get(configDir.toString(), "commands.conf"));
+            this.commandsConfig = new CommandsConfig(Paths.get(configDir.toString(), "commands.conf"));
 
             DataProviders d = new DataProviders(this);
-            generalService = new ModularGeneralService(d.getGeneralDataProvider());
-            itemDataService = new ItemDataService(d.getItemDataProvider());
-            userDataManager = new UserDataManager(this, d::getUserFileDataProviders, d::doesUserFileExist);
-            worldDataManager = new WorldDataManager(this, d::getWorldFileDataProvider, d::doesWorldFileExist);
-            kitService = new KitService(d.getKitsDataProvider());
-            nameBanService = new NameBanService(d.getNameBanDataProvider());
-            userCacheService = new UserCacheService(d.getUserCacheDataProvider());
-            warmupManager = new WarmupManager();
-            textParsingUtils = new TextParsingUtils(this);
-            nameUtil = new NameUtil(this);
+            this.generalService = new ModularGeneralService(d.getGeneralDataProvider());
+            this.itemDataService = new ItemDataService(d.getItemDataProvider());
+            this.itemDataService.loadInternal();
+            this.userDataManager = new UserDataManager(this, d::getUserFileDataProviders, d::doesUserFileExist);
+            this.worldDataManager = new WorldDataManager(this, d::getWorldFileDataProvider, d::doesWorldFileExist);
+            this.kitService = new KitService(d.getKitsDataProvider());
+            this.nameBanService = new NameBanService(d.getNameBanDataProvider());
+            this.userCacheService = new UserCacheService(d.getUserCacheDataProvider());
+            this.warmupManager = new WarmupManager();
+            this.textParsingUtils = new TextParsingUtils(this);
+            this.nameUtil = new NameUtil(this);
 
             if (this.isServer) {
                 allChange(false);
             }
         } catch (Exception e) {
-            isErrored = e;
+            this.isErrored = e;
             disable();
             e.printStackTrace();
             return;
@@ -341,13 +343,15 @@ public class NucleusPlugin extends Nucleus {
             logger.info(messageProvider.getMessageWithFormat("startup.moduleloading", PluginInfo.NAME));
             moduleContainer.loadModules(true);
 
-            if (moduleContainer.getConfigAdapterForModule("core", CoreConfigAdapter.class).getNodeOrDefault().isErrorOnStartup()) {
+            CoreConfig coreConfig = moduleContainer.getConfigAdapterForModule(CoreModule.ID, CoreConfigAdapter.class).getNodeOrDefault();
+
+            if (coreConfig.isErrorOnStartup()) {
                 throw new IllegalStateException("In main.conf, core.simulate-error-on-startup is set to TRUE. Remove this config entry to allow Nucleus to start. Simulating error and disabling Nucleus.");
             }
 
-            this.isDebugMode = moduleContainer.getConfigAdapterForModule(CoreModule.ID, CoreConfigAdapter.class).getNodeOrDefault().isDebugmode();
-            this.isTraceUserCreations = moduleContainer.getConfigAdapterForModule(CoreModule.ID, CoreConfigAdapter.class).getNodeOrDefault()
-                    .traceUserCreations();
+            this.isDebugMode = coreConfig.isDebugmode();
+            this.isTraceUserCreations = coreConfig.traceUserCreations();
+            this.savesandloads = coreConfig.isPrintSaveLoad();
         } catch (Throwable construction) {
             logger.info(messageProvider.getMessageWithFormat("startup.modulenotloaded", PluginInfo.NAME));
             construction.printStackTrace();
@@ -527,8 +531,10 @@ public class NucleusPlugin extends Nucleus {
             this.itemDataService.load();
             this.warmupConfig = null;
 
-            this.isDebugMode = getConfigValue(CoreModule.ID, CoreConfigAdapter.class, CoreConfig::isDebugmode).orElse(false);
-            this.isTraceUserCreations = getConfigValue(CoreModule.ID, CoreConfigAdapter.class, CoreConfig::traceUserCreations).orElse(0);
+            CoreConfig coreConfig = this.getInternalServiceManager().getService(CoreConfigAdapter.class).get().getNodeOrDefault();
+            this.isDebugMode = coreConfig.isDebugmode();
+            this.isTraceUserCreations = coreConfig.traceUserCreations();
+            this.savesandloads = coreConfig.isPrintSaveLoad();
 
             for (TextFileController tfc : textFileControllers.values()) {
                 tfc.load();
@@ -778,6 +784,10 @@ public class NucleusPlugin extends Nucleus {
     @Override
     public boolean isServer() {
         return this.isServer;
+    }
+
+    @Override public boolean isPrintingSavesAndLoads() {
+        return this.savesandloads;
     }
 
     private void disable() {
