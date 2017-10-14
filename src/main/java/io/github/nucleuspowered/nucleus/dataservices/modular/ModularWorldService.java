@@ -7,6 +7,8 @@ package io.github.nucleuspowered.nucleus.dataservices.modular;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.dataservices.dataproviders.DataProvider;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +26,11 @@ public class ModularWorldService extends ModularDataService<ModularWorldService>
 
     public UUID getWorldUUID() {
         return this.worldUUID;
+    }
+
+    @Override protected String serviceName() {
+        return "Nucleus Data for world " + this.worldUUID.toString() + " (" + Sponge.getServer().getWorldProperties(this.worldUUID)
+                .map(WorldProperties::getWorldName).orElse("unknown") + ")";
     }
 
     @Override <T extends TransientModule<ModularWorldService>> Optional<T> tryGetTransient(Class<T> module) {

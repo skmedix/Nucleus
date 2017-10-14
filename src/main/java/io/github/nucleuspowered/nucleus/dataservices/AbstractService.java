@@ -13,15 +13,8 @@ public abstract class AbstractService<T> implements Service {
     protected T data;
     private final DataProvider<T> dataProvider;
 
-    AbstractService(DataProvider<T> dataProvider) throws Exception {
-        this(dataProvider, true);
-    }
-
-    protected AbstractService(DataProvider<T> dataProvider, boolean loadNow) throws Exception {
+    protected AbstractService(DataProvider<T> dataProvider) throws Exception {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
-        if (loadNow) {
-            data = dataProvider.load();
-        }
     }
 
     public final void changeFile() {
@@ -30,34 +23,40 @@ public abstract class AbstractService<T> implements Service {
         }
     }
 
+    public final boolean isLoaded() {
+        return this.data != null;
+    }
+
+    protected abstract String serviceName();
+
     @Override public boolean load() {
         try {
             loadInternal();
             return true;
         } catch (Exception e) {
-            Nucleus.getNucleus().getLogger().error(e.getMessage());
-            if (Nucleus.getNucleus().isDebugMode()) {
-                e.printStackTrace();
-            }
+            Nucleus.getNucleus().getLogger().error("Could not load", e);
 
             return false;
         }
     }
 
     @Override public void loadInternal() throws Exception {
+        if (Nucleus.getNucleus().isPrintingSavesAndLoads()) {
+            Nucleus.getNucleus().getLogger().info("Loading: " + serviceName());
+        }
         data = dataProvider.load();
     }
 
     @Override public boolean save() {
         if (data != null) {
             try {
+                if (Nucleus.getNucleus().isPrintingSavesAndLoads()) {
+                    Nucleus.getNucleus().getLogger().info("Saving: " + serviceName());
+                }
                 dataProvider.save(data);
                 return true;
             } catch (Exception e) {
-                Nucleus.getNucleus().getLogger().error(e.getMessage());
-                if (Nucleus.getNucleus().isDebugMode()) {
-                    e.printStackTrace();
-                }
+                Nucleus.getNucleus().getLogger().error("Could not save", e);
 
                 return false;
             }
@@ -68,13 +67,13 @@ public abstract class AbstractService<T> implements Service {
 
     @Override public boolean delete() {
         try {
+            if (Nucleus.getNucleus().isPrintingSavesAndLoads()) {
+                Nucleus.getNucleus().getLogger().info("Deleting: " + serviceName());
+            }
             dataProvider.delete();
             return true;
         } catch (Exception e) {
-            Nucleus.getNucleus().getLogger().error(e.getMessage());
-            if (Nucleus.getNucleus().isDebugMode()) {
-                e.printStackTrace();
-            }
+            Nucleus.getNucleus().getLogger().error("Could not delete", e);
 
             return false;
         }

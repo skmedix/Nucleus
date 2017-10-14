@@ -29,11 +29,7 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
     private final Timing loadTransientTimings = Timings.of(Nucleus.getNucleus(), "Transient Modules - Loading");
 
     ModularDataService(DataProvider<ConfigurationNode> dataProvider) throws Exception {
-        this(dataProvider, true);
-    }
-
-    ModularDataService(DataProvider<ConfigurationNode> dataProvider, boolean loadNow) throws Exception {
-        super(dataProvider, loadNow);
+        super(dataProvider);
     }
 
     public <T extends DataModule<S>, R> R quickGet(Class<T> module, Function<T, R> getter) {

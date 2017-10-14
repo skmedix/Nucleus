@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.dataservices.modular;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
@@ -74,7 +75,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
             try {
                 getObj(d.clazz, d.field, d.path, node);
             } catch (Exception e) {
-                e.printStackTrace();
+                Nucleus.getNucleus().getLogger().error("Could not save module " + d.clazz.getType().getTypeName(), e);
             }
         }
     }
@@ -85,6 +86,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
         try {
             t = (T)field.get(this);
         } catch (IllegalAccessException e) {
+            Nucleus.getNucleus().getLogger().error("Could not get data from " + getClass().getSimpleName() + ": " + field.getName(), e);
             t = null;
         }
 

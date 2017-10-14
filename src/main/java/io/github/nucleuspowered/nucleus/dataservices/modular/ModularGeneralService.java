@@ -12,7 +12,11 @@ import java.util.Optional;
 public class ModularGeneralService extends ModularDataService<ModularGeneralService> {
 
     public ModularGeneralService(DataProvider<ConfigurationNode> dataProvider) throws Exception {
-        super(dataProvider, false);
+        super(dataProvider);
+    }
+
+    @Override protected String serviceName() {
+        return "General Nucleus data";
     }
 
     @Override <T extends TransientModule<ModularGeneralService>> Optional<T> tryGetTransient(Class<T> module) {

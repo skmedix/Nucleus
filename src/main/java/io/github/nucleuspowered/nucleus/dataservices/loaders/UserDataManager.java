@@ -67,7 +67,9 @@ public class UserDataManager extends DataManager<UUID, ConfigurationNode, Modula
                 }
             }
 
-            return Optional.of(new ModularUserService(dataProvider, user.get().getUniqueId()));
+            ModularUserService m = new ModularUserService(dataProvider, user.get().getUniqueId());
+            m.loadInternal();
+            return Optional.of(m);
         }
 
         return Optional.empty();

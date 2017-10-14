@@ -26,8 +26,10 @@ public class WorldDataManager extends DataManager<UUID, ConfigurationNode, Modul
 
     @Override
     public Optional<ModularWorldService> getNew(UUID data, DataProvider<ConfigurationNode> dataProvider) throws Exception {
-        return Optional.of(new ModularWorldService(dataProvider, plugin,
-            Sponge.getServer().getWorldProperties(data).orElseThrow(() -> new IllegalStateException("world")).getUniqueId()));
+        ModularWorldService m = new ModularWorldService(dataProvider, plugin,
+                Sponge.getServer().getWorldProperties(data).orElseThrow(() -> new IllegalStateException("world")).getUniqueId());
+        m.loadInternal();
+        return Optional.of(m);
     }
 
     public Optional<ModularWorldService> getWorld(UUID uuid) {
