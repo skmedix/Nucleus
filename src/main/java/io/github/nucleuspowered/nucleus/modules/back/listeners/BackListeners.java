@@ -38,14 +38,14 @@ public class BackListeners extends ListenerBase {
     @Listener
     @Exclude(MoveEntityEvent.Teleport.Portal.class) // Don't set /back on a portal.
     public void onTeleportPlayer(MoveEntityEvent.Teleport event, @Getter("getTargetEntity") Player pl) {
-        if (bca.getNodeOrDefault().isOnTeleport() && getLogBack(pl) && s.testSuffix(pl, onTeleport)) {
+        if (bca.getNodeOrDefault().isOnTeleport() && check(event) && getLogBack(pl) && s.testSuffix(pl, onTeleport)) {
             handler.setLastLocation(pl, event.getFromTransform());
         }
     }
 
     @Listener
     public void onPortalPlayer(MoveEntityEvent.Teleport.Portal event, @Getter("getTargetEntity") Player pl) {
-        if (bca.getNodeOrDefault().isOnPortal() && getLogBack(pl) && s.testSuffix(pl, onPortal)) {
+        if (bca.getNodeOrDefault().isOnPortal() && check(event) && getLogBack(pl) && s.testSuffix(pl, onPortal)) {
             handler.setLastLocation(pl, event.getFromTransform());
         }
     }
@@ -65,5 +65,9 @@ public class BackListeners extends ListenerBase {
 
     private boolean getLogBack(Player player) {
         return !(njs != null && njs.isPlayerJailed(player)) && handler.isLoggingLastLocation(player);
+    }
+
+    private boolean check(MoveEntityEvent.Teleport event) {
+        return !event.getFromTransform().equals(event.getToTransform());
     }
 }
