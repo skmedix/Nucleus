@@ -69,6 +69,7 @@ repositories {
 }
 
 dependencies {
+    compile project(":nucleus-ap")
     compile project(":nucleus-api", {
         ext.versionno = versionno
         ext.suffix = suffix
