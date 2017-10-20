@@ -11,6 +11,9 @@ import static io.github.nucleuspowered.nucleus.PluginInfo.VERSION;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -104,6 +107,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -261,8 +265,25 @@ public class NucleusPlugin extends Nucleus {
         try {
             final String he = this.messageProvider.getMessageWithFormat("config.main-header", PluginInfo.VERSION);
             HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
-            this.moduleContainer = DiscoveryModuleContainer.builder()
-                    .setConstructor(new QuickStartModuleConstructor(injector))
+            Optional<Asset> optionalAsset = Sponge.getAssetManager().getAsset(Nucleus.getNucleus(), "classes.json");
+            DiscoveryModuleContainer.Builder db = DiscoveryModuleContainer.builder();
+            if (optionalAsset.isPresent()) {
+                Map<String, Map<String, List<String>>> m = new Gson().fromJson(
+                        optionalAsset.get().readString(),
+                        new TypeToken<Map<String, Map<String, List<String>>>>() {}.getType()
+                );
+
+                Set<Class<?>> sc = Sets.newHashSet();
+                for (String classString : m.keySet()) {
+                    sc.add(Class.forName(classString));
+                }
+
+                db.setDiscoveryStrategy((string, classloader) -> sc)
+                        .setConstructor(new QuickStartModuleConstructor(injector, m));
+            } else {
+                db.setConstructor(new QuickStartModuleConstructor(injector, null));
+            }
+            this.moduleContainer = db
                     .setConfigurationLoader(
                         builder.setDefaultOptions(
                                 ConfigurateHelper.setOptions(builder.getDefaultOptions()).setHeader(he))
