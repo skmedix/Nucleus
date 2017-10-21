@@ -102,7 +102,7 @@ public class SetHomeCommand extends AbstractCommand<Player> implements AbstractC
                 int c = this.homeHandler.getHomeCount(src) ;
                 if (this.preventOverhang && max < c) {
                     // If the player has too many homes, tell them
-                    throw ReturnMessageException.fromKey("command.sethome.overhang", String.valueOf(c), String.valueOf(max));
+                    throw ReturnMessageException.fromKey("command.sethome.overhang", String.valueOf(max), String.valueOf(c));
                 }
 
                 Home current = currentHome.get();
