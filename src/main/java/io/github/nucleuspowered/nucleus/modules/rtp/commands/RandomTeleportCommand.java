@@ -52,6 +52,7 @@ import uk.co.drnaylor.quickstart.config.TypedAbstractConfigAdapter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.Set;
 
@@ -192,9 +193,6 @@ public class RandomTeleportCommand extends StandardAbstractCommand.SimpleTargetO
                 return;
             }
 
-            Transform<World> transform = target.getTransform();
-            World world = transform.getExtent();
-
             plugin.getLogger().debug(String.format("RTP of %s, attempt %s of %s", target.getName(), maxCount - count, maxCount));
 
             // Generate random co-ords.
@@ -203,51 +201,46 @@ public class RandomTeleportCommand extends StandardAbstractCommand.SimpleTargetO
 
             int counter = 0;
             do {
+                if (counter++ == 10) {
+                    onUnsuccesfulAttempt();
+                    return;
+                }
+
                 x = RandomTeleportCommand.this.random.nextInt(diameter) - diameter/2;
                 z = RandomTeleportCommand.this.random.nextInt(diameter) - diameter/2;
 
                 // Load the chunk before continuing with /rtp. Sponge issue means we have to load the chunk first.
                 // currentWorld.loadChunk(new Vector3i(x / 16, 0, z / 16), true);
                 // Of course, the above line doesn't work. So, let's just inspect the location instead using a method we KNOW will work.
-                NucleusTeleportHandler.TELEPORT_HELPER.getSafeLocation(new Location<>(transform.getExtent(), x, 0, z), 1, 1);
-                if (counter++ == 5) {
-                    onUnsuccesfulAttempt();
-                    return;
-                }
+                NucleusTeleportHandler.TELEPORT_HELPER.getSafeLocation(new Location<>(this.currentWorld, x, 0, z), 1, 1);
 
                 // If this is a prohibited type, loop again.
-            } while (prohibitedBiomeTypes.contains(transform.getExtent().getBiome(x, 0, z).getId()));
+            } while (prohibitedBiomeTypes.contains(this.currentWorld.getBiome(x, 0, z).getId()));
 
             int y;
             if (onSurface) {
-                int startY = Math.min(world.getBlockMax().getY() - 11, maxY);
-                int distance = startY - Math.max(world.getBlockMin().getY(), minY);
-                if (distance < 0) {
-                    onUnsuccesfulAttempt();
-                    return;
-                }
+                int startY = this.currentWorld.getBlockMax().getY() - 11;
+                OptionalInt oy = getHighest(startY, x, z);
 
-                // From the x and z co-ordinates, scan down from the top to get the next block.
-                BlockRay<World> blockRay = BlockRay
-                    .from(new Location<>(currentWorld, new Vector3d(x, Math.min(world.getBlockMax().getY() - 11, maxY), z)))
-                    .direction(direction)
-                    .distanceLimit(distance)
-                    .stopFilter(bl -> bl.getExtent().getBlock(bl.getBlockPosition()).getType().equals(BlockTypes.AIR)).build();
-                Optional<BlockRayHit<World>> blockRayHitOptional = blockRay.end();
-                if (blockRayHitOptional.isPresent()) {
-                    y = blockRayHitOptional.get().getBlockY();
+                if (oy.isPresent()) {
+                    y = oy.getAsInt();
+                    if (y > this.maxY) {
+                        onUnsuccesfulAttempt();
+                        return;
+                    }
                 } else {
                     onUnsuccesfulAttempt();
                     return;
                 }
             } else {
                 // We remove 11 to avoid getting a location too high up for the safe location teleporter to handle.
-                y = Math.min(world.getBlockMax().getY() - 11, random.nextInt(maxY - minY + 1) + minY);
+                y = Math.min(this.currentWorld.getBlockMax().getY() - 11, random.nextInt(maxY - minY + 1) + minY);
             }
 
             // To get within the world border, add the centre on.
-            final Location<World> test = new Location<>(currentWorld, new Vector3d(x + centre.getX(), y, z + centre.getZ()));
-            Optional<Location<World>> oSafeLocation = NucleusTeleportHandler.TELEPORT_HELPER.getSafeLocation(test, 10, 5);
+            final Location<World> test = new Location<>(this.currentWorld, new Vector3d(x + centre.getX(), y, z + centre.getZ()));
+            Optional<Location<World>> oSafeLocation = Nucleus.getNucleus().getTeleportHandler().getSafeLocation(this.target, test);
+                    // NucleusTeleportHandler.TELEPORT_HELPER.getSafeLocation(test, 10, 5);
 
             // getSafeLocation might have put us out of the world border. Best to check.
             // We also check to see that it's not in water or lava, and if enabled, we see if the subject would end up on the surface.
@@ -349,6 +342,22 @@ public class RandomTeleportCommand extends StandardAbstractCommand.SimpleTargetO
             if (isSelf) {
                 RandomTeleportCommand.this.removeCooldown(target.getUniqueId());
             }
+        }
+
+        private OptionalInt getHighest(int startY, int x, int z) {
+            int distance = startY - Math.max(this.currentWorld.getBlockMin().getY(), minY);
+            if (distance < 0) {
+                return OptionalInt.empty();
+            }
+
+            BlockRay<World> blockRay = BlockRay
+                    .from(new Location<>(currentWorld, new Vector3d(x, Math.min(this.currentWorld.getBlockMax().getY() - 11, maxY), z)))
+                    .direction(direction)
+                    .distanceLimit(distance)
+                    .stopFilter(bl -> bl.getExtent().getBlock(bl.getBlockPosition()).getType().equals(BlockTypes.AIR)).build();
+            Optional<BlockRayHit<World>> blockRayHitOptional = blockRay.end();
+            return blockRayHitOptional.map(worldBlockRayHit -> OptionalInt.of(worldBlockRayHit.getBlockY())).orElseGet(OptionalInt::empty);
+
         }
     }
 }

@@ -552,7 +552,7 @@ public class NucleusPlugin extends Nucleus {
             this.itemDataService.load();
             this.warmupConfig = null;
 
-            CoreConfig coreConfig = this.getInternalServiceManager().getService(CoreConfigAdapter.class).get().getNodeOrDefault();
+            CoreConfig coreConfig = this.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get().getNodeOrDefault();
             this.isDebugMode = coreConfig.isDebugmode();
             this.isTraceUserCreations = coreConfig.traceUserCreations();
             this.savesandloads = coreConfig.isPrintSaveLoad();
