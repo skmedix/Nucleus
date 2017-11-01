@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.internal.teleport;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
@@ -169,6 +170,10 @@ public class NucleusTeleportHandler {
         }
 
         return TeleportResult.FAILED_NO_LOCATION;
+    }
+
+    public Optional<Location<World>> getSafeLocation(Player player, Location<World> locationToTeleportTo) {
+        return getSafeLocation(Preconditions.checkNotNull(player), locationToTeleportTo, getTeleportModeForPlayer(player));
     }
 
     public Optional<Location<World>> getSafeLocation(@Nullable Player player, Location<World> locationToTeleportTo, TeleportMode teleportMode) {
