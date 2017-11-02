@@ -149,6 +149,10 @@ public abstract class TestBase {
             return true;
         }
 
+        @Override public boolean reloadMessages() {
+            return true;
+        }
+
         @Override
         public WarmupManager getWarmupManager() {
             return null;

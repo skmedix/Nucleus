@@ -577,25 +577,43 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    public void reloadMessages() {
-        try {
-            if (moduleContainer.getConfigAdapterForModule("core", CoreConfigAdapter.class).getNodeOrDefault().isCustommessages()) {
+    @Override public boolean reloadMessages() {
+        boolean r = true;
+        if (getConfigValue("core", CoreConfigAdapter.class, CoreConfig::isCustommessages).orElse(false)) {
+            try {
                 this.messageProvider = new ConfigMessageProvider(configDir.resolve("messages.conf"), ResourceMessageProvider.messagesBundle);
                 this.commandMessageProvider = new ConfigMessageProvider(configDir.resolve("command-help-messages.conf"), ResourceMessageProvider.commandMessagesBundle);
-            } else {
-                this.messageProvider = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
-                this.commandMessageProvider = new ResourceMessageProvider(ResourceMessageProvider.commandMessagesBundle);
-            }
-        } catch (Exception e) {
-            // On error, fallback.
-            logger.warn("Could not load custom messages file. Falling back.");
-            if (this.isDebugMode()) {
-                e.printStackTrace();
-            }
+                return true;
+            } catch (Throwable exception) {
+                r = false;
+                // On error, fallback.
+                // Blegh, relocations
+                if (exception instanceof IOException && exception.getCause().getClass().getName().contains(ConfigException.class.getSimpleName())) {
+                    MessageReceiver s;
+                    if (Sponge.getGame().isServerAvailable()) {
+                        s = Sponge.getServer().getConsole();
+                    } else {
+                        s = new ClientMessageReciever();
+                    }
 
-            this.messageProvider = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
-            this.commandMessageProvider = new ResourceMessageProvider(ResourceMessageProvider.commandMessagesBundle);
+                    exception = exception.getCause();
+                    s.sendMessage(Text.of(TextColors.RED, "It appears that there is an error in your messages file! The error is: "));
+                    s.sendMessage(Text.of(TextColors.RED, exception.getMessage()));
+                    s.sendMessage(Text.of(TextColors.RED, "Please correct this - then run ", TextColors.YELLOW, "/nucleus reload"));
+                    s.sendMessage(Text.of(TextColors.RED, "Ignoring messages.conf for now."));
+                    if (this.isDebugMode) {
+                        exception.printStackTrace();
+                    }
+                } else {
+                    this.logger.warn("Could not load custom messages file. Falling back.");
+                    exception.printStackTrace();
+                }
+            }
         }
+
+        this.messageProvider = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
+        this.commandMessageProvider = new ResourceMessageProvider(ResourceMessageProvider.commandMessagesBundle);
+        return r;
     }
 
     @Override
