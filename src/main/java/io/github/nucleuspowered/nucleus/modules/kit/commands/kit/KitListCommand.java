@@ -37,6 +37,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -76,12 +77,14 @@ public class KitListCommand extends StandardAbstractCommand<CommandSource> {
         final KitUserDataModule user =
                 src instanceof Player ? userConfigLoader.getUnchecked(((Player)src).getUniqueId()).get(KitUserDataModule.class) : null;
 
-        // Only show kits that the user has permission for, if needed. This is the permission "plugin.kits.<kit>".
         final boolean showHidden = kitPermissionHandler.testSuffix(src, "showhidden");
-        kitConfig.getKitNames(showHidden, src).stream()
-            .filter(kit -> !kca.getNodeOrDefault().isSeparatePermissions() ||
-                    src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())))
-            .forEach(kit -> kitText.add(createKit(spc, user, kit, kitConfig.getKit(kit).get())));
+        Stream<String> kitStream = kitConfig.getKitNames(showHidden).stream();
+
+        if (kca.getNodeOrDefault().isSeparatePermissions()) {
+            kitStream = kitStream.filter(kit -> src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())));
+        }
+
+        kitStream.forEach(kit -> kitText.add(createKit(spc, user, kit, kitConfig.getKit(kit).get())));
 
         PaginationList.Builder paginationBuilder = paginationService.builder().contents(kitText)
                 .title(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.list.kits")).padding(Text.of(TextColors.GREEN, "-"));

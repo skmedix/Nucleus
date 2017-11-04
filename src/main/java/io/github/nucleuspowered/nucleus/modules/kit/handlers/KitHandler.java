@@ -34,7 +34,6 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Tristate;
@@ -79,12 +78,11 @@ public class KitHandler implements NucleusKitService {
 
     @Override
     public Set<String> getKitNames() {
-        return this.store.getKitNames(true);
+        return getKitNames(true);
     }
 
-    public Set<String> getKitNames(boolean showHidden, Subject subject) {
-        return this.store.getKitNames(showHidden)
-                .stream().filter(x -> subject.hasPermission(getPermissionForKit(x))).collect(Collectors.toSet());
+    public Set<String> getKitNames(boolean showHidden) {
+        return this.store.getKitNames(showHidden);
     }
 
     @Override
