@@ -7,14 +7,21 @@ package io.github.nucleuspowered.nucleus.configurate.typeserialisers;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import io.github.nucleuspowered.nucleus.configurate.wrappers.NucleusItemStackSnapshot;
+import io.github.nucleuspowered.nucleus.util.TypeHelper;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.persistence.DataTranslators;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.util.Tuple;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class NucleusItemStackSnapshotSerialiser implements TypeSerializer<NucleusItemStackSnapshot> {
@@ -64,30 +71,65 @@ public class NucleusItemStackSnapshotSerialiser implements TypeSerializer<Nucleu
             }
         }
 
-        ItemStackSnapshot snapshot;
+        DataContainer dataContainer = DataTranslators.CONFIGURATION_NODE.translate(value);
+        Set<DataQuery> ldq = dataContainer.getKeys(true);
+
+        for (DataQuery dataQuery : ldq) {
+            String el = dataQuery.asString(".");
+            if (el.contains("$Array$")) {
+                try {
+                    Tuple<DataQuery, Object> r = TypeHelper.getArray(dataQuery, dataContainer);
+                    dataContainer.set(r.getFirst(), r.getSecond());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                dataContainer.remove(dataQuery);
+            }
+        }
+
+        ItemStack snapshot;
         try {
-            snapshot = value.getValue(iss);
+            snapshot = ItemStack.builder().fromContainer(dataContainer).build();
         } catch (Exception e) {
             return NucleusItemStackSnapshot.NONE;
         }
 
         if (emptyEnchant) {
-            ItemStack is = snapshot.createStack();
-            is.offer(Keys.ITEM_ENCHANTMENTS, Lists.newArrayList());
-            return new NucleusItemStackSnapshot(is.createSnapshot());
+            snapshot.offer(Keys.ITEM_ENCHANTMENTS, Lists.newArrayList());
+            return new NucleusItemStackSnapshot(snapshot.createSnapshot());
         }
 
         if (snapshot.get(Keys.ITEM_ENCHANTMENTS).isPresent()) {
-            ItemStack is = snapshot.createStack();
             // Reset the data.
-            is.offer(Keys.ITEM_ENCHANTMENTS, snapshot.get(Keys.ITEM_ENCHANTMENTS).get());
-            return new NucleusItemStackSnapshot(is.createSnapshot());
+            snapshot.offer(Keys.ITEM_ENCHANTMENTS, snapshot.get(Keys.ITEM_ENCHANTMENTS).get());
+            return new NucleusItemStackSnapshot(snapshot.createSnapshot());
         }
 
-        return new NucleusItemStackSnapshot(snapshot);
+        return new NucleusItemStackSnapshot(snapshot.createSnapshot());
     }
 
-    @Override public void serialize(TypeToken<?> type, NucleusItemStackSnapshot obj, ConfigurationNode value) throws ObjectMappingException {
-        value.setValue(iss, obj.getSnapshot());
+    @Override
+    public void serialize(TypeToken<?> type, NucleusItemStackSnapshot obj, ConfigurationNode value) throws ObjectMappingException {
+        DataContainer view = obj.getSnapshot().toContainer();
+        Map<DataQuery, Object> dataQueryObjectMap = view.getValues(true);
+        for (Map.Entry<DataQuery, Object> entry : dataQueryObjectMap.entrySet()) {
+            if (entry.getValue().getClass().isArray()) {
+                // Convert to a list with type, make it the key.
+                if (entry.getValue().getClass().getComponentType().isPrimitive()) {
+                    // Create the list of the primitive type.
+                    DataQuery old = entry.getKey();
+                    Tuple<DataQuery, List<?>> dqo = TypeHelper.getList(old, entry.getValue());
+                    view.remove(old);
+                    view.set(dqo.getFirst(), dqo.getSecond());
+                } else {
+                    // create a list type
+                    view.set(entry.getKey(), Lists.newArrayList((Object[]) entry.getValue()));
+                }
+            }
+        }
+
+        value.setValue(DataTranslators.CONFIGURATION_NODE.translate(view));
     }
+
 }
