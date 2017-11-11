@@ -4,6 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.nickname.datamodules;
 
+import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.dataservices.modular.DataKey;
 import io.github.nucleuspowered.nucleus.dataservices.modular.DataModule;
@@ -11,6 +13,8 @@ import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.modules.nickname.NicknameModule;
 import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfig;
 import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfigAdapter;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -87,6 +91,35 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
     public void removeNickname() {
         nickname = null;
         getService().getPlayer().ifPresent(x -> x.remove(Keys.DISPLAY_NAME));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <T> Optional<T> getValue(TypeToken<T> token, String[] path, ConfigurationNode node) {
+        if (token.getRawType() == Text.class) {
+            String str = node.getNode((Object[]) path).getString();
+            if (str == null || str.isEmpty()) {
+                return Optional.empty();
+            }
+
+            try {
+                return (Optional<T>) Optional.of(TextSerializers.JSON.deserialize(str));
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+        }
+
+        return super.getValue(token, path, node);
+    }
+
+    @Override
+    protected <T> void saveNode(TypeToken<T> typeToken, T value, String[] path, ConfigurationNode node) throws ObjectMappingException {
+        if (value instanceof Text) {
+            node.getNode((Object[]) path).setValue(TextSerializers.JSON.serialize((Text) value));
+            return;
+        }
+
+        super.saveNode(typeToken, value, path, node);
     }
 
     private static Optional<Text> getNickPrefix() {

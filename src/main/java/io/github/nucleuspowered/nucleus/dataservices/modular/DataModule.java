@@ -65,7 +65,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
         // noop
     }
 
-    private <T> Optional<T> getValue(TypeToken<T> token, String[] path, ConfigurationNode node) {
+    protected <T> Optional<T> getValue(TypeToken<T> token, String[] path, ConfigurationNode node) {
         try {
             return Optional.ofNullable(node.getNode((Object[]) path).getValue(token));
         } catch (ObjectMappingException e) {
@@ -77,7 +77,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
     void saveTo(ConfigurationNode node) {
         for (FieldData d : data) {
             try {
-                getObj(d.clazz, d.field, d.path, node);
+                saveFieldData(d.clazz, d.field, d.path, node);
             } catch (Exception e) {
                 Nucleus.getNucleus().getLogger().error("Could not save module " + d.clazz.getType().getTypeName(), e);
             }
@@ -85,7 +85,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void getObj(TypeToken<T> typeToken, Field field, String[] path, ConfigurationNode node) throws ObjectMappingException {
+    private <T> void saveFieldData(TypeToken<T> typeToken, Field field, String[] path, ConfigurationNode node) throws ObjectMappingException {
         T t;
         try {
             t = (T)field.get(this);
@@ -94,7 +94,16 @@ public abstract class DataModule<S extends ModularDataService<S>> {
             t = null;
         }
 
-        node.getNode((Object[])path).setValue(typeToken, t);
+        saveNode(typeToken, t, path, node);
+    }
+
+    protected <T> void saveNode(TypeToken<T> typeToken, T value, String[] path, ConfigurationNode node) throws ObjectMappingException {
+        ConfigurationNode cn = node.getNode((Object[]) path);
+        if (value == null) {
+            cn.setValue(null);
+        } else {
+            cn.setValue(typeToken, value);
+        }
     }
 
     private List<FieldData> init(Class<? extends DataModule<?>> clazz) {
