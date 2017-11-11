@@ -29,11 +29,14 @@ import javax.annotation.Nonnull;
 public abstract class DataModule<S extends ModularDataService<S>> {
 
     private static final Map<Class<? extends DataModule<?>>, List<FieldData>> fieldData = Maps.newHashMap();
+    private static final Object lock = new Object();
 
     private final List<FieldData> data;
 
     @SuppressWarnings("unchecked") protected DataModule() {
-        data = fieldData.computeIfAbsent((Class<? extends DataModule<?>>) this.getClass(), this::init);
+        synchronized (lock) {
+            data = fieldData.computeIfAbsent((Class<? extends DataModule<?>>) this.getClass(), this::init);
+        }
     }
 
     void loadFrom(ConfigurationNode node) {
@@ -44,7 +47,8 @@ public abstract class DataModule<S extends ModularDataService<S>> {
                     d.field.set(this, value.get());
                 }
             } catch (IllegalArgumentException e) {
-                // ignored, we'll stick with the default.
+                Nucleus.getNucleus().getLogger().warn("Could not set field data for " + d.field.getName() + " "
+                        + "(data key " + Arrays.toString(d.path) + ") - falling back to default.");
             } catch (Exception e) {
                 e.printStackTrace();
             }

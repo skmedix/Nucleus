@@ -73,7 +73,7 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
 
     abstract <T extends TransientModule<S>> Optional<T> tryGetTransient(Class<T> module);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
     public final <T extends DataModule<S>> T get(Class<T> module) {
         if (cached.containsKey(module)) {
             return (T)cached.get(module);
@@ -98,7 +98,7 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
                 }
             }
 
-            dm.loadFrom(data);
+            dm.loadFrom(this.data);
             set(dm);
             return dm;
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
