@@ -194,12 +194,13 @@ public abstract class StandardModule implements Module {
             if (conditionalListener != null) {
                 try {
                     Predicate<Nucleus> cl = conditionalListener.value().newInstance();
+                    if (c instanceof ListenerBase.Reload) {
+                        ((ListenerBase.Reload) c).onReload();
+                    }
+
                     ThrowableAction<? extends Exception> tae = () -> {
                         Sponge.getEventManager().unregisterListeners(c);
                         if (cl.test(plugin)) {
-                            if (c instanceof ListenerBase.Reload) {
-                                ((ListenerBase.Reload) c).onReload();
-                            }
                             Sponge.getEventManager().registerListeners(plugin, c);
                         }
                     };
@@ -211,17 +212,16 @@ public abstract class StandardModule implements Module {
                     if (plugin.isDebugMode()) {
                         e.printStackTrace();
                     }
-
-                    return;
                 }
             } else if (c instanceof ListenerBase.Conditional) {
                 // Add reloadable to load in the listener dynamically if required.
                 ThrowableAction<? extends Exception> tae = () -> {
                     Sponge.getEventManager().unregisterListeners(c);
+                    if (c instanceof ListenerBase.Reload) {
+                        ((ListenerBase.Reload) c).onReload();
+                    }
+
                     if (((ListenerBase.Conditional) c).shouldEnable()) {
-                        if (c instanceof ListenerBase.Reload) {
-                            ((ListenerBase.Reload) c).onReload();
-                        }
                         Sponge.getEventManager().registerListeners(plugin, c);
                     }
                 };

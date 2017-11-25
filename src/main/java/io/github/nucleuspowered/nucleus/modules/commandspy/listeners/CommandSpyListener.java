@@ -39,9 +39,8 @@ import javax.inject.Inject;
 @ConditionalListener(CommandSpyListener.Test.class)
 public class CommandSpyListener extends ListenerBase.Reloadable {
 
-    private CommandPermissionHandler permissionHandler =
-            Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(CommandSpyCommand.class);
-
+    private final String basePermission;
+    private final String exemptTargetPermission;
     private CommandSpyConfig config;
     private final UserDataManager dataManager;
     private final TextParsingUtils textParsingUtils;
@@ -51,13 +50,18 @@ public class CommandSpyListener extends ListenerBase.Reloadable {
     public CommandSpyListener(UserDataManager dataManager, TextParsingUtils textParsingUtils) {
         this.dataManager = dataManager;
         this.textParsingUtils = textParsingUtils;
+
+        CommandPermissionHandler permissionHandler =
+                Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(CommandSpyCommand.class);
+        this.basePermission = permissionHandler.getBase();
+        this.exemptTargetPermission = permissionHandler.getPermissionWithSuffix("exempt.target");
     }
 
     @Listener(order = Order.LAST)
     public void onCommand(SendCommandEvent event, @Root Player player) {
 
-        if (!permissionHandler.testSuffix(player, "exempt.target")) {
-            boolean isInList;
+        if (!player.hasPermission(this.exemptTargetPermission)) {
+            boolean isInList = false;
             if (!this.listIsEmpty) {
                 String command = event.getCommand().toLowerCase();
                 Optional<? extends CommandMapping> oc = Sponge.getCommandManager().get(command, player);
@@ -67,8 +71,6 @@ public class CommandSpyListener extends ListenerBase.Reloadable {
                 cmd = oc.map(commandMapping -> commandMapping.getAllAliases().stream().map(String::toLowerCase).collect(Collectors.toSet()))
                         .orElseGet(() -> Sets.newHashSet(command));
                 isInList = config.getCommands().stream().map(String::toLowerCase).anyMatch(cmd::contains);
-            } else {
-                isInList = true;
             }
 
             // If the command is in the list, report it.
@@ -76,7 +78,7 @@ public class CommandSpyListener extends ListenerBase.Reloadable {
                 List<Player> playerList = Sponge.getServer().getOnlinePlayers()
                     .stream()
                     .filter(x -> !x.getUniqueId().equals(player.getUniqueId()))
-                    .filter(x -> permissionHandler.testBase(x))
+                    .filter(x -> x.hasPermission(this.basePermission))
                     .filter(x -> dataManager.get(x).get().quickGet(CommandSpyUserDataModule.class, CommandSpyUserDataModule::isCommandSpy))
                     .collect(Collectors.toList());
 
