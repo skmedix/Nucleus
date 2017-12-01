@@ -72,6 +72,7 @@ import org.spongepowered.api.GameState;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -104,6 +105,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -463,6 +467,9 @@ public class NucleusPlugin extends Nucleus {
             this.hasStarted = true;
             Sponge.getScheduler().createSyncExecutor(this).submit(() -> this.gameStartedTime = Instant.now());
         }
+
+        ConsoleSource cs = Sponge.getServer().getConsole();
+        supportWarning().forEach(cs::sendMessage);
     }
 
     @Listener
@@ -911,6 +918,24 @@ public class NucleusPlugin extends Nucleus {
         messages.add(Text.of(TextColors.YELLOW, "----------------------------"));
         messages.add(Text.of(TextColors.YELLOW, "- END NUCLEUS ERROR REPORT -"));
         messages.add(Text.of(TextColors.YELLOW, "----------------------------"));
+        return messages;
+    }
+
+    private List<Text> supportWarning() {
+        List<Text> messages = Lists.newArrayList();
+        messages.add(Text.of(TextColors.RED, "-------------------------------------------------"));
+        if (ZonedDateTime.now()
+                .isAfter(ZonedDateTime.of(2018, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")))) {
+            messages.add(Text.of(TextColors.RED, "-  NUCLEUS SUPPORT HAS ENDED FOR 1.10.2/1.11.2  -"));
+        } else {
+            messages.add(Text.of(TextColors.RED, "-  NUCLEUS SUPPORT IS ENDING FOR 1.10.2/1.11.2  -"));
+        }
+        messages.add(Text.of(TextColors.RED, "-------------------------------------------------"));
+
+        messages.add(Text.of(TextColors.RED, "Nucleus for Minecraft 1.10.2 and 1.11.2 will not receive any official support or updates from "
+                + "1st January 2018."));
+        messages.add(Text.of(TextColors.RED, "It will continue to remain available - and remember, it's open source!"));
+        messages.add(Text.of(TextColors.RED, "-------------------------------------------------"));
         return messages;
     }
 }
