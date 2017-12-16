@@ -17,9 +17,9 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.service.pagination.PaginationList;
-import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
@@ -43,8 +43,14 @@ import java.util.Optional;
 @EssentialsEquivalent(value = {"gc", "lag", "mem", "memory", "uptime", "tps", "entities"})
 public class ServerStatCommand extends AbstractCommand<CommandSource> {
 
-    private static final DecimalFormat tpsFormat = new DecimalFormat("#0.00");
-    private static final Text notQuiteEmpty = Text.of(" ");
+    private static final DecimalFormat TPS_FORMAT = new DecimalFormat("#0.00");
+
+    @Override
+    protected CommandElement[] getArguments() {
+        return new CommandElement[] {
+                GenericArguments.flags().flag("c", "s", "-compact", "-summary").buildWith(GenericArguments.none())
+        };
+    }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
@@ -65,7 +71,7 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
 
         messages.add(createText("command.serverstat.jvmuptime.main", "command.serverstat.jvmuptime.hover", Util.getTimeStringFromSeconds(uptime.getSeconds())));
 
-        messages.add(notQuiteEmpty);
+        messages.add(Util.SPACE);
 
         long max = Runtime.getRuntime().maxMemory() / 1024 / 1024;
         long total = Runtime.getRuntime().totalMemory() / 1024 / 1024;
@@ -79,29 +85,27 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
                 String.valueOf(allocated), String.valueOf((allocated * 100)/total), String.valueOf((allocated * 100)/max)));
         messages.add(createText("command.serverstat.freemem.main", "command.serverstat.freemem.hover", String.valueOf(free)));
 
-        for (World world : Sponge.getServer().getWorlds())
-        {
-            int numOfEntities = world.getEntities().size();
-            int loadedChunks = Iterables.size(world.getLoadedChunks());
-            messages.add(notQuiteEmpty);
-            messages.add(plugin.getMessageProvider().getTextMessageWithFormat("command.serverstat.world.title", world.getName()));
+        if (args.hasAny("c")) {
+            for (World world : Sponge.getServer().getWorlds()) {
+                int numOfEntities = world.getEntities().size();
+                int loadedChunks = Iterables.size(world.getLoadedChunks());
+                messages.add(Util.SPACE);
+                messages.add(plugin.getMessageProvider().getTextMessageWithFormat("command.serverstat.world.title", world.getName()));
 
-            // https://github.com/NucleusPowered/Nucleus/issues/888
-            GeneratorType genType = world.getDimension().getGeneratorType();
-            messages.add(plugin.getMessageProvider().getTextMessageWithFormat(
-                    "command.serverstat.world.info",
-                    world.getDimension().getType().getName(),
-                    genType == null ? this.plugin.getMessageProvider().getMessageWithFormat("standard.unknown") : genType.getName(),
-                    String.valueOf(numOfEntities),
-                    String.valueOf(loadedChunks)));
+                // https://github.com/NucleusPowered/Nucleus/issues/888
+                GeneratorType genType = world.getDimension().getGeneratorType();
+                messages.add(plugin.getMessageProvider().getTextMessageWithFormat(
+                        "command.serverstat.world.info",
+                        world.getDimension().getType().getName(),
+                        genType == null ? this.plugin.getMessageProvider().getMessageWithFormat("standard.unknown") : genType.getName(),
+                        String.valueOf(numOfEntities),
+                        String.valueOf(loadedChunks)));
+            }
         }
 
-        PaginationList.Builder plb = Sponge.getServiceManager().provideUnchecked(PaginationService.class).builder()
+        PaginationList.Builder plb = Util.getPaginationBuilder(src)
                 .title(plugin.getMessageProvider().getTextMessageWithFormat("command.serverstat.title")).padding(Text.of("="))
                 .contents(messages);
-        if (!(src instanceof Player)) {
-            plb.linesPerPage(-1);
-        }
 
         plb.sendTo(src);
         return CommandResult.success();
@@ -118,7 +122,7 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
             colour = TextColors.RED;
         }
 
-        return Text.of(colour, tpsFormat.format(currentTps));
+        return Text.of(colour, TPS_FORMAT.format(currentTps));
     }
 
     private Text createText(String mainKey, String hoverKey, String... subs) {
@@ -126,8 +130,4 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
         return tb.onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat(hoverKey))).build();
     }
 
-    private Text createText(String mainKey, String hoverKey, Text... subs) {
-        Text.Builder tb = plugin.getMessageProvider().getTextMessageWithTextFormat(mainKey, subs).toBuilder();
-        return tb.onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat(hoverKey))).build();
-    }
 }
