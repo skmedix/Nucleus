@@ -83,7 +83,7 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
 
         Collection<Player> players = Sponge.getServer().getOnlinePlayers();
         long playerCount = players.size();
-        long hiddenCount = players.stream().filter(x -> x.get(Keys.INVISIBLE).orElse(false)).count();
+        long hiddenCount = players.stream().filter(x -> x.get(Keys.VANISH).orElse(false)).count();
 
         Text header;
         if (showVanished && hiddenCount > 0) {
