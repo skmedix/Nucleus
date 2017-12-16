@@ -46,7 +46,7 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
     private static final DecimalFormat TPS_FORMAT = new DecimalFormat("#0.00");
 
     @Override
-    protected CommandElement[] getArguments() {
+    public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.flags().flag("c", "s", "-compact", "-summary").buildWith(GenericArguments.none())
         };
