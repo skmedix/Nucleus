@@ -17,6 +17,7 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.property.AbstractProperty;
 import org.spongepowered.api.data.property.block.PassableProperty;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Transform;
@@ -300,7 +301,16 @@ public class NucleusTeleportHandler {
                     stc = new SafeTeleportConfig();
                 }
 
-                return TELEPORT_HELPER.getSafeLocation(location, stc.getHeight(), stc.getWidth());
+                Optional<Location<World>> olw = TELEPORT_HELPER.getSafeLocation(location, stc.getHeight(), stc.getWidth());
+                if (olw.isPresent()) {
+                    Location<World> lw = olw.get();
+                    if (!lw.getExtent().getBlock(lw.getBlockPosition()).getProperty(PassableProperty.class)
+                            .map(AbstractProperty::getValue).orElse(true)) {
+                        return Optional.of(lw.add(0, 1, 0));
+                    }
+                }
+
+                return olw;
             }
         },
 
