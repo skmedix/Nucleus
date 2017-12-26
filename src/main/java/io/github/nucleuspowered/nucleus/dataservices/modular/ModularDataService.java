@@ -28,6 +28,8 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
     private final Timing loadTimings = Timings.of(Nucleus.getNucleus(), "Data Modules - Loading");
     private final Timing loadTransientTimings = Timings.of(Nucleus.getNucleus(), "Transient Modules - Loading");
 
+    private final Object lockingObject = new Object();
+
     ModularDataService(DataProvider<ConfigurationNode> dataProvider) throws Exception {
         super(dataProvider);
     }
@@ -75,44 +77,48 @@ public abstract class ModularDataService<S extends ModularDataService<S>> extend
 
     @SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
     public final <T extends DataModule<S>> T get(Class<T> module) {
-        if (cached.containsKey(module)) {
-            return (T)cached.get(module);
-        }
-
-        try {
-            loadTimings.startTimingIfSync();
-            Optional<T> m = tryGet(module);
-            T dm;
-            if (m.isPresent()) {
-                dm = m.get();
-            } else {
-                Nucleus.getNucleus().getLogger()
-                        .warn("Attempting to construct " + module.getSimpleName() + " by reflection. Please add this to the factory.");
-
-                if (DataModule.ReferenceService.class.isAssignableFrom(module)) {
-                    Constructor s = module.getDeclaredConstructor(this.getClass());
-                    s.setAccessible(true);
-                    dm = (T)s.newInstance(this);
-                } else {
-                    dm = module.newInstance();
-                }
+        synchronized (this.lockingObject) {
+            if (this.cached.containsKey(module)) {
+                return (T) this.cached.get(module);
             }
 
-            dm.loadFrom(this.data);
-            set(dm);
-            return dm;
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            loadTimings.stopTimingIfSync();
+            try {
+                this.loadTimings.startTimingIfSync();
+                Optional<T> m = tryGet(module);
+                T dm;
+                if (m.isPresent()) {
+                    dm = m.get();
+                } else {
+                    Nucleus.getNucleus().getLogger()
+                            .warn("Attempting to construct " + module.getSimpleName() + " by reflection. Please add this to the factory.");
+
+                    if (DataModule.ReferenceService.class.isAssignableFrom(module)) {
+                        Constructor s = module.getDeclaredConstructor(this.getClass());
+                        s.setAccessible(true);
+                        dm = (T) s.newInstance(this);
+                    } else {
+                        dm = module.newInstance();
+                    }
+                }
+
+                dm.loadFrom(this.data);
+                set(dm);
+                return dm;
+            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } finally {
+                this.loadTimings.stopTimingIfSync();
+            }
         }
     }
 
     abstract <T extends DataModule<S>> Optional<T> tryGet(Class<T> module);
 
     public <T extends DataModule<S>> void set(T dataModule) {
-        cached.put(dataModule.getClass(), dataModule);
+        synchronized (this.lockingObject) {
+            cached.put(dataModule.getClass(), dataModule);
+        }
     }
 
     private <T extends TransientModule<S>> void setTransient(T dataModule) {
