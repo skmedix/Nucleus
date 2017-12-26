@@ -17,6 +17,7 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextRepresentable;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.Optional;
@@ -89,14 +90,14 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
     }
 
     public void removeNickname() {
-        nickname = null;
+        this.nickname = null;
         getService().getPlayer().ifPresent(x -> x.remove(Keys.DISPLAY_NAME));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected <T> Optional<T> getValue(TypeToken<T> token, String[] path, ConfigurationNode node) {
-        if (token.getRawType() == Text.class) {
+        if (TextRepresentable.class.isAssignableFrom(token.getRawType())) {
             String str = node.getNode((Object[]) path).getString();
             if (str == null || str.isEmpty()) {
                 return Optional.empty();
@@ -114,8 +115,13 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
 
     @Override
     protected <T> void saveNode(TypeToken<T> typeToken, T value, String[] path, ConfigurationNode node) throws ObjectMappingException {
-        if (value instanceof Text) {
-            node.getNode((Object[]) path).setValue(TextSerializers.JSON.serialize((Text) value));
+        if (value == null) {
+            node.getNode((Object[]) path).setValue(null);
+            return;
+        }
+
+        if (value instanceof TextRepresentable) {
+            node.getNode((Object[]) path).setValue(TextSerializers.JSON.serialize(((TextRepresentable) value).toText()));
             return;
         }
 

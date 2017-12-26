@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 
 /**
  * THIS MUST HAVE A NO-ARGS CONSTRUCTOR.
@@ -32,6 +33,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
     private static final Object lock = new Object();
 
     private final List<FieldData> data;
+    private final Object lockingObject = new Object();
 
     @SuppressWarnings("unchecked") protected DataModule() {
         synchronized (lock) {
@@ -39,23 +41,26 @@ public abstract class DataModule<S extends ModularDataService<S>> {
         }
     }
 
+    @GuardedBy("lockingObject")
     void loadFrom(ConfigurationNode node) {
-        for (FieldData d : data) {
-            try {
-                Optional<?> value = getValue(d.clazz, d.path, node);
-                if (value.isPresent()) {
-                    d.field.set(this, value.get());
+        synchronized (this.lockingObject) {
+            for (FieldData d : data) {
+                try {
+                    Optional<?> value = getValue(d.clazz, d.path, node);
+                    if (value.isPresent()) {
+                        d.field.set(this, value.get());
+                    }
+                } catch (IllegalArgumentException e) {
+                    Nucleus.getNucleus().getLogger().warn("Could not set field data for " + d.field.getName() + " "
+                            + "(data key " + Arrays.toString(d.path) + ") - falling back to default.");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (IllegalArgumentException e) {
-                Nucleus.getNucleus().getLogger().warn("Could not set field data for " + d.field.getName() + " "
-                        + "(data key " + Arrays.toString(d.path) + ") - falling back to default.");
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }
 
-        // We loaded, migrate anything that needs to be migrated.
-        migrate();
+            // We loaded, migrate anything that needs to be migrated.
+            migrate();
+        }
     }
 
     /**
@@ -74,12 +79,15 @@ public abstract class DataModule<S extends ModularDataService<S>> {
         }
     }
 
+    @GuardedBy("lockingObject")
     void saveTo(ConfigurationNode node) {
-        for (FieldData d : data) {
-            try {
-                saveFieldData(d.clazz, d.field, d.path, node);
-            } catch (Exception e) {
-                Nucleus.getNucleus().getLogger().error("Could not save module " + d.clazz.getType().getTypeName(), e);
+        synchronized (this.lockingObject) {
+            for (FieldData d : data) {
+                try {
+                    saveFieldData(d.clazz, d.field, d.path, node);
+                } catch (Exception e) {
+                    Nucleus.getNucleus().getLogger().error("Could not save module " + d.clazz.getType().getTypeName(), e);
+                }
             }
         }
     }

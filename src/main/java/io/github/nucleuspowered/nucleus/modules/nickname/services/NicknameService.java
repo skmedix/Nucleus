@@ -180,8 +180,12 @@ public class NicknameService implements NucleusNicknameService {
             );
         }
 
-        NicknameUserDataModule nicknameUserDataModule = Nucleus.getNucleus().getUserDataManager().getUnchecked(pl).get(NicknameUserDataModule.class);
+        ModularUserService mus = Nucleus.getNucleus().getUserDataManager().getUnchecked(pl);
+        NicknameUserDataModule nicknameUserDataModule = mus.get(NicknameUserDataModule.class);
         nicknameUserDataModule.setNickname(nickname);
+        mus.set(nicknameUserDataModule);
+        mus.save();
+
         Text set = nicknameUserDataModule.getNicknameAsText().get();
 
         if (pl.isOnline()) {
