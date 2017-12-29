@@ -85,7 +85,7 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
                 String.valueOf(allocated), String.valueOf((allocated * 100)/total), String.valueOf((allocated * 100)/max)));
         messages.add(createText("command.serverstat.freemem.main", "command.serverstat.freemem.hover", String.valueOf(free)));
 
-        if (args.hasAny("c")) {
+        if (!args.hasAny("c")) {
             for (World world : Sponge.getServer().getWorlds()) {
                 int numOfEntities = world.getEntities().size();
                 int loadedChunks = Iterables.size(world.getLoadedChunks());
