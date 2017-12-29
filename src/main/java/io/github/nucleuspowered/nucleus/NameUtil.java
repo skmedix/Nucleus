@@ -126,7 +126,14 @@ public class NameUtil {
         }
 
         tb.onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("name.hover.ign", player.getName()))).build();
-        return tb.color(tc).style(ts).build();
+        if (tc != TextColors.NONE && tb.getChildren().get(0).getColor().equals(TextColors.NONE)) {
+            tb.color(tc);
+        }
+
+        if (!ts.isEmpty()) {
+            tb.style(ts);
+        }
+        return tb.build();
     }
 
     public String getSerialisedName(User player) {
