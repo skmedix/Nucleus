@@ -9,7 +9,7 @@ plugins {
     // id "com.qixalite.spongestart" version "1.4.3"
 }
 
-project.ext.versionno = '1.1.9'
+project.ext.versionno = '1.1.9.1'
 project.ext.minecraftversion = '1.10.2'
 project.ext.spongeapiversion = '5.1'
 project.ext.suffix = '-LTS'
