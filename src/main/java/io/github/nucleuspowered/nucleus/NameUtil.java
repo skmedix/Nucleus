@@ -26,6 +26,7 @@ import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Tuple;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -126,8 +127,11 @@ public class NameUtil {
         }
 
         tb.onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("name.hover.ign", player.getName()))).build();
-        if (tc != TextColors.NONE && tb.getChildren().get(0).getColor().equals(TextColors.NONE)) {
-            tb.color(tc);
+        if (tc != TextColors.NONE && tb.getColor() == TextColors.NONE) {
+            List<Text> lt = tb.getChildren();
+            if (lt.isEmpty() || lt.get(0).getColor().equals(TextColors.NONE)) {
+                tb.color(tc);
+            }
         }
 
         if (!ts.isEmpty()) {
