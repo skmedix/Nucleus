@@ -923,17 +923,12 @@ public class NucleusPlugin extends Nucleus {
 
     private List<Text> supportWarning() {
         List<Text> messages = Lists.newArrayList();
-        messages.add(Text.of(TextColors.RED, "-------------------------------------------------"));
-        if (ZonedDateTime.now()
-                .isAfter(ZonedDateTime.of(2018, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")))) {
-            messages.add(Text.of(TextColors.RED, "-  NUCLEUS SUPPORT HAS ENDED FOR 1.10.2/1.11.2  -"));
-        } else {
-            messages.add(Text.of(TextColors.RED, "-  NUCLEUS SUPPORT IS ENDING FOR 1.10.2/1.11.2  -"));
-        }
-        messages.add(Text.of(TextColors.RED, "-------------------------------------------------"));
+        messages.add(Text.of(TextColors.RED, "----------------------------------------------------------"));
+        messages.add(Text.of(TextColors.RED, "-  OFFICIAL NUCLEUS SUPPORT HAS ENDED FOR 1.10.2/1.11.2  -"));
+        messages.add(Text.of(TextColors.RED, "----------------------------------------------------------"));
 
-        messages.add(Text.of(TextColors.RED, "Nucleus for Minecraft 1.10.2 and 1.11.2 will not receive any official support or updates from "
-                + "1st January 2018."));
+        messages.add(Text.of(TextColors.RED, "Nucleus for Minecraft 1.10.2 and 1.11.2 is now in community support mode. This release contains "
+                + "community supplied patches."));
         messages.add(Text.of(TextColors.RED, "It will continue to remain available - and remember, it's open source!"));
         messages.add(Text.of(TextColors.RED, "-------------------------------------------------"));
         return messages;
