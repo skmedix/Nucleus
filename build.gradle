@@ -35,7 +35,9 @@ allprojects {
     }
 }
 
-apply plugin: 'signing'
+if (!project.hasProperty("nosign")) {
+    apply plugin: 'signing'
+}
 
 description = 'The Ultimate Essentials Plugin.'
 ext.url = 'http://nucleuspowered.org'
@@ -171,22 +173,27 @@ artifacts {
     archives shadowJar
 }
 
-signing {
-    required {
-        project.properties.hasProperty("signing.keyId")
+if (!project.hasProperty("nosign")) {
+    signing {
+        required {
+            project.properties.hasProperty("signing.keyId")
+        }
+        sign configurations.archives
     }
-    sign configurations.archives
-}
 
-task copyAsc(type: Copy, dependsOn: 'signArchives') {
-    from([signArchives.getSignatureFiles()])
-    into project.file('output')
-}
+    task copyAsc(type: Copy, dependsOn: 'signArchives') {
+        from([signArchives.getSignatureFiles()])
+        into project.file('output')
+    }
 
-task buildAndSign {
-    dependsOn 'build'
-    dependsOn 'signArchives'
-    dependsOn 'copyAsc'
+    task buildAndSign {
+        dependsOn 'build'
+        dependsOn 'signArchives'
+        dependsOn 'copyAsc'
+    }
+
+    signArchives.dependsOn(shadowJar)
+    copyAsc.dependsOn(signArchives)
 }
 
 static String getGitHash() {
@@ -200,5 +207,3 @@ clean.dependsOn(cleanJars)
 copyJars.mustRunAfter(cleanJars)
 build.dependsOn(shadowJar)
 build.dependsOn(copyJars)
-signArchives.dependsOn(shadowJar)
-copyAsc.dependsOn(signArchives)
