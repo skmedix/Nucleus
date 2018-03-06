@@ -154,7 +154,9 @@ public class FlyListener extends ListenerBase implements Reloadable {
     private void safeTeleport(Player pl) {
         if (!pl.isOnGround() && this.flyConfig.isFindSafeOnLogin()) {
             // Try to bring the subject down.
-            plugin.getTeleportHandler().teleportPlayer(pl, pl.getTransform(), NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT_DESCEND);
+            plugin.getTeleportHandler().teleportPlayer(pl,
+                    pl.getTransform(),
+                    NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT_DESCEND);
         }
     }
 }
