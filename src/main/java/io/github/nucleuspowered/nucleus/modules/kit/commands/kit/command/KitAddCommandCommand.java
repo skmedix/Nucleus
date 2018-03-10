@@ -13,6 +13,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -26,25 +27,22 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RunAsync
 @Permissions(prefix = "kit.command", suggestedLevel = SuggestedLevel.NONE)
 @RegisterCommand(value = {"add", "+"}, subcommandOf = KitCommandCommand.class)
-public class KitAddCommandCommand extends AbstractCommand<CommandSource> {
+public class KitAddCommandCommand extends KitFallbackBase<CommandSource> {
 
-    private final String key = "kit";
     private final String command = "command";
-
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(key), false),
+            new KitArgument(Text.of(KIT_PARAMETER), false),
             new RemainingStringsArgument(Text.of(command))
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(key).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         String c = args.<String>getOne(command).get().replace(" {player} ", " {{player}} ");
         kitInfo.addCommand(c);
-        handler.saveKit(kitInfo);
+        KIT_HANDLER.saveKit(kitInfo);
 
         src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.add.command", c, kitInfo.getName()));
         return CommandResult.success();

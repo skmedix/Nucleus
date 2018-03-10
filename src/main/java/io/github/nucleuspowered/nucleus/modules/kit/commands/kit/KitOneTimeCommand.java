@@ -12,9 +12,11 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -23,38 +25,33 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 /**
  * Sets kit as a one time use.
- *
- * Command Usage: /kit set Permission: plugin.kit.onetime.base
  */
 @Permissions(prefix = "kit", suggestedLevel = SuggestedLevel.ADMIN)
 @RegisterCommand(value = {"onetime"}, subcommandOf = KitCommand.class)
 @RunAsync
 @NoModifiers
 @NonnullByDefault
-public class KitOneTimeCommand extends AbstractCommand<CommandSource> {
+public class KitOneTimeCommand extends KitFallbackBase<CommandSource> {
 
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
-
-    private final String kit = "kit";
     private final String toggle = "oneTimeToggle";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.seq(GenericArguments.onlyOne(new KitArgument(Text.of(kit), true)),
+            GenericArguments.seq(GenericArguments.onlyOne(new KitArgument(Text.of(this.KIT_PARAMETER), true)),
             GenericArguments.onlyOne(GenericArguments.bool(Text.of(toggle))))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(this.KIT_PARAMETER).get();
         boolean b = args.<Boolean>getOne(toggle).get();
 
         // This Kit is a reference back to the version in list, so we don't need
         // to update it explicitly
         kitInfo.setOneTime(b);
-        handler.saveKit(kitInfo);
+        KIT_HANDLER.saveKit(kitInfo);
         player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(b ? "command.kit.onetime.on" : "command.kit.onetime.off",
                 kitInfo.getName()));
 

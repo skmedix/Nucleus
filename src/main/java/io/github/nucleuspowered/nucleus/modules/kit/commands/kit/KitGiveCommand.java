@@ -18,6 +18,7 @@ import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
@@ -37,15 +38,12 @@ import java.util.Map;
 @Permissions(prefix = "kit")
 @RegisterCommand(value = "give", subcommandOf = KitCommand.class)
 @NonnullByDefault
-public class KitGiveCommand extends AbstractCommand<CommandSource> implements Reloadable {
-
-    private final KitHandler kitHandler = getServiceUnchecked(KitHandler.class);
+public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Reloadable {
 
     private boolean mustGetAll;
     private boolean isDrop;
 
     private final String playerKey = "subject";
-    private final String kitKey = "kit";
 
     @Override protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> mspi = Maps.newHashMap();
@@ -59,14 +57,14 @@ public class KitGiveCommand extends AbstractCommand<CommandSource> implements Re
                 GenericArguments.none()
             ),
             GenericArguments.onlyOne(GenericArguments.player(Text.of(playerKey))),
-            GenericArguments.onlyOne(new KitArgument(Text.of(kitKey), false))
+            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
 
-        Kit kit = args.<Kit>getOne(this.kitKey).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
         Player player = args.<Player>getOne(playerKey).get();
         boolean skip = args.hasAny("i");
         if (src instanceof Player && player.getUniqueId().equals(((Player) src).getUniqueId())) {
@@ -76,7 +74,7 @@ public class KitGiveCommand extends AbstractCommand<CommandSource> implements Re
         Text playerName = Nucleus.getNucleus().getNameUtil().getName(player);
         Text kitName = Text.of(kit.getName());
         try {
-            NucleusKitService.RedeemResult redeemResult = this.kitHandler.redeemKit(kit, player, !skip, this.mustGetAll);
+            NucleusKitService.RedeemResult redeemResult = KIT_HANDLER.redeemKit(kit, player, !skip, this.mustGetAll);
             if (!redeemResult.rejected().isEmpty()) {
                 // If we drop them, tell the user
                 if (this.isDrop) {

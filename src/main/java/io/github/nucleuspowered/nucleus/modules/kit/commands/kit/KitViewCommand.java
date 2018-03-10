@@ -15,6 +15,7 @@ import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
@@ -38,21 +39,19 @@ import java.util.stream.Collectors;
 @NoModifiers
 @NonnullByDefault
 @Since(spongeApiVersion = "7.0", minecraftVersion = "1.12.1", nucleusVersion = "1.2")
-public class KitViewCommand extends AbstractCommand<Player> implements Reloadable {
+public class KitViewCommand extends KitFallbackBase<Player> implements Reloadable {
 
-    private final KitHandler kitHandler = getServiceUnchecked(KitHandler.class);
-    private final String kitKey = "kit";
     private boolean processTokens = false;
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(new KitArgument(Text.of(this.kitKey), true))
+                GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), true))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        final Kit kitInfo = args.<Kit>getOne(this.kitKey).get();
+        final Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
 
         Inventory inventory = Util.getKitInventoryBuilder()
                 .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(plugin.getMessageProvider()
@@ -62,13 +61,13 @@ public class KitViewCommand extends AbstractCommand<Player> implements Reloadabl
         List<ItemStack> lis = kitInfo.getStacks().stream().filter(x -> !x.getType().equals(ItemTypes.NONE)).map(ItemStackSnapshot::createStack)
                 .collect(Collectors.toList());
         if (this.processTokens) {
-            this.kitHandler.processTokensInItemStacks(src, lis);
+            KIT_HANDLER.processTokensInItemStacks(src, lis);
         }
 
         lis.forEach(inventory::offer);
         return src.openInventory(inventory)
             .map(x -> {
-                kitHandler.addViewer(x);
+                KIT_HANDLER.addViewer(x);
                 return CommandResult.success();
             })
             .orElseThrow(() -> ReturnMessageException.fromKey("command.kit.view.cantopen", kitInfo.getName()));

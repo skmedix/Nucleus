@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -30,28 +31,25 @@ import java.time.Duration;
 @RunAsync
 @NoModifiers
 @NonnullByDefault
-public class KitSetCooldownCommand extends AbstractCommand<CommandSource> {
+public class KitSetCooldownCommand extends KitFallbackBase<CommandSource> {
 
-    private final KitHandler kitHandler = getServiceUnchecked(KitHandler.class);
-
-    private final String kit = "kit";
     private final String duration = "duration";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(kit), false)),
+            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false)),
             GenericArguments.onlyOne(new TimespanArgument(Text.of(duration)))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         long seconds = args.<Long>getOne(duration).get();
 
         kitInfo.setCooldown(Duration.ofSeconds(seconds));
-        kitHandler.saveKit(kitInfo);
+        KIT_HANDLER.saveKit(kitInfo);
         player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.setcooldown.success",
                 kitInfo.getName(), Util.getTimeStringFromSeconds(seconds)));
         return CommandResult.success();

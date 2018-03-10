@@ -38,6 +38,7 @@ import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTr
 import io.github.nucleuspowered.nucleus.internal.traits.PermissionHandlerTrait;
 import io.github.nucleuspowered.nucleus.modules.core.config.WarmupConfig;
 import io.github.nucleuspowered.nucleus.util.Action;
+import io.github.nucleuspowered.nucleus.util.ClassUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.commented.SimpleCommentedConfigurationNode;
 import org.apache.commons.lang3.ArrayUtils;
@@ -165,24 +166,9 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
 
     @SuppressWarnings("unchecked")
     public AbstractCommand() {
-        // I hate type erasure - it leads to a hack like this. Admittedly, I
-        // could've just created a subclass that does
-        // the same thing, but I like to beat the system! :)
-        //
-        // See http://stackoverflow.com/a/18709327
-        Type type = getClass().getGenericSuperclass();
+        List<Class<?>> types = ClassUtil.getActualTypeArguments(this.getClass(), AbstractCommand.class);
+        this.sourceType = types.isEmpty() ? (Class<T>) CommandSource.class : (Class<T>) types.get(0);
 
-        while (!(type instanceof ParameterizedType) ||
-                (((ParameterizedType) type).getRawType() != AbstractCommand.class &&
-                ((ParameterizedType) type).getRawType() != AbstractCommand.class)) {
-            if (type instanceof ParameterizedType) {
-                type = ((Class<?>) ((ParameterizedType) type).getRawType()).getGenericSuperclass();
-            } else {
-                type = ((Class<?>) type).getGenericSuperclass();
-            }
-        }
-
-        this.sourceType = (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[0];
         if (this.sourceType.getClass().isAssignableFrom(CommandSource.class)) {
             this.sourceTypePredicate = x -> true;
         } else {
@@ -336,6 +322,10 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
      */
     protected void afterPostInit() {}
 
+    protected boolean allowFallback(CommandSource source, CommandArgs args, CommandContext context) {
+        return true;
+    }
+
     // ----------------------------------------------------------------------
     // CommandCallable Interface
     // ----------------------------------------------------------------------
@@ -350,7 +340,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         // Phase one: child command processing. Keep track of all thrown arguments.
         List<Tuple<String, CommandException>> thrown = Lists.newArrayList();
 
-        CommandContext context;
+        final CommandContext context = new CommandContext();
         T castedSource;
 
         try {
@@ -369,6 +359,9 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                 } catch (NucleusCommandException e) {
                     // Didn't work out. Let's move on.
                     thrown.addAll(e.getExceptions());
+                    if (!e.isAllowFallback()) {
+                        throw e;
+                    }
                 } catch (CommandException e) {
                     // If the Exception is _not_ of right type, wrap it and add it. This shouldn't happen though.
                     thrown.add(Tuple.of(command + " " + next, e));
@@ -401,7 +394,6 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
             }
 
             // Phase four - create the context and parse the arguments.
-            context = new CommandContext();
             this.argumentParser.parse(source, args, context);
             if (args.hasNext()) {
                 thrown.add(Tuple.of(command, new NucleusArgumentParseException(
@@ -411,7 +403,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                     Text.of(getSimpleUsage(source)),
                     getChildrenUsage(source).orElse(null),
                     true)));
-                throw new NucleusCommandException(thrown);
+                throw new NucleusCommandException(thrown, allowFallback(source, args, context));
             }
         } catch (NucleusCommandException nce) {
             throw nce;
@@ -419,10 +411,10 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
             // get the command to get the usage/subs from.
             thrown.add(Tuple.of(command, NucleusArgumentParseException.from(ape, Text.of(getSimpleUsage(source)),
                 getChildrenUsage(source).orElse(null))));
-            throw new NucleusCommandException(thrown);
+            throw new NucleusCommandException(thrown, allowFallback(source, args, context));
         } catch (CommandException ex) {
             thrown.add(Tuple.of(command, ex)); // Errors at this point are expected, so we'll run with it - no need for debug mode checks.
-            throw new NucleusCommandException(thrown);
+            throw new NucleusCommandException(thrown, allowFallback(source, args, context));
         } catch (Throwable throwable) {
             String m;
             if (throwable.getMessage() == null) {
@@ -435,7 +427,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                 Tuple.of(command, new CommandException(
                     Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.exception.unexpected", m), throwable)));
             throwable.printStackTrace(); // this is on demand, so we should throw it.
-            throw new NucleusCommandException(thrown);
+            throw new NucleusCommandException(thrown, allowFallback(source, args, context));
         }
 
         try {

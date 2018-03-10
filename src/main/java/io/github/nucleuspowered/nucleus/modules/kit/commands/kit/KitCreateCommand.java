@@ -12,10 +12,12 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -35,11 +37,17 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @NoModifiers
 @NonnullByDefault
 @Since(spongeApiVersion = "5.0", minecraftVersion = "1.10.2", nucleusVersion = "0.13")
-public class KitCreateCommand extends AbstractCommand<CommandSource> {
-
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
+public class KitCreateCommand extends KitFallbackBase<CommandSource> {
 
     private final String name = "name";
+
+    @Override
+    protected boolean allowFallback(CommandSource source, CommandArgs args, CommandContext context) {
+        if (context.hasAny(this.name)) {
+            return false;
+        }
+        return super.allowFallback(source, args, context);
+    }
 
     @Override
     public CommandElement[] getArguments() {
@@ -50,7 +58,7 @@ public class KitCreateCommand extends AbstractCommand<CommandSource> {
     public CommandResult executeCommand(final CommandSource source, CommandContext args) throws ReturnMessageException {
         String kitName = args.<String>getOne(name).get();
 
-        if (handler.getKitNames().stream().anyMatch(kitName::equalsIgnoreCase)) {
+        if (KIT_HANDLER.getKitNames().stream().anyMatch(kitName::equalsIgnoreCase)) {
             throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", kitName));
         }
 
@@ -65,7 +73,7 @@ public class KitCreateCommand extends AbstractCommand<CommandSource> {
             Sponge.getEventManager().registerListeners(plugin, new TemporaryEventListener(inventory, container, kitName));
         } else {
             try {
-                handler.saveKit(handler.createKit(kitName));
+                KIT_HANDLER.saveKit(KIT_HANDLER.createKit(kitName));
                 source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.addempty.success", kitName));
             } catch (IllegalArgumentException ex) {
                 throw ReturnMessageException.fromKey("command.kit.create.failed", kitName);
@@ -94,8 +102,8 @@ public class KitCreateCommand extends AbstractCommand<CommandSource> {
                 this.run = true;
                 Sponge.getEventManager().unregisterListeners(this);
 
-                if (handler.getKitNames().stream().noneMatch(kitName::equalsIgnoreCase)) {
-                    handler.saveKit(handler.createKit(kitName).updateKitInventory(this.inventory));
+                if (KIT_HANDLER.getKitNames().stream().noneMatch(kitName::equalsIgnoreCase)) {
+                    KIT_HANDLER.saveKit(KIT_HANDLER.createKit(kitName).updateKitInventory(this.inventory));
                     player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.success", this.kitName));
                 } else {
                     player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", this.kitName));

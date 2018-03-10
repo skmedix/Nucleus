@@ -15,6 +15,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -30,22 +31,21 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RunAsync
 @NonnullByDefault
 @NoModifiers
-public class KitResetUsageCommand extends AbstractCommand<CommandSource> {
+public class KitResetUsageCommand extends KitFallbackBase<CommandSource> {
 
-    private final String kit = "kit";
     private final String user = "subject";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.onlyOne(GenericArguments.user(Text.of(user))),
-            GenericArguments.onlyOne(new KitArgument(Text.of(kit), false))
+            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         User u = args.<User>getOne(user).get();
         KitUserDataModule inu = Nucleus.getNucleus().getUserDataManager().getUnchecked(u).get(KitUserDataModule.class);
 

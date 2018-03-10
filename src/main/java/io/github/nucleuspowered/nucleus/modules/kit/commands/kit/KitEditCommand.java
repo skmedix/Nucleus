@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -35,22 +36,19 @@ import java.util.Optional;
 @NoModifiers
 @NonnullByDefault
 @Since(spongeApiVersion = "5.0", minecraftVersion = "1.10.2", nucleusVersion = "0.13")
-public class KitEditCommand extends AbstractCommand<Player> {
-
-    private final KitHandler kitHandler = getServiceUnchecked(KitHandler.class);
-    private final String kitKey = "kit";
+public class KitEditCommand extends KitFallbackBase<Player> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(kitKey), false))
+            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        final Kit kitInfo = args.<Kit>getOne(kitKey).get();
+        final Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
 
-        if (kitHandler.isOpen(kitInfo.getName())) {
+        if (KIT_HANDLER.isOpen(kitInfo.getName())) {
             throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.current", kitInfo.getName()));
         }
 
@@ -63,7 +61,7 @@ public class KitEditCommand extends AbstractCommand<Player> {
         Optional<Container> openedInventory = src.openInventory(inventory);
 
         if (openedInventory.isPresent()) {
-            kitHandler.addKitInventoryToListener(Tuple.of(kitInfo, inventory), openedInventory.get());
+            KIT_HANDLER.addKitInventoryToListener(Tuple.of(kitInfo, inventory), openedInventory.get());
             return CommandResult.success();
         }
 

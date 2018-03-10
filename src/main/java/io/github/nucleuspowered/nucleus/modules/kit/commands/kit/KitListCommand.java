@@ -16,6 +16,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
@@ -45,19 +46,16 @@ import javax.annotation.Nullable;
 @RunAsync
 @NoModifiers
 @NonnullByDefault
-public class KitListCommand extends AbstractCommand<CommandSource> implements Reloadable {
-
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
+public class KitListCommand extends KitFallbackBase<CommandSource> implements Reloadable {
 
     private final CommandPermissionHandler kitPermissionHandler = Nucleus.getNucleus().getPermissionRegistry()
             .getPermissionsForNucleusCommand(KitCommand.class);
 
     private boolean isSeparatePermissions = false;
 
-
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        Set<String> kits = handler.getKitNames();
+        Set<String> kits = KIT_HANDLER.getKitNames();
         if (kits.isEmpty()) {
             src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.list.empty"));
             return CommandResult.empty();
@@ -71,13 +69,13 @@ public class KitListCommand extends AbstractCommand<CommandSource> implements Re
                         .getUnchecked(((Player)src).getUniqueId()).get(KitUserDataModule.class) : null;
 
         final boolean showHidden = kitPermissionHandler.testSuffix(src, "showhidden");
-        Stream<String> kitStream = handler.getKitNames(showHidden).stream();
+        Stream<String> kitStream = KIT_HANDLER.getKitNames(showHidden).stream();
 
         if (this.isSeparatePermissions) {
             kitStream = kitStream.filter(kit -> src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())));
         }
 
-        kitStream.forEach(kit -> kitText.add(createKit(src, user, kit, handler.getKit(kit).get())));
+        kitStream.forEach(kit -> kitText.add(createKit(src, user, kit, KIT_HANDLER.getKit(kit).get())));
 
         PaginationList.Builder paginationBuilder = paginationService.builder().contents(kitText)
                 .title(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.list.kits")).padding(Text.of(TextColors.GREEN, "-"));

@@ -11,6 +11,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -29,23 +30,20 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RegisterCommand(value = {"set", "update", "setFromInventory"}, subcommandOf = KitCommand.class)
 @NoModifiers
 @NonnullByDefault
-public class KitSetCommand extends AbstractCommand<Player> {
-
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
-    private final String kit = "kit";
+public class KitSetCommand extends KitFallbackBase<Player> {
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(kit), true))
+            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), true))
         };
     }
 
     @Override
     public CommandResult executeCommand(final Player player, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(kit).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         kitInfo.updateKitInventory(player);
-        handler.saveKit(kitInfo);
+        KIT_HANDLER.saveKit(kitInfo);
         player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.set.success", kitInfo.getName()));
         return CommandResult.success();
     }

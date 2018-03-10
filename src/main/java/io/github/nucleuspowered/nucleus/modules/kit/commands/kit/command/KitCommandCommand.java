@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -31,22 +32,21 @@ import java.util.List;
 @RunAsync
 @Permissions(prefix = "kit")
 @RegisterCommand(value = {"command", "commands"}, subcommandOf = KitCommand.class)
-public class KitCommandCommand extends AbstractCommand<CommandSource> {
+public class KitCommandCommand extends KitFallbackBase<CommandSource> {
 
-    private final String key = "kit";
     private final String removePermission = Nucleus.getNucleus().getPermissionRegistry()
             .getPermissionsForNucleusCommand(KitRemoveCommandCommand.class).getBase();
     private final Text removeIcon = Text.of(TextColors.WHITE, "[", TextColors.DARK_RED, "X", TextColors.WHITE, "]");
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(key), true)
+            new KitArgument(Text.of(KIT_PARAMETER), true)
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // List all commands on a kit.
-        Kit kit = args.<Kit>getOne(key).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
         List<String> commands = kit.getCommands();
 
         if (commands.isEmpty()) {

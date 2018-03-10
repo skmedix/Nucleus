@@ -74,6 +74,10 @@ public class KitHandler implements NucleusKitService {
 
     private final KitService store = Nucleus.getNucleus().getKitService();
 
+    public boolean exists(String name, boolean includeHidden) {
+        return this.store.getKitNames(includeHidden).stream().anyMatch(x -> x.equalsIgnoreCase(name));
+    }
+
     @Override
     public Set<String> getKitNames() {
         return getKitNames(true);

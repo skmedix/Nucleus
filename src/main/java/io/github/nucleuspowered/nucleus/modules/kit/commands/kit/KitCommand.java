@@ -23,9 +23,12 @@ import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEq
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -44,19 +47,20 @@ import java.util.Map;
 @NoCost // This is determined by the kit itself.
 @NonnullByDefault
 @EssentialsEquivalent(value = "kit, kits", isExact = false, notes = "'/kit' redeems, '/kits' lists.")
-public class KitCommand extends AbstractCommand<Player> implements Reloadable {
-
-    private final String kitKey = "kit";
-
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
+public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
 
     private boolean isDrop;
     private boolean mustGetAll;
 
     @Override
+    protected boolean allowFallback(CommandSource source, CommandArgs args, CommandContext context) {
+        return true;
+    }
+
+    @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(kitKey), true))
+            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), true))
         };
     }
 
@@ -79,7 +83,7 @@ public class KitCommand extends AbstractCommand<Player> implements Reloadable {
 
     @Override
     public CommandResult executeCommand(Player player, CommandContext args) throws ReturnMessageException {
-        Kit kit = args.<Kit>getOne(this.kitKey).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
 
         EconHelper econHelper = Nucleus.getNucleus().getEconHelper();
         double cost = econHelper.economyServiceExists() ? kit.getCost() : 0;
@@ -95,7 +99,7 @@ public class KitCommand extends AbstractCommand<Player> implements Reloadable {
 
         try {
             NucleusKitService.RedeemResult redeemResult =
-                    this.handler.redeemKit(kit, player, true, this.mustGetAll);
+                    KIT_HANDLER.redeemKit(kit, player, true, this.mustGetAll);
             if (!redeemResult.rejected().isEmpty()) {
                 // If we drop them, tell the user
                 if (this.isDrop) {

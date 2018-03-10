@@ -31,6 +31,7 @@ import io.github.nucleuspowered.nucleus.modules.core.config.WarmupConfig;
 import org.junit.BeforeClass;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
@@ -109,7 +110,7 @@ public abstract class TestBase {
 
         @Override
         public Logger getLogger() {
-            return null;
+            return LoggerFactory.getLogger("test");
         }
 
         @Override public Path getConfigDirPath() {

@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -29,20 +30,18 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RunAsync
 @RegisterCommand(value = "info", subcommandOf = KitCommand.class)
 @Since(spongeApiVersion = "7.0", minecraftVersion = "1.12.1", nucleusVersion = "1.2")
-public class KitInfoCommand extends AbstractCommand<CommandSource> {
-
-    private final String kitName = "kit";
+public class KitInfoCommand extends KitFallbackBase<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(new KitArgument(Text.of(kitName), false))
+                GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
         };
     }
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Kit kit = args.<Kit>getOne(kitName).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
         MessageProvider mp = this.plugin.getMessageProvider();
         Util.getPaginationBuilder(src).title(mp.getTextMessageWithFormat("command.kit.info.title", kit.getName()))
                 .contents(

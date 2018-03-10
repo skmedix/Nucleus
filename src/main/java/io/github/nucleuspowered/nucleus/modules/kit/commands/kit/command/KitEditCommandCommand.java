@@ -14,6 +14,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -37,19 +38,16 @@ import java.util.stream.Collectors;
 @NonnullByDefault
 @Permissions(prefix = "kit.command", suggestedLevel = SuggestedLevel.NONE)
 @RegisterCommand(value = {"edit"}, subcommandOf = KitCommandCommand.class)
-public class KitEditCommandCommand extends AbstractCommand<Player> {
-
-    private final String key = "kit";
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
+public class KitEditCommandCommand extends KitFallbackBase<Player> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(key), false)
+            new KitArgument(Text.of(KIT_PARAMETER), false)
         };
     }
 
     @Override protected CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        final Kit kitInfo = args.<Kit>getOne(key).get();
+        final Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         List<String> commands = kitInfo.getCommands();
         if (commands.size() > 9 * 6) {
             throw ReturnMessageException.fromKey("command.kit.command.edit.toomany", kitInfo.getName());
@@ -74,7 +72,7 @@ public class KitEditCommandCommand extends AbstractCommand<Player> {
         books.forEach(inventory::offer);
 
         src.openInventory(inventory)
-            .ifPresent(x -> handler.addKitCommandInventoryToListener(Tuple.of(kitInfo, inventory), x));
+            .ifPresent(x -> KIT_HANDLER.addKitCommandInventoryToListener(Tuple.of(kitInfo, inventory), x));
 
         return CommandResult.success();
     }

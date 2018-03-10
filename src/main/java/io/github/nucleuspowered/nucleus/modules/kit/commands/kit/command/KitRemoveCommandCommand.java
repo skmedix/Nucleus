@@ -15,6 +15,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -31,17 +32,14 @@ import java.util.List;
 @RunAsync
 @Permissions(prefix = "kit.command", suggestedLevel = SuggestedLevel.NONE)
 @RegisterCommand(value = {"remove", "del", "-"}, subcommandOf = KitCommandCommand.class)
-public class KitRemoveCommandCommand extends AbstractCommand<CommandSource> {
+public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
 
-    private final String key = "kit";
     private final String index = "index";
     private final String command = "command";
 
-    private final KitHandler handler = getServiceUnchecked(KitHandler.class);
-
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(key), false),
+            new KitArgument(Text.of(KIT_PARAMETER), false),
             GenericArguments.firstParsing(
                 new PositiveIntegerArgument(Text.of(index)),
                 new RemainingStringsArgument(Text.of(command)))
@@ -49,7 +47,7 @@ public class KitRemoveCommandCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(key).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         List<String> commands = kitInfo.getCommands();
 
         String cmd;
@@ -72,7 +70,7 @@ public class KitRemoveCommandCommand extends AbstractCommand<CommandSource> {
         }
 
         kitInfo.setCommands(commands);
-        handler.saveKit(kitInfo);
+        KIT_HANDLER.saveKit(kitInfo);
         src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.remove.success", cmd, kitInfo.getName()));
         return CommandResult.success();
     }

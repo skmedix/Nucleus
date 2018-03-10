@@ -22,12 +22,18 @@ import javax.annotation.Nullable;
  */
 public class NucleusCommandException extends CommandException {
 
+    private final boolean allowFallback;
     private final List<Tuple<String, CommandException>> exceptions;
     private Boolean overrideUsage = null;
 
     public NucleusCommandException(List<Tuple<String, CommandException>> exception) {
+        this(exception, true);
+    }
+
+    public NucleusCommandException(List<Tuple<String, CommandException>> exception, boolean allowFallback) {
         super(Text.EMPTY);
         this.exceptions = exception;
+        this.allowFallback = allowFallback;
     }
 
     public List<Tuple<String, CommandException>> getExceptions() {
@@ -98,5 +104,9 @@ public class NucleusCommandException extends CommandException {
 
     @Override public boolean shouldIncludeUsage() {
         return this.overrideUsage == null ? super.shouldIncludeUsage() : this.overrideUsage;
+    }
+
+    public boolean isAllowFallback() {
+        return this.allowFallback;
     }
 }
