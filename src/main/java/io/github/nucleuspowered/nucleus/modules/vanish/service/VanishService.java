@@ -31,8 +31,9 @@ public class VanishService implements Reloadable {
 
     @Override
     public void onReload() throws Exception {
-        this.isAlter = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(VanishConfigAdapter.class).getNodeOrDefault()
-                .isAlterTabList();
+        String property = System.getProperty("nucleus.vanish.tablist.enable");
+        this.isAlter = property != null && !property.isEmpty() &&
+            Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(VanishConfigAdapter.class).getNodeOrDefault().isAlterTabList();
     }
 
     public boolean isVanished(Player player) {

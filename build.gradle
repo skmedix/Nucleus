@@ -48,7 +48,7 @@ ext.spongeapi = '7.1.0-SNAPSHOT'
 
 def qsmlDep = "uk.co.drnaylor:quickstart-moduleloader:0.9.0"
 def geoIpDep = 'com.maxmind.geoip2:geoip2:2.10.0'
-def neutrinoDep = 'io.github.nucleuspowered:neutrino:1.1.0'
+def neutrinoDep = 'io.github.nucleuspowered:neutrino:1.1.1'
 
 defaultTasks 'licenseFormat build'
 
