@@ -10,10 +10,10 @@ plugins {
     // id "com.qixalite.spongestart" version "1.4.3"
 }
 
-project.ext.versionno = '1.3.3'
+project.ext.versionno = '1.3.4'
 project.ext.minecraftversion = '1.12.2'
 project.ext.spongeapiversion = '7.0'
-project.ext.suffix = ''
+project.ext.suffix = '-SNAPSHOT'
 
 allprojects {
     apply plugin: 'java'
