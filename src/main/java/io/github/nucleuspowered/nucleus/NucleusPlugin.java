@@ -61,6 +61,7 @@ import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.core.config.WarmupConfig;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.UniqueUserCountTransientModule;
+import io.github.nucleuspowered.nucleus.modules.core.service.UUIDChangeService;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
@@ -461,7 +462,6 @@ public class NucleusPlugin extends Nucleus {
 
             // Load up the general data files now, mods should have registered items by now.
             try {
-                this.generalService.loadInternal();
                 this.kitService.loadInternal();
             } catch (Exception e) {
                 isErrored = e;
@@ -482,6 +482,8 @@ public class NucleusPlugin extends Nucleus {
     public void onGameStarted(GameStartedServerEvent event) {
         if (isErrored == null) {
             try {
+                getInternalServiceManager().getServiceUnchecked(UUIDChangeService.class).setStateAndReload();
+                this.generalService.loadInternal(); // for migration purposes
                 // Save any additions.
                 moduleContainer.refreshSystemConfig();
                 fireReloadables();

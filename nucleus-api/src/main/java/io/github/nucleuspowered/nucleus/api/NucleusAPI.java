@@ -26,7 +26,9 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusStaffChatService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarmupManagerService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarningService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
+import io.github.nucleuspowered.nucleus.api.service.NucleusWorldUUIDChangeService;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 
 import java.util.Optional;
 
@@ -80,7 +82,23 @@ public class NucleusAPI {
      * @throws IllegalStateException if Nucleus hasn't completed pre init yet.
      */
     public static NucleusMessageTokenService getMessageTokenService() {
-        return getService(NucleusMessageTokenService.class).orElseThrow(() -> new IllegalStateException("Message Tokens are not being registed yet"));
+        return getService(NucleusMessageTokenService.class).orElseThrow(() -> new IllegalStateException("Message Tokens are not being registered "
+                + "yet"));
+    }
+
+    /**
+     * Gets the {@link NucleusWorldUUIDChangeService} service, which allows plugins to check if the admin has created a world UUID mapping.
+     *
+     * <p>
+     *     For proper verification, this will not contain any mappings until after the {@link GameStartingServerEvent} on default ordering
+     * </p>
+     *
+     * @return The {@link NucleusWorldUUIDChangeService}
+     * @throws IllegalStateException if Nucleus hasn't completed postinit.
+     */
+    public static NucleusWorldUUIDChangeService getWorldUUIDChangeService() {
+        return getService(NucleusWorldUUIDChangeService.class).orElseThrow(() -> new IllegalStateException("World UUID mappings have not yet been "
+                + "loaded"));
     }
 
     /**
