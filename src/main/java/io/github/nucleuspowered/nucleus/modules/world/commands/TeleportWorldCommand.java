@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
+import com.flowpowered.math.vector.Vector3d;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -20,6 +21,8 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
@@ -67,14 +70,15 @@ public class TeleportWorldCommand extends AbstractCommand<CommandSource> {
                     "command.world.teleport.failed", worldProperties.getWorldName()
             ));
 
-        if (!player.transferToWorld(world, worldProperties.getSpawnPosition().toDouble())) {
+        Vector3d pos = worldProperties.getSpawnPosition().toDouble();
+        if (!player.transferToWorld(world, pos)) {
             throw ReturnMessageException.fromKey(
                     "command.world.teleport.failed", worldProperties.getWorldName());
         }
 
         // Rotate.
         Nucleus.getNucleus().getWorldDataManager().getWorld(worldProperties.getUniqueId())
-                .ifPresent(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation().ifPresent(player::setRotation));
+                .ifPresent(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation().ifPresent(y -> new Transform<World>(world, pos, y)));
         if (src instanceof Player && ((Player) src).getUniqueId().equals(player.getUniqueId())) {
             src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.teleport.success", worldProperties.getWorldName()));
         } else {
