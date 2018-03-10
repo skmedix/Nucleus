@@ -77,6 +77,10 @@ dependencies {
         ext.versionno = versionno
         ext.suffix = suffix
     })
+    compile project(":nucleus-storageapi", {
+        ext.versionno = versionno
+        ext.suffix = suffix
+    })
     compile "org.spongepowered:spongeapi:" + project.ext.spongeapi
     compile qsmlDep
     compile neutrinoDep

@@ -17,8 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public abstract class ModularDataService<S extends ModularDataService<S>> extends AbstractService<ConfigurationNode> {
 
