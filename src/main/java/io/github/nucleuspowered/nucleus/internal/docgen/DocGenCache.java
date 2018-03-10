@@ -123,7 +123,7 @@ public class DocGenCache {
 
         String desc = abstractCommand.getDescription();
         if (!desc.contains(" ")) {
-            logger.warn("Cannot generate description for: " + abstractCommand.getAliases()[0] + ": " + desc);
+            logger.warn("Cannot generate description for: " + abstractCommand.getCommandPath() + ": " + desc);
         }
         cmd.setOneLineDescription(desc);
 
