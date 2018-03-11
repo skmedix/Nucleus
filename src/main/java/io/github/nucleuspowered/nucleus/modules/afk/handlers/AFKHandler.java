@@ -34,7 +34,6 @@ import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextRepresentable;
 import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.util.Tuple;
 
@@ -115,7 +114,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
                 e.getValue().willKick = true;
                 NucleusTextTemplateImpl message = config.getMessages().getKickMessage();
                 TextRepresentable t;
-                if (message.isEmpty()) {
+                if (message == null || message.isEmpty()) {
                     t = Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("afk.kickreason");
                 } else {
                     t = message;
