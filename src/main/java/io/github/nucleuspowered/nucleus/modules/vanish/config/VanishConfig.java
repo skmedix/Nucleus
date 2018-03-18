@@ -14,7 +14,7 @@ public class VanishConfig {
     @Setting(value = "hide-connection-messages-on-vanish", comment = "config.vanish.connectionmessages")
     private boolean suppressMessagesOnVanish = false;
 
-    @RequiresProperty("nucleus.vanish.tablist.enable")
+    //@RequiresProperty("nucleus.vanish.tablist.enable")
     @Setting(value = "alter-tab-list", comment = "config.vanish.altertablist")
     private boolean alterTabList = false;
 

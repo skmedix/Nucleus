@@ -17,6 +17,7 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -28,31 +29,28 @@ public class VanishListener extends ListenerBase implements Reloadable {
     private final String permission = getPermissionHandlerFor(VanishCommand.class).getPermissionWithSuffix("persist");
     private final String loginVanishPermission = getPermissionHandlerFor(VanishCommand.class).getPermissionWithSuffix("onlogin");
 
-    @Listener(order = Order.FIRST)
-    public void onLogin(ClientConnectionEvent.Login event, @Root Player player) {
-        if (!ServiceChangeListener.isOpOnly() && player.hasPermission(this.loginVanishPermission)) {
-            service.vanishPlayer(player);
-        }
-    }
 
     @Listener
-    public void onLogin(ClientConnectionEvent.Join event, @Root Player player) {
-        if (service.isVanished(player)) {
+    public void onLogin(ClientConnectionEvent.Join event, @Getter("getTargetEntity") Player player) {
+        boolean shouldVanish = (!ServiceChangeListener.isOpOnly() && player.hasPermission(this.loginVanishPermission))
+                || this.service.isVanished(player);
+
+        if (shouldVanish) {
             if (!player.hasPermission(this.permission)) {
                 // No permission, no vanish.
-                service.unvanishPlayer(player);
+                this.service.unvanishPlayer(player);
                 return;
-            } else if (vanishConfig.isSuppressMessagesOnVanish()) {
+            } else if (this.vanishConfig.isSuppressMessagesOnVanish()) {
                 event.setMessageCancelled(true);
             }
 
-            this.service.vanishPlayer(player);
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("vanish.login"));
+            this.service.vanishPlayer(player, true);
+            player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("vanish.login"));
         }
     }
 
     @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event, @Root Player player) {
+    public void onQuit(ClientConnectionEvent.Disconnect event, @Getter("getTargetEntity") Player player) {
         if (player.get(Keys.VANISH).orElse(false)) {
             Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(VanishUserDataModule.class).setVanished(true);
             if (vanishConfig.isSuppressMessagesOnVanish()) {
