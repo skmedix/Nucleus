@@ -2,14 +2,12 @@
  * This file is part of Nucleus, licensed under the MIT License (MIT). See the LICENSE.txt file
  * at the root of this project for more details.
  */
-package io.github.nucleuspowered.nucleus.modules.admin.commands;
+package io.github.nucleuspowered.nucleus.modules.admin.commands.gamemode;
 
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedGameModeArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
-import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -18,7 +16,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
@@ -26,26 +23,17 @@ import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @Permissions
 @RegisterCommand({"gamemode", "gm"})
 @NonnullByDefault
-@EssentialsEquivalent(value = {"gamemode", "gm", "creative", "survival", "adventure", "gmc", "gma", "gms", "gmt"}, isExact = false,
-    notes = "Currently no way to simply give '/creative' or '/gmc', for example, with no arguments, gamemode is required.")
-public class GamemodeCommand extends AbstractCommand<CommandSource> {
+@EssentialsEquivalent(value = {"gamemode", "gm"}, isExact = false, notes = "/gm does not toggle between survival and creative, use /gmt for that")
+public class GamemodeCommand extends GamemodeBase<CommandSource> {
 
     private final String userKey = "user";
     private final String gamemodeKey = "gamemode";
-
-    private final Map<String, String> modeMap = new HashMap<String, String>() {{
-        put(GameModes.SURVIVAL.getId(), "modes.survival");
-        put(GameModes.CREATIVE.getId(), "modes.creative");
-        put(GameModes.ADVENTURE.getId(), "modes.adventure");
-        put(GameModes.SPECTATOR.getId(), "modes.spectator");
-    }};
 
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -61,21 +49,21 @@ public class GamemodeCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.firstParsing(
+            GenericArguments.optional(GenericArguments.firstParsing(
+                // <player> <mode>
+                GenericArguments.seq(
+                        GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(userKey))), permissions.getOthers()),
+                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey)))
+                ),
 
-                    // <mode>
-                    GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey))),
-
-                    // <player> <mode>
-                    GenericArguments.seq(
-                        GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(userKey))), permissions.getPermissionWithSuffix("others")),
-                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey))))
-                )
+                // <mode>
+                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey)))
+            ))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Player user = this.getUserFromArgs(Player.class, src, userKey, args);
         Optional<GameMode> ogm = args.getOne(gamemodeKey);
         if (!ogm.isPresent()) {
@@ -90,28 +78,6 @@ public class GamemodeCommand extends AbstractCommand<CommandSource> {
         }
 
         GameMode gm = ogm.get();
-
-        if (!this.permissions.testSuffix(src, modeMap.computeIfAbsent(
-            gm.getId(), key -> {
-                String[] keySplit = key.split(":", 2);
-                String r = keySplit[keySplit.length - 1].toLowerCase();
-                modeMap.put(key, "modes." + r);
-                return "modes." + r;
-            }
-        ))) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.permission", gm.getTranslation().get()));
-        }
-
-        DataTransactionResult dtr = user.offer(Keys.GAME_MODE, gm);
-        if (dtr.isSuccessful()) {
-            if (!src.equals(user)) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.set.other", user.getName(), gm.getName()));
-            }
-
-            user.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.set.base", gm.getName()));
-            return CommandResult.success();
-        }
-
-        throw ReturnMessageException.fromKey("command.gamemode.error", user.getName());
+        return baseCommand(src, user, gm);
     }
 }

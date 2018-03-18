@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.internal;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.PluginInfo;
+import io.github.nucleuspowered.nucleus.internal.annotations.command.PermissionsFrom;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -21,7 +22,18 @@ public class PermissionRegistry {
     private final Map<String, PermissionInformation> otherPermissions = Maps.newHashMap();
 
     public CommandPermissionHandler getPermissionsForNucleusCommand(Class<? extends AbstractCommand> command) {
-        return serviceRegistry.getOrDefault(command, new CommandPermissionHandler(command, Nucleus.getNucleus()));
+        if (this.serviceRegistry.containsKey(command)) {
+            return this.serviceRegistry.get(command);
+        }
+
+        PermissionsFrom p = command.getAnnotation(PermissionsFrom.class);
+        if (p != null && p.value() != AbstractCommand.class) {
+            return getPermissionsForNucleusCommand(p.value());
+        }
+
+        CommandPermissionHandler handler = new CommandPermissionHandler(command, Nucleus.getNucleus());
+        serviceRegistry.put(command, handler);
+        return handler;
     }
 
     public void addHandler(Class<? extends AbstractCommand> cb, CommandPermissionHandler cph) {

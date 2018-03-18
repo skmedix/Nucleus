@@ -66,6 +66,7 @@ public class CommandPermissionHandler {
         Permissions c = cab.getAnnotation(Permissions.class);
         if (c == null) {
             c = new Permissions() {
+
                 @Override
                 public String[] value() {
                     return new String[0];

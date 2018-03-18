@@ -17,7 +17,6 @@ import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NoModifiersArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.util.NucleusProcessing;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.Constants;
 import io.github.nucleuspowered.nucleus.internal.CostCancellableTask;
@@ -31,13 +30,13 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoHelpSubco
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoTimings;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoWarmup;
+import io.github.nucleuspowered.nucleus.internal.annotations.command.PermissionsFrom;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RedirectModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.PermissionHandlerTrait;
 import io.github.nucleuspowered.nucleus.modules.core.config.WarmupConfig;
-import io.github.nucleuspowered.nucleus.util.Action;
 import io.github.nucleuspowered.nucleus.util.ClassUtil;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.commented.SimpleCommentedConfigurationNode;
@@ -82,11 +81,10 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -131,6 +129,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
     private final Map<UUID, Instant> cooldownStore = Maps.newHashMap();
 
     protected final CommandPermissionHandler permissions;
+    @Nullable private final Collection<String> additionalPermsToCheck;
     private final String[] aliases;
     private final String[] forcedAliases;
     private final Class<T> sourceType;
@@ -215,6 +214,14 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         //
         // exempt.(cooldown|warmup|cost)
         this.permissions = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(this.getClass());
+        if (getClass().isAnnotationPresent(PermissionsFrom.class)) {
+            this.additionalPermsToCheck = Lists.newArrayList();
+            for (String p : getClass().getAnnotation(PermissionsFrom.class).requiresSuffix()) {
+                this.additionalPermsToCheck.add(this.permissions.getPermissionWithSuffix(p));
+            }
+        } else {
+            this.additionalPermsToCheck = null;
+        }
 
         if (this.getClass().isAnnotationPresent(NoModifiers.class)) {
             this.bypassWarmup = true;
@@ -577,6 +584,9 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
      * @return The result of the check.
      */
     private boolean testPermissionOnSubject(Subject source) {
+        if (this.additionalPermsToCheck != null && !this.additionalPermsToCheck.stream().allMatch(source::hasPermission)) {
+            return false;
+        }
         return this.permissions.isPassthrough() || this.permissions.testBase(source);
     }
 
