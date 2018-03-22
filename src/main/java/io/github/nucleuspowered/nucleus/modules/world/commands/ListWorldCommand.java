@@ -81,8 +81,8 @@ public class ListWorldCommand extends AbstractCommand<CommandSource> {
         listContent.add(plugin.getMessageProvider().getTextMessageWithFormat("command.world.list.params2",
             String.valueOf(x.isHardcore()),
             String.valueOf(x.loadOnStartup()),
-            String.valueOf(x.doesKeepSpawnLoaded()),
-            String.valueOf(x.isPVPEnabled())
+            String.valueOf(x.isPVPEnabled()),
+            String.valueOf(x.doesKeepSpawnLoaded())
         ));
     }
 
