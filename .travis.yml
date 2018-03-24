@@ -1,3 +1,5 @@
+dist: trusty
+sudo: false
 language: java
 jdk:
   - oraclejdk8
@@ -18,7 +20,3 @@ before_install:
   - chmod +x gradlew
 install: true
 script: "./gradlew build --refresh-dependencies"
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
