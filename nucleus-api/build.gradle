@@ -51,16 +51,29 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+def getRootVersion = {
+    rootProject.version
+}
+
 jar {
     manifest {
-        attributes  'Implementation-Title': project.name,
-                'Implementation-Version': project.getRootProject().version,
-                'SpongeAPI-Version': project.spongeapi,
-                'Git-Hash': project.getRootProject().getGitHash()
+        attributes  'API-Title': project.name,
+                'Implementation-Title': rootProject.name,
+                'API-Version': project.version,
+                'SpongeAPI-Version': project.spongeapi
     }
 
     archiveName = "Nucleus-${version}-api.jar"
 }
+
+task afterGitHash(dependsOn: gitCommitHash) {
+    doFirst {
+        jar.manifest.attributes.put('Implementation-Version', getRootVersion())
+        jar.manifest.attributes.put('Git-Hash', gitCommitHash.hash())
+    }
+}
+
+compileJava.dependsOn(afterGitHash)
 
 artifacts {
     archives javadocJar
@@ -69,10 +82,12 @@ artifacts {
 }
 
 blossom {
-    def location = 'src/main/java/io/github/nucleuspowered/nucleus/api/NucleusAPITokens.java'
-
-    replaceToken '@version@', rootProject.version, location
-    replaceToken '@semver@', versionno, location
-    replaceToken '@release@', suffix, location
-    replaceToken '@description@', description, location
+    replaceTokenIn('src/main/java/io/github/nucleuspowered/nucleus/api/NucleusAPITokens.java')
+    replaceToken '@semver@', versionno
+    replaceToken '@release@', suffix
+    replaceToken '@version@', version
+    replaceToken '@description@', description
+    replaceToken '@gitHash@', gitCommitHash.hash
 }
+
+blossomSourceReplacementJava.dependsOn(gitCommitHash)

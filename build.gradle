@@ -20,7 +20,31 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.3'
     id 'java'
     // id 'org.spongepowered.plugin' version '0.8.2-SNAPSHOT'
-    // id "com.qixalite.spongestart" version "1.4.3"
+}
+
+allprojects {
+    apply plugin: 'java'
+
+    task gitCommitHash(type: Exec) {
+        ignoreExitValue=true
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = new ByteArrayOutputStream()
+        ext.hash = {
+            if (getExecResult().failure == null) {
+                return standardOutput.toString().replace('\n', '')
+            } else {
+                return "unknown"
+            }
+        }
+    }
+
+    task gitCommitMessage(type: Exec) {
+        commandLine 'git', 'log', '-1', '--format=%B'
+        standardOutput = new ByteArrayOutputStream()
+        ext.message = {
+            standardOutput.toString().replaceAll('[\\r?\\n]+$', '')
+        }
+    }
 }
 
 project.ext.versionno = '1.3.5'
@@ -29,15 +53,17 @@ project.ext.spongeapiversion = '7.0'
 project.ext.suffix = '-SNAPSHOT'
 project.ext.hash = ''
 
-// Add Git hash for unique version numbers, but only for non-snapshot versions
-// Yes, I'm being lazy.
-if (project.ext.suffix != '') {
-    project.ext.hash = '-' + getGitHash()
+String docVer
+boolean isSnapshot
+
+if (project.properties.containsKey('override-doc-ver')) {
+    docVer = project.properties.get('override-doc-ver')
+    isSnapshot = false
+} else {
+    docVer = project.ext.versionno + "-S" + project.ext.spongeapiversion
+    isSnapshot = project.ext.suffix.endsWith('SNAPSHOT')
 }
 
-allprojects {
-    apply plugin: 'java'
-}
 
 project(":nucleus-api") {
     repositories {
@@ -56,8 +82,6 @@ project(":nucleus-api") {
         archiveName = "Nucleus-${version}-api-javadocs.jar"
     }
 }
-
-version = project.versionno + project.suffix + project.hash + '-S' + project.spongeapiversion
 
 if (!project.hasProperty("nosign")) {
     apply plugin: 'signing'
@@ -136,24 +160,27 @@ license {
     }
 }
 
+def getVersion = {
+    rootProject.version
+}
+
 blossom {
-    def location = 'src/main/java/io/github/nucleuspowered/nucleus/PluginInfo.java'
+    replaceTokenIn('src/main/java/io/github/nucleuspowered/nucleus/PluginInfo.java')
+    replaceToken '@name@', project.name
+    replaceToken '@version@', getVersion
 
-    replaceToken '@name@', project.name, location
-    replaceToken '@version@', project.version, location
-    replaceToken '@gitHash@', getGitHash(), location
-
-    replaceToken '@description@', project.description, location
-    replaceToken '@url@', project.url, location
+    replaceToken '@description@', project.description
+    replaceToken '@url@', project.url
+    replaceToken '@gitHash@', gitCommitHash.hash
 }
 
 jar {
     manifest {
         attributes  'Implementation-Title': project.name,
-                'Implementation-Version': version,
-                'SpongeAPI-Version': project.spongeapi,
-                'Git-Hash': getGitHash()
+                'SpongeAPI-Version': project.spongeapi
     }
+
+    archiveName = getVersion
 }
 
 shadowJar {
@@ -180,9 +207,10 @@ shadowJar {
     }
 
     exclude "io/github/nucleuspowered/nucleus/api/NucleusAPIMod.class"
-    archiveName = "Nucleus-${version}-MC${project.ext.minecraftversion}-plugin.jar"
+    //shadowJar.archiveName = shadowName
+   // archiveName = "Nucleus-${version}-MC${project.ext.minecraftversion}-plugin.jar"
 }
-shadowJar.dependsOn([':nucleus-api:build'])
+shadowJar.dependsOn(':nucleus-api:build')
 
 task cleanJars() {
     project.file('output').listFiles().each {
@@ -199,6 +227,54 @@ artifacts {
     archives shadowJar
     shadow shadowJar
 }
+
+// Git
+
+task relnotes {
+    doLast {
+        String complete
+        if (isSnapshot) {
+            // read the snapshot.md file
+            String contents = new File('changelogs/templates/snapshot.md').getText("UTF-8")
+            complete = contents
+                    .replace('{{hash}}', gitCommitHash.hash())
+                    .replace('{{message}}', gitCommitMessage.message())
+                    .replace('{{sponge}}', project.ext.spongeapiversion)
+        } else {
+            String contents = new File('changelogs/templates/release.md').getText("UTF-8")
+            String notes = new File('changelogs/templates/' + docVer + ".md").getText("UTF-8")
+            complete = contents
+                    .replace('{{hash}}', gitCommitHash.hash())
+                    .replace('{{info}}', notes)
+                    .replace('{{sponge}}', project.ext.spongeapiversion)
+        }
+
+        ext.notes = complete
+    }
+}
+
+task printRelNotes(dependsOn: relnotes) {
+    doLast {
+        println(relnotes.notes)
+    }
+}
+
+task onCommitHashComplete {
+    doLast {
+        // Add Git hash for unique version numbers, but only for non-snapshot versions
+        if (project.ext.suffix != '') {
+            project.ext.hash = '-' + gitCommitHash.hash()
+        }
+
+        rootProject.version = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
+        shadowJar.archiveName = "Nucleus-${rootProject.version}-MC${project.ext.minecraftversion}-plugin.jar"
+        jar.manifest.attributes.put('Implementation-Version', getVersion())
+        jar.manifest.attributes.put('Git-Hash', gitCommitHash.hash())
+    }
+}
+
+
+// SIGNING & ORE DEPLOY
 
 if (!project.hasProperty("nosign")) {
     signing {
@@ -240,13 +316,10 @@ if (!project.hasProperty("nosign")) {
 
 }
 
-static String getGitHash() {
-    def process = 'git rev-parse --short HEAD'.execute()
-    process.waitFor()
-    return process.exitValue() ? 'unknown' : process.text.trim()
-}
-
+relnotes.dependsOn([gitCommitHash, gitCommitMessage])
 compileJava.dependsOn(":nucleus-ap:build")
+onCommitHashComplete.dependsOn(gitCommitHash)
+blossomSourceReplacementJava.dependsOn(onCommitHashComplete)
 clean.dependsOn(cleanJars)
 copyJars.mustRunAfter(cleanJars)
 build.dependsOn(shadowJar)
