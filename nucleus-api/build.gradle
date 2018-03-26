@@ -60,20 +60,13 @@ jar {
         attributes  'API-Title': project.name,
                 'Implementation-Title': rootProject.name,
                 'API-Version': project.version,
-                'SpongeAPI-Version': project.spongeapi
+                'SpongeAPI-Version': project.spongeapi,
+                'Implementation-Version': getRootVersion(),
+                'Git-Hash': gitHash.hash
     }
 
     archiveName = "Nucleus-${version}-api.jar"
 }
-
-task afterGitHash(dependsOn: gitCommitHash) {
-    doFirst {
-        jar.manifest.attributes.put('Implementation-Version', getRootVersion())
-        jar.manifest.attributes.put('Git-Hash', gitCommitHash.hash())
-    }
-}
-
-compileJava.dependsOn(afterGitHash)
 
 artifacts {
     archives javadocJar
@@ -87,7 +80,5 @@ blossom {
     replaceToken '@release@', suffix
     replaceToken '@version@', version
     replaceToken '@description@', description
-    replaceToken '@gitHash@', gitCommitHash.hash
+    replaceToken '@gitHash@', gitHash.hash
 }
-
-blossomSourceReplacementJava.dependsOn(gitCommitHash)

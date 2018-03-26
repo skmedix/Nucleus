@@ -25,17 +25,10 @@ plugins {
 allprojects {
     apply plugin: 'java'
 
-    task gitCommitHash(type: Exec) {
-        ignoreExitValue=true
-        commandLine 'git', 'rev-parse', '--short', 'HEAD'
-        standardOutput = new ByteArrayOutputStream()
-        ext.hash = {
-            if (getExecResult().failure == null) {
-                return standardOutput.toString().replace('\n', '')
-            } else {
-                return "unknown"
-            }
-        }
+    task gitHash {
+        def process = 'git rev-parse --short HEAD'.execute()
+        process.waitFor()
+        ext.hash = process.exitValue() ? 'unknown' : process.text.trim().replace('\n', '')
     }
 
     task gitCommitMessage(type: Exec) {
@@ -64,6 +57,12 @@ if (project.properties.containsKey('override-doc-ver')) {
     isSnapshot = project.ext.suffix.endsWith('SNAPSHOT')
 }
 
+// Add Git hash for unique version numbers, but only for non-snapshot versions
+if (project.ext.suffix != '') {
+    project.ext.hash = '-' + gitHash.hash
+}
+
+rootProject.version = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
 
 project(":nucleus-api") {
     repositories {
@@ -171,13 +170,15 @@ blossom {
 
     replaceToken '@description@', project.description
     replaceToken '@url@', project.url
-    replaceToken '@gitHash@', gitCommitHash.hash
+    replaceToken '@gitHash@', gitHash.hash
 }
 
 jar {
     manifest {
         attributes  'Implementation-Title': project.name,
-                'SpongeAPI-Version': project.spongeapi
+                'SpongeAPI-Version': project.spongeapi,
+                'Implementation-Version': getVersion(),
+                'Git-Hash': gitHash.hash
     }
 
     archiveName = getVersion
@@ -207,6 +208,7 @@ shadowJar {
     }
 
     exclude "io/github/nucleuspowered/nucleus/api/NucleusAPIMod.class"
+    archiveName = "Nucleus-${rootProject.version}-MC${project.ext.minecraftversion}-plugin.jar"
     //shadowJar.archiveName = shadowName
    // archiveName = "Nucleus-${version}-MC${project.ext.minecraftversion}-plugin.jar"
 }
@@ -228,7 +230,7 @@ artifacts {
     shadow shadowJar
 }
 
-// Git
+// Release notes
 
 task relnotes {
     doLast {
@@ -237,14 +239,14 @@ task relnotes {
             // read the snapshot.md file
             String contents = new File('changelogs/templates/snapshot.md').getText("UTF-8")
             complete = contents
-                    .replace('{{hash}}', gitCommitHash.hash())
+                    .replace('{{hash}}', gitHash.hash)
                     .replace('{{message}}', gitCommitMessage.message())
                     .replace('{{sponge}}', project.ext.spongeapiversion)
         } else {
             String contents = new File('changelogs/templates/release.md').getText("UTF-8")
             String notes = new File('changelogs/templates/' + docVer + ".md").getText("UTF-8")
             complete = contents
-                    .replace('{{hash}}', gitCommitHash.hash())
+                    .replace('{{hash}}', gitHash.hash)
                     .replace('{{info}}', notes)
                     .replace('{{sponge}}', project.ext.spongeapiversion)
         }
@@ -258,21 +260,6 @@ task printRelNotes(dependsOn: relnotes) {
         println(relnotes.notes)
     }
 }
-
-task onCommitHashComplete {
-    doLast {
-        // Add Git hash for unique version numbers, but only for non-snapshot versions
-        if (project.ext.suffix != '') {
-            project.ext.hash = '-' + gitCommitHash.hash()
-        }
-
-        rootProject.version = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
-        shadowJar.archiveName = "Nucleus-${rootProject.version}-MC${project.ext.minecraftversion}-plugin.jar"
-        jar.manifest.attributes.put('Implementation-Version', getVersion())
-        jar.manifest.attributes.put('Git-Hash', gitCommitHash.hash())
-    }
-}
-
 
 // SIGNING & ORE DEPLOY
 
@@ -316,10 +303,9 @@ if (!project.hasProperty("nosign")) {
 
 }
 
-relnotes.dependsOn([gitCommitHash, gitCommitMessage])
+blossomSourceReplacementJava.dependsOn(gitHash)
+relnotes.dependsOn([gitHash, gitCommitMessage])
 compileJava.dependsOn(":nucleus-ap:build")
-onCommitHashComplete.dependsOn(gitCommitHash)
-blossomSourceReplacementJava.dependsOn(onCommitHashComplete)
 clean.dependsOn(cleanJars)
 copyJars.mustRunAfter(cleanJars)
 build.dependsOn(shadowJar)
