@@ -27,16 +27,14 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
 
     protected final ConfigurationLoader<?> loader;
     private final Path file;
-    private final boolean requiresChildren;
     private final Path backupFile;
     private final Logger logger;
 
-    public AbstractConfigurateDataProvider(Function<Path, ConfigurationLoader<?>>  loaderProvider, Path file, boolean requiresChildren, Logger logger) {
+    public AbstractConfigurateDataProvider(Function<Path, ConfigurationLoader<?>>  loaderProvider, Path file, Logger logger) {
         this.loader = loaderProvider.apply(file);
         this.provider = loaderProvider;
         this.file = file;
         this.backupFile = Paths.get(file.toAbsolutePath().toString() + ".bak");
-        this.requiresChildren = requiresChildren;
         this.logger = logger;
     }
 
@@ -77,8 +75,6 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
             throw getException("Configuration Node is null.");
         } else if (node.isVirtual()) {
             throw getException("Configuration Node is virtual.");
-        } else if (requiresChildren && (!node.hasMapChildren() && !node.hasListChildren())) {
-            throw getException("Configuration Node has no children.");
         }
 
         try {

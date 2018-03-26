@@ -18,7 +18,7 @@ class FileChangingSimpleConfigurateDataProvider implements DataProvider.FileChan
     private SimpleConfigurateDataProvider provider;
 
     @SuppressWarnings("unchecked") FileChangingSimpleConfigurateDataProvider(Function<Path, ConfigurationLoader<?>> loaderProvider, Supplier<Path> file, Logger logger) {
-       this.providerSupplier = () -> new SimpleConfigurateDataProvider(loaderProvider, file.get(), false, logger);
+       this.providerSupplier = () -> new SimpleConfigurateDataProvider(loaderProvider, file.get(), logger);
     }
 
     public void onChange() {

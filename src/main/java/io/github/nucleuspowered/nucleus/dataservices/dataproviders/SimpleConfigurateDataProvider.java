@@ -14,9 +14,9 @@ import java.util.function.Function;
 public class SimpleConfigurateDataProvider extends AbstractConfigurateDataProvider<ConfigurationNode> {
 
     public SimpleConfigurateDataProvider(
-        Function<Path, ConfigurationLoader<?>> loaderProvider, Path file, boolean requiresChildren, Logger logger) {
+        Function<Path, ConfigurationLoader<?>> loaderProvider, Path file, Logger logger) {
 
-        super(loaderProvider, file, requiresChildren, logger);
+        super(loaderProvider, file, logger);
     }
 
     @Override protected ConfigurationNode transformOnLoad(ConfigurationNode node) throws Exception {

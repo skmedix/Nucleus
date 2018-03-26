@@ -24,20 +24,9 @@ public class ConfigurateDataProvider<T> extends AbstractConfigurateDataProvider<
     private final TypeToken<T> typeToken;
     private final Supplier<T> defaultSupplier;
 
-    @SuppressWarnings("unchecked")
-    public ConfigurateDataProvider(TypeToken<T> type, Function<Path, ConfigurationLoader<?>>  loaderProvider, Path file, Logger logger) {
-        this(type, loaderProvider, () -> {
-            try {
-                return (T)type.getRawType().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }, file, true, logger);
-    }
-
-    public ConfigurateDataProvider(TypeToken<T> type, Function<Path, ConfigurationLoader<?>>  loaderProvider, Supplier<T> defaultSupplier, Path file, boolean requiresChildren, Logger logger) {
-        super(loaderProvider, file, requiresChildren, logger);
+    public ConfigurateDataProvider(TypeToken<T> type, Function<Path, ConfigurationLoader<?>> loaderProvider, Supplier<T> defaultSupplier, Path file,
+            Logger logger) {
+        super(loaderProvider, file, logger);
         this.typeToken = type;
         this.defaultSupplier = defaultSupplier;
     }

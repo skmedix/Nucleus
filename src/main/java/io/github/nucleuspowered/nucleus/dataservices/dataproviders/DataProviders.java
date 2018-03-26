@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 public class DataProviders {
 
     private final NucleusPlugin plugin;
-        private final TypeToken<Map<String, ItemDataNode>> ttmsi = new TypeToken<Map<String, ItemDataNode>>() {};
+    private final TypeToken<Map<String, ItemDataNode>> ttmsi = new TypeToken<Map<String, ItemDataNode>>() {};
     private final TypeToken<Map<String, String>> ttss = new TypeToken<Map<String, String>>() {};
     private final TypeToken<KitConfigDataNode> ttmk = TypeToken.of(KitConfigDataNode.class);
     private final TypeToken<UserCacheVersionNode> ttucv = TypeToken.of(UserCacheVersionNode.class);
@@ -46,7 +46,7 @@ public class DataProviders {
         try {
             Path p = getFile(userJson, uuid);
             if (create || doesUserFileExist(uuid)) {
-                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, true, plugin.getLogger());
+                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, plugin.getLogger());
             }
         } catch (Exception e) {
             // ignored
@@ -68,7 +68,7 @@ public class DataProviders {
         try {
             Path p = getFile(worldJson, uuid);
             if (create || doesWorldFileExist(uuid)) {
-                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, false, plugin.getLogger());
+                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, plugin.getLogger());
             }
         } catch (Exception e) {
             // ignored
@@ -92,8 +92,7 @@ public class DataProviders {
             return new FileChangingConfigurateDataProvider<>(
                     ttmk,
                     path -> new LazyConfigurationLoader<>(() -> getGsonBuilder().setPath(path).build()),
-                    p,
-                    plugin.getLogger());
+                    p);
         } catch (Exception e) {
             return null;
         }
@@ -103,7 +102,7 @@ public class DataProviders {
         try {
             Supplier<Path> p = () -> plugin.getDataPath().resolve("nucleususercache.json");
             return new FileChangingConfigurateDataProvider<>(ttucv,
-                    path -> new LazyConfigurationLoader<>(() -> getGsonBuilder().setPath(path).build()), p, plugin.getLogger());
+                    path -> new LazyConfigurationLoader<>(() -> getGsonBuilder().setPath(path).build()), p);
         } catch (Exception e) {
             return null;
         }
@@ -127,7 +126,9 @@ public class DataProviders {
         // For now, just the Configurate one.
         try {
             Path p = plugin.getConfigDirPath().resolve("items.conf");
-            return new ConfigurateDataProvider<>(ttmsi, path -> new LazyConfigurationLoader<>(() -> getHoconBuilder().setPath(path).build()), HashMap::new, p, false, plugin.getLogger());
+            return new ConfigurateDataProvider<>(ttmsi, path -> new LazyConfigurationLoader<>(() -> getHoconBuilder().setPath(path).build()), HashMap::new, p,
+
+                    plugin.getLogger());
         } catch (Exception e) {
             return null;
         }
@@ -140,9 +141,8 @@ public class DataProviders {
             return new FileChangingConfigurateDataProvider<>(ttss, path -> new LazyConfigurationLoader<>(
                     () -> getGsonBuilder().setPath(path).build()),
                     HashMap::new,
-                    p,
-                    false,
-                    plugin.getLogger());
+                    p
+            );
         } catch (Exception e) {
             return null;
         }
