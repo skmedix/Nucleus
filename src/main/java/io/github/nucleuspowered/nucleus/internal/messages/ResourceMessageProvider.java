@@ -20,7 +20,11 @@ public class ResourceMessageProvider extends MessageProvider {
     }
 
     public ResourceMessageProvider(String resource) {
-        rb = ResourceBundle.getBundle(resource, Locale.getDefault(), new UTF8Control());
+        this(resource, Locale.getDefault());
+    }
+
+    public ResourceMessageProvider(String resource, Locale locale) {
+        rb = ResourceBundle.getBundle(resource, locale, new UTF8Control());
     }
 
     @Override

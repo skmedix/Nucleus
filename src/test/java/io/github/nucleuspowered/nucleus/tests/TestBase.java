@@ -149,7 +149,8 @@ public abstract class TestBase {
             return true;
         }
 
-        @Override public boolean reloadMessages() {
+        @Override
+        public boolean reloadMessages() {
             return true;
         }
 
