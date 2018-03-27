@@ -21,6 +21,9 @@ public class WorldConfig {
     @Setting(value = "separate-permissions", comment = "config.worlds.separate")
     private boolean separatePermissions = false;
 
+    @Setting(value = "enforce-gamemode-on-world-change", comment = "config.worlds.gamemode")
+    private boolean enforceGamemodeOnWorldChange = false;
+
     public boolean isDisplayWarningGeneration() {
         return worldGen.displayWarningGeneration;
     }
@@ -31,6 +34,10 @@ public class WorldConfig {
 
     public long getNotificationInterval() {
         return Math.max(1, worldGen.timeToNotify);
+    }
+
+    public boolean isEnforceGamemodeOnWorldChange() {
+        return this.enforceGamemodeOnWorldChange;
     }
 
     public Optional<Long> getWorldBorderDefault() {
