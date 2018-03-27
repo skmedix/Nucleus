@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.admin.commands.gamemode;
 
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedGameModeArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.MarkerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
@@ -53,7 +54,8 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
                 // <player> <mode>
                 GenericArguments.seq(
                         GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(userKey))), permissions.getOthers()),
-                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey)))
+                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey))),
+                        new MarkerArgument()
                 ),
 
                 // <mode>
@@ -64,7 +66,13 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player user = this.getUserFromArgs(Player.class, src, userKey, args);
+        Player user;
+        if (args.hasAny(MarkerArgument.MARKER)) {
+            user = this.getUserFromArgs(Player.class, src, userKey, args);
+        } else {
+            user = this.getUserFromArgs(Player.class, src, "thisisjunk", args);
+        }
+
         Optional<GameMode> ogm = args.getOne(gamemodeKey);
         if (!ogm.isPresent()) {
             String mode = user.get(Keys.GAME_MODE).orElse(GameModes.SURVIVAL).getName();
