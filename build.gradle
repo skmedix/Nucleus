@@ -23,8 +23,6 @@ plugins {
 }
 
 allprojects {
-    apply plugin: 'java'
-
     task gitHash {
         def process = 'git rev-parse --short HEAD'.execute()
         process.waitFor()
@@ -38,6 +36,8 @@ allprojects {
             standardOutput.toString().replaceAll('[\\r?\\n]+$', '')
         }
     }
+
+    apply plugin: 'java'
 }
 
 project.ext.versionno = '1.3.6'
