@@ -57,7 +57,7 @@ public class NucleusItemStackSnapshotSerialiser implements TypeSerializer<Nucleu
         if (!data.isVirtual() && data.hasListChildren()) {
             List<? extends ConfigurationNode> n = data.getChildrenList().stream()
                 .filter(x ->
-                    !x.getNode("DataClass").getString().endsWith("SpongeEnchantmentData")
+                        !x.getNode("DataClass").getString("").endsWith("SpongeEnchantmentData")
                     || (!x.getNode("ManipulatorData", "ItemEnchantments").isVirtual() && x.getNode("ManipulatorData", "ItemEnchantments").hasListChildren()))
                 .collect(Collectors.toList());
             emptyEnchant = n.size() != data.getChildrenList().size();
