@@ -19,7 +19,6 @@ import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
-import io.github.nucleuspowered.nucleus.modules.kit.KitModule;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfig;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
@@ -264,15 +263,6 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
     public boolean isViewer(Container inventory) {
         return this.viewers.contains(inventory);
-    }
-
-    public void reload() {
-        KitConfig kc = Nucleus.getNucleus().getConfigValue(
-                KitModule.ID,
-                KitConfigAdapter.class,
-                x -> x).orElse(new KitConfig());
-        this.isProcessTokens = kc.isProcessTokens();
-        this.isMustGetAll = kc.isMustGetAll();
     }
 
     public void processTokensInItemStacks(Player player, Collection<ItemStack> stacks) {
