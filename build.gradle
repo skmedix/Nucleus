@@ -268,6 +268,11 @@ if (!project.hasProperty("nosign")) {
         required {
             project.properties.hasProperty("signing.keyId")
         }
+
+        if (project.properties.containsKey('gpg2')) {
+            useGpgCmd() // requires gpg2
+        }
+
         // sign configurations.archives
         // we want to add the signatures to this configuration too, as this
         // is what we use to upload to Ore
