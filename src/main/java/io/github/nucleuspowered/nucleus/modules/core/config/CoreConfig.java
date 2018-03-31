@@ -64,6 +64,9 @@ public class CoreConfig {
     @Setting(value = "world-uuid-migration", comment = "config.core.worlduuidmigration")
     private Map<UUID, String> uuidMigration = Maps.newHashMap();
 
+    @Setting(value = "check-for-wildcard", comment = "config.core.wildcard")
+    private boolean checkForWildcard = true;
+
     public boolean isDebugmode() {
         return debugmode;
     }
@@ -127,4 +130,9 @@ public class CoreConfig {
     public Map<UUID, String> getUuidMigration() {
         return this.uuidMigration;
     }
+
+    public boolean isCheckForWildcard() {
+        return this.checkForWildcard;
+    }
+
 }

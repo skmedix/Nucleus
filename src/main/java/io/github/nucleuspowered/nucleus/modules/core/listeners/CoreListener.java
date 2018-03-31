@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core.listeners;
 
+import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.events.NucleusFirstJoinEvent;
@@ -11,6 +12,8 @@ import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
+import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
+import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListener;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.CoreUserDataModule;
@@ -31,15 +34,20 @@ import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -47,6 +55,18 @@ import javax.annotation.Nullable;
 public class CoreListener extends ListenerBase implements Reloadable {
 
     @Nullable private NucleusTextTemplate getKickOnStopMessage = null;
+    @Nullable private final URL url;
+    private boolean warnOnWildcard = true;
+
+    public CoreListener() {
+        URL u = null;
+        try {
+            u = new URL("https://ore.spongepowered.org/Nucleus/Nucleus/pages/The-Permissions-Wildcard-(And-Why-You-Shouldn't-Use-It)");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        this.url = u;
+    }
 
     @IsCancelled(Tristate.UNDEFINED)
     @Listener(order = Order.FIRST)
@@ -138,6 +158,33 @@ public class CoreListener extends ListenerBase implements Reloadable {
             event.setMessageCancelled(firstJoinEvent.isMessageCancelled());
             Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(CoreUserDataModule.class).setStartedFirstJoin(false);
         }
+
+        // Warn about wildcard.
+        if (!ServiceChangeListener.isOpOnly() && player.hasPermission("nucleus")) {
+            MessageProvider provider = this.plugin.getMessageProvider();
+            Nucleus.getNucleus().getLogger().warn("The player " + player.getName() + " has got either the nucleus wildcard or the * wildcard "
+                    + "permission. This may cause unintended side effects.");
+
+            if (this.warnOnWildcard) {
+                // warn
+                List<Text> text = Lists.newArrayList();
+                text.add(provider.getTextMessageWithFormat("core.permission.wildcard2"));
+                text.add(provider.getTextMessageWithFormat("core.permission.wildcard3"));
+                if (this.url != null) {
+                    text.add(
+                            provider.getTextMessageWithFormat("core.permission.wildcard4").toBuilder()
+                                    .onClick(TextActions.openUrl(this.url)).build()
+                    );
+                }
+                text.add(provider.getTextMessageWithFormat("core.permission.wildcard5"));
+                Sponge.getServiceManager().provideUnchecked(PaginationService.class)
+                        .builder()
+                        .title(provider.getTextMessageWithFormat("core.permission.wildcard"))
+                        .contents(text)
+                        .padding(Text.of(TextColors.GOLD, "-"))
+                        .sendTo(player);
+            }
+        }
     }
 
     @Listener(beforeModifications = true)
@@ -202,5 +249,8 @@ public class CoreListener extends ListenerBase implements Reloadable {
         } else {
             requester.sendMessage(Text.of(TextColors.RED, "[Nucleus] ", plugin.getMessageProvider().getTextMessageWithFormat("command.reload.errorone")));
         }
+
+        this.warnOnWildcard = this.plugin.getInternalServiceManager().getServiceUnchecked(CoreConfigAdapter.class).getNodeOrDefault()
+                .isCheckForWildcard();
     }
 }
