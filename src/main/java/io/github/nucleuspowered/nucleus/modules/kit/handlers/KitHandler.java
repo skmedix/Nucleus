@@ -16,7 +16,9 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import io.github.nucleuspowered.nucleus.dataservices.KitService;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
+import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.modules.kit.KitModule;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfig;
@@ -51,7 +53,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class KitHandler implements NucleusKitService {
+public class KitHandler implements NucleusKitService, Reloadable, InternalServiceManagerTrait {
 
     private static final InventoryTransactionResult EMPTY_ITR =
             InventoryTransactionResult.builder().type(InventoryTransactionResult.Type.SUCCESS).build();
@@ -329,5 +331,12 @@ public class KitHandler implements NucleusKitService {
         }
 
         return resultBuilder.type(success ? InventoryTransactionResult.Type.SUCCESS : InventoryTransactionResult.Type.FAILURE).build();
+    }
+
+    @Override
+    public void onReload() throws Exception {
+        KitConfig kitConfig = this.getServiceUnchecked(KitConfigAdapter.class).getNodeOrDefault();
+        this.isMustGetAll = kitConfig.isMustGetAll();
+        this.isProcessTokens = kitConfig.isProcessTokens();
     }
 }
