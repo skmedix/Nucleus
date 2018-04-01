@@ -7,11 +7,11 @@ package io.github.nucleuspowered.nucleus.internal.permissions;
 import javax.annotation.Nullable;
 
 public enum SuggestedLevel {
-    NONE(null),
-    OWNER(NONE),
-    ADMIN(OWNER),
-    MOD(ADMIN),
-    USER(MOD);
+    USER(null),
+    MOD(USER),
+    ADMIN(MOD),
+    OWNER(ADMIN),
+    NONE(OWNER);
 
     @Nullable private final SuggestedLevel level;
 
