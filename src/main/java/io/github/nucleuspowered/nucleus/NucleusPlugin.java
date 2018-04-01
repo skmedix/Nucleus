@@ -480,6 +480,10 @@ public class NucleusPlugin extends Nucleus {
 
     @Listener
     public void onGameStarted(GameStartedServerEvent event) {
+        if (!this.isServer) { // on client, disable whitelist
+            Sponge.getServer().setHasWhitelist(false);
+        }
+
         if (isErrored == null) {
             try {
                 getInternalServiceManager().getServiceUnchecked(UUIDChangeService.class).setStateAndReload();
@@ -883,10 +887,7 @@ public class NucleusPlugin extends Nucleus {
     }
 
     private void errorOnStartup() {
-        if (this.isServer) {
-            Sponge.getServer().setHasWhitelist(true);
-        }
-
+        Sponge.getServer().setHasWhitelist(!this.isServer);
         if (this.versionFail != null) {
             Sponge.getServer().getConsole().sendMessages(getIncorrectVersion());
         } else {
