@@ -96,6 +96,7 @@ import uk.co.drnaylor.quickstart.exceptions.NoModuleException;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleDiscoveryException;
 import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleLoaderException;
 import uk.co.drnaylor.quickstart.modulecontainers.DiscoveryModuleContainer;
+import uk.co.drnaylor.quickstart.modulecontainers.discoverystrategies.Strategy;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -292,10 +293,11 @@ public class NucleusPlugin extends Nucleus {
                     sc.add(Class.forName(classString));
                 }
 
-                db.setDiscoveryStrategy((string, classloader) -> sc)
+                db.setStrategy((string, classloader) -> sc)
                         .setConstructor(new QuickStartModuleConstructor(m));
             } else {
-                db.setConstructor(new QuickStartModuleConstructor(null));
+                db.setConstructor(new QuickStartModuleConstructor(null))
+                        .setStrategy(Strategy.DEFAULT);
             }
             this.moduleContainer = db
                     .setConfigurationLoader(
