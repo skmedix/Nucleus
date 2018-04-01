@@ -104,12 +104,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -219,6 +221,22 @@ public class NucleusPlugin extends Nucleus {
             return;
         }
 
+        List<Text> ls = Lists.newArrayList(
+                    "  ______ _               _____  _____   _____      _       ",
+                    " |  ____| |        /\\   |  __ \\|  __ \\ / ____|    (_)      ",
+                    " | |__  | |       /  \\  | |__) | |  | | |     ___  _ _ __  ",
+                    " |  __| | |      / /\\ \\ |  _  /| |  | | |    / _ \\| | '_ \\ ",
+                    " | |    | |____ / ____ \\| | \\ \\| |__| | |___| (_) | | | | |",
+                    " |_|    |______/_/    \\_\\_|  \\_\\_____/ \\_____\\___/|_|_| |_|",
+                    "                                                           "
+                ).stream().map(x -> Text.of(TextColors.WHITE, x)).collect(Collectors.toList());
+
+        s.sendMessage(Text.of(TextColors.WHITE, "--------------------------"));
+        s.sendMessage(Text.of(TextColors.WHITE, "Nucleus is now powered by..."));
+        ls.forEach(s::sendMessage);
+        s.sendMessage(Text.of(TextColors.WHITE, " "));
+        s.sendMessage(Text.of(TextColors.WHITE, "Funding our Curling passion since 2018"));
+        s.sendMessage(Text.of(TextColors.WHITE, "(mind the radioactivity... or whatever it is)"));
         s.sendMessage(Text.of(TextColors.WHITE, "--------------------------"));
         s.sendMessage(messageProvider.getTextMessageWithFormat("startup.welcome", PluginInfo.NAME,
                 PluginInfo.VERSION, Sponge.getPlatform().getContainer(Platform.Component.API).getVersion().orElse("unknown")));
