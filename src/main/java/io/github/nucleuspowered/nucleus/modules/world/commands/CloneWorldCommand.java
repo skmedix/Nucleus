@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 @NonnullByDefault
 @NoModifiers
-@Permissions(prefix = "world", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "world", suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand(value = {"clone", "copy"}, subcommandOf = WorldCommand.class)
 public class CloneWorldCommand extends AbstractCommand<CommandSource> {
 

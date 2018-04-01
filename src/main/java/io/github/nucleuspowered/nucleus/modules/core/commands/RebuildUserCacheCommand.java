@@ -15,7 +15,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
-@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.OWNER)
 @RunAsync
 @NoModifiers
 @RegisterCommand(value = "rebuildusercache", subcommandOf = NucleusCommand.class)

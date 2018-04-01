@@ -36,6 +36,8 @@ public class PrintPermsCommand extends AbstractCommand<CommandSource> {
         Map<String, PermissionInformation> l = plugin.getPermissionRegistry().getPermissions();
         List<String> notsuggested =
                 l.entrySet().stream().filter(x -> x.getValue().level == SuggestedLevel.NONE).map(Map.Entry::getKey).collect(Collectors.toList());
+        List<String> owner =
+                l.entrySet().stream().filter(x -> x.getValue().level == SuggestedLevel.NONE).map(Map.Entry::getKey).collect(Collectors.toList());
         List<String> admin =
                 l.entrySet().stream().filter(x -> x.getValue().level == SuggestedLevel.ADMIN).map(Map.Entry::getKey).collect(Collectors.toList());
         List<String> mod =
@@ -58,6 +60,12 @@ public class PrintPermsCommand extends AbstractCommand<CommandSource> {
         f.write("-----");
         f.newLine();
         notsuggested.stream().sorted().forEach(permWriter);
+        f.newLine();
+
+        f.write("Owner");
+        f.write("-----");
+        f.newLine();
+        owner.stream().sorted().forEach(permWriter);
         f.newLine();
 
         f.write("Admin");

@@ -11,10 +11,8 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -25,7 +23,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @NoModifiers
 @NonnullByDefault
 @RunAsync
-@Permissions(prefix = "kit.command", mainOverride = "remove", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "kit.command", mainOverride = "remove", suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand(value = {"clear"}, subcommandOf = KitCommandCommand.class)
 public class KitClearCommandCommand extends KitFallbackBase<CommandSource> {
 

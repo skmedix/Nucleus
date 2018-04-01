@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.OWNER)
 @RunAsync
 @NoModifiers
 @RegisterCommand(value = "info", subcommandOf = NucleusCommand.class)

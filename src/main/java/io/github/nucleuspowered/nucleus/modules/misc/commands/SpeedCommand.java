@@ -57,7 +57,7 @@ public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implem
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> mspi = Maps.newHashMap();
-        mspi.put("exempt.max", PermissionInformation.getWithTranslation("permission.speed.exempt.max", SuggestedLevel.NONE));
+        mspi.put("exempt.max", PermissionInformation.getWithTranslation("permission.speed.exempt.max", SuggestedLevel.OWNER));
         return mspi;
     }
 

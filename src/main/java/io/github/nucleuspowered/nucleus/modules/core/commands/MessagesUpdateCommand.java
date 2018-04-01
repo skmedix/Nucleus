@@ -27,7 +27,7 @@ import java.util.List;
 
 @RunAsync
 @NoModifiers
-@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand(value = "update-messages", subcommandOf = NucleusCommand.class)
 @NonnullByDefault
 public class MessagesUpdateCommand extends AbstractCommand<CommandSource> {

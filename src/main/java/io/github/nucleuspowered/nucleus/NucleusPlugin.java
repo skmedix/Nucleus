@@ -854,7 +854,10 @@ public class NucleusPlugin extends Nucleus {
         Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
         ops.ifPresent(permissionService -> {
             Map<String, PermissionInformation> m = this.getPermissionRegistry().getPermissions();
-            m.entrySet().stream().filter(x -> x.getValue().level == SuggestedLevel.ADMIN)
+            m.entrySet().stream().filter(x -> {
+                SuggestedLevel lvl = x.getValue().level;
+                return lvl == SuggestedLevel.ADMIN || lvl == SuggestedLevel.OWNER;
+            })
                     .filter(x -> x.getValue().isNormal)
                     .forEach(k -> permissionService.newDescriptionBuilder(this).assign(PermissionDescription.ROLE_ADMIN, true)
                             .description(k.getValue().description).id(k.getKey()).register());

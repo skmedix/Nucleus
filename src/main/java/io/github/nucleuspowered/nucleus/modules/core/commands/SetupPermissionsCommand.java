@@ -30,7 +30,6 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectData;
-import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.util.Tristate;
@@ -44,7 +43,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "nucleus", suggestedLevel = SuggestedLevel.OWNER)
 @NoModifiers
 @NonnullByDefault
 @RunAsync
@@ -110,6 +109,7 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
     }
 
     private void setupGroups(CommandSource src) throws Exception {
+        String ownerGroup = "owner";
         String adminGroup = "admin";
         String modGroup = "mod";
         String defaultGroup = "default";
@@ -120,34 +120,33 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
                 .orElseThrow(() -> ReturnMessageException.fromKey("args.permissiongroup.noservice"));
 
         // check for admin
-        Subject admin = permissionService.getGroupSubjects().getSubject(adminGroup).orElseGet(() -> {
-            src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.create", adminGroup));
-            return permissionService.getGroupSubjects().loadSubject(adminGroup).join();
-        });
+        Subject owner = getSubject(ownerGroup, src, permissionService, messageProvider);
+        Subject admin = getSubject(adminGroup, src, permissionService, messageProvider);
+        Subject mod = getSubject(modGroup, src, permissionService, messageProvider);
+        Subject defaults = getSubject(defaultGroup, src, permissionService, messageProvider);
 
-        // create mod
-        Subject mod = permissionService.getGroupSubjects().getSubject(modGroup).orElseGet(() -> {
-            src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.create", modGroup));
-            return permissionService.getGroupSubjects().loadSubject(modGroup).join();
-        });
-
-        // right now, LuckPerms is the defacto permissions plugin. So we look for the "default" group
-        Subject defaults = permissionService.getGroupSubjects().getSubject(defaultGroup).orElseGet(() -> {
-            src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.create", defaultGroup));
-            return permissionService.getGroupSubjects().loadSubject(defaultGroup).join();
-        });
+        src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.inherit", adminGroup, ownerGroup));
+        owner.getSubjectData().addParent(ImmutableSet.of(), admin.asSubjectReference());
 
         src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.inherit", modGroup, adminGroup));
         admin.getSubjectData().addParent(ImmutableSet.of(), mod.asSubjectReference());
 
-        src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.inherit", defaults.getIdentifier(), modGroup));
+        src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.inherit", defaultGroup, modGroup));
         mod.getSubjectData().addParent(ImmutableSet.of(), defaults.asSubjectReference());
 
         src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.perms"));
+        setupPerms(src, owner, SuggestedLevel.OWNER, false, false);
         setupPerms(src, admin, SuggestedLevel.ADMIN, false, false);
         setupPerms(src, mod, SuggestedLevel.MOD, false, false);
         setupPerms(src, defaults, SuggestedLevel.USER, false, false);
         src.sendMessage(messageProvider.getTextMessageWithFormat("command.nucleus.permission.completegroups"));
+    }
+
+    private Subject getSubject(String group, CommandSource src, PermissionService service, MessageProvider provider) {
+        return service.getGroupSubjects().getSubject(group).orElseGet(() -> {
+            src.sendMessage(provider.getTextMessageWithFormat("command.nucleus.permission.create", group));
+            return service.getGroupSubjects().loadSubject(group).join();
+        });
     }
 
     private void setupPerms(CommandSource src, Subject group, SuggestedLevel level, boolean reset, boolean inherit) throws Exception {

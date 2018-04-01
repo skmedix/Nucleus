@@ -8,7 +8,8 @@ import javax.annotation.Nullable;
 
 public enum SuggestedLevel {
     NONE(null),
-    ADMIN(NONE),
+    OWNER(NONE),
+    ADMIN(OWNER),
     MOD(ADMIN),
     USER(MOD);
 

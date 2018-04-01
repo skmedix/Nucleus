@@ -24,7 +24,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @NonnullByDefault
 @RunAsync
 @NoModifiers
-@Permissions(suggestedLevel = SuggestedLevel.NONE)
+@Permissions(suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand({ "plainbroadcast", "pbcast", "pbc" })
 public class PlainBroadcastCommand extends AbstractCommand<CommandSource> {
     private final String message = "message";

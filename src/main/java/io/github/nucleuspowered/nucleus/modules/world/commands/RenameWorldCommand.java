@@ -23,7 +23,7 @@ import org.spongepowered.api.world.storage.WorldProperties;
 
 @NonnullByDefault
 @NoModifiers
-@Permissions(prefix = "world", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "world", suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand(value = "rename", subcommandOf = WorldCommand.class)
 public class RenameWorldCommand extends AbstractCommand<CommandSource> {
 

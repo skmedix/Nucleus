@@ -42,7 +42,7 @@ import javax.annotation.Nullable;
 @NoModifiers
 @RunAsync
 @RequiresPlatform
-@Permissions(prefix = "world", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "world", suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand(value = {"delete", "del"}, subcommandOf = WorldCommand.class)
 @NonnullByDefault
 public class DeleteWorldCommand extends AbstractCommand<CommandSource> {

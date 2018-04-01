@@ -7,15 +7,12 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
-import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -36,7 +33,7 @@ import java.util.stream.Collectors;
 
 @NoModifiers
 @NonnullByDefault
-@Permissions(prefix = "kit.command", suggestedLevel = SuggestedLevel.NONE)
+@Permissions(prefix = "kit.command", suggestedLevel = SuggestedLevel.OWNER)
 @RegisterCommand(value = {"edit"}, subcommandOf = KitCommandCommand.class)
 public class KitEditCommandCommand extends KitFallbackBase<Player> {
 
