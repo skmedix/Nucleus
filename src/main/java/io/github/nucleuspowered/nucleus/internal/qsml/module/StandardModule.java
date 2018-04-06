@@ -17,7 +17,6 @@ import io.github.nucleuspowered.nucleus.internal.TaskBase;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterCommandInterceptors;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RequireExistenceOf;
-import io.github.nucleuspowered.nucleus.internal.annotations.RequireExistenceOfHolder;
 import io.github.nucleuspowered.nucleus.internal.annotations.RequiresPlatform;
 import io.github.nucleuspowered.nucleus.internal.annotations.ServerOnly;
 import io.github.nucleuspowered.nucleus.internal.annotations.SkipOnError;
@@ -532,13 +531,7 @@ public abstract class StandardModule implements Module {
         createSeenModule(permissionHandler == null ? null : permissionHandler.getBase(), function);
     }
 
-    protected final void createSeenModule(@Nullable Class<? extends AbstractCommand> permissionClass, String suffix, BiFunction<CommandSource, User, Collection<Text>> function) {
-        // Register seen information.
-        CommandPermissionHandler permissionHandler = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(permissionClass);
-        createSeenModule(permissionHandler == null ? null : permissionHandler.getPermissionWithSuffix(suffix), function);
-    }
-
-    private void createSeenModule(@Nullable String permission, BiFunction<CommandSource, User, Collection<Text>> function) {
+    protected void createSeenModule(@Nullable String permission, BiFunction<CommandSource, User, Collection<Text>> function) {
         plugin.getInternalServiceManager().getService(SeenHandler.class).ifPresent(x ->
                 x.register(plugin, this.getClass().getAnnotation(ModuleData.class).name(), new BasicSeenInformationProvider(permission, function)));
     }
