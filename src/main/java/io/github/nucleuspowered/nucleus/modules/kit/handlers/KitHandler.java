@@ -52,6 +52,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 public class KitHandler implements NucleusKitService, Reloadable, InternalServiceManagerTrait {
 
     private static final InventoryTransactionResult EMPTY_ITR =
@@ -256,9 +258,23 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
         this.viewers.add(inventory);
     }
 
+    @Nullable private Boolean hasViewersWorks = null;
+
     public void removeViewer(Container inventory) {
         this.viewers.remove(inventory);
-        this.viewers.removeIf(x -> !x.hasViewers());
+        if (this.hasViewersWorks == null) {
+            try {
+                inventory.hasViewers();
+                this.hasViewersWorks = true;
+            } catch (Throwable throwable) {
+                this.hasViewersWorks = false;
+                return;
+            }
+        }
+
+        if (this.hasViewersWorks) {
+            this.viewers.removeIf(x -> !x.hasViewers());
+        }
     }
 
     public boolean isViewer(Container inventory) {
