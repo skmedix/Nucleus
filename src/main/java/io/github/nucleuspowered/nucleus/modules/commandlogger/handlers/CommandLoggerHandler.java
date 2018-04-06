@@ -5,11 +5,14 @@
 package io.github.nucleuspowered.nucleus.modules.commandlogger.handlers;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.logging.AbstractLoggingHandler;
+import io.github.nucleuspowered.nucleus.modules.commandlogger.config.CommandLoggerConfig;
 import io.github.nucleuspowered.nucleus.modules.commandlogger.config.CommandLoggerConfigAdapter;
 
-public class CommandLoggerHandler extends AbstractLoggingHandler {
+public class CommandLoggerHandler extends AbstractLoggingHandler implements Reloadable {
 
+    private CommandLoggerConfig config;
     private final CommandLoggerConfigAdapter clca;
 
     public CommandLoggerHandler() {
@@ -17,15 +20,22 @@ public class CommandLoggerHandler extends AbstractLoggingHandler {
         this.clca = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CommandLoggerConfigAdapter.class);
     }
 
+    @Override
     public void onReload() throws Exception {
-        if (clca.getNodeOrDefault().isLogToFile() && logger == null) {
+        this.config = this.clca.getNodeOrDefault();
+        if (this.config.isLogToFile() && this.logger == null) {
             this.createLogger();
-        } else if (!clca.getNodeOrDefault().isLogToFile() && logger != null) {
-            onShutdown();
+        } else if (!this.config.isLogToFile() && this.logger != null) {
+            this.onShutdown();
         }
     }
 
-    @Override protected boolean enabledLog() {
-        return clca.getNodeOrDefault().isLogToFile();
+    @Override
+    protected boolean enabledLog() {
+        if (this.config == null) {
+            return false;
+        }
+
+        return this.config.isLogToFile();
     }
 }

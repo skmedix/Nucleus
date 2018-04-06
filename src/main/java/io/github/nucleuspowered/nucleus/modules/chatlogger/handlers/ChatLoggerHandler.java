@@ -17,17 +17,19 @@ public class ChatLoggerHandler extends AbstractLoggingHandler implements Reloada
         super("chat", "chat");
     }
 
+    @Override
     public void onReload() throws Exception {
         ChatLoggingConfigAdapter clca = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatLoggingConfigAdapter.class);
         this.enabled = clca.getNodeOrDefault().isEnableLog();
-        if (this.enabled && logger == null) {
+        if (this.enabled && this.logger == null) {
             this.createLogger();
-        } else if (!this.enabled && logger != null) {
-            onShutdown();
+        } else if (!this.enabled && this.logger != null) {
+            this.onShutdown();
         }
     }
 
-    @Override protected boolean enabledLog() {
+    @Override
+    protected boolean enabledLog() {
         return this.enabled;
     }
 }
