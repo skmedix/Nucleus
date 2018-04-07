@@ -58,7 +58,7 @@ public abstract class NucleusConfigAdapter<R> extends TypedAbstractConfigAdapter
 
         @Override
         @SuppressWarnings("unchecked")
-        protected R getDefaultObject() {
+        public R getDefaultObject() {
             try {
                 return (R) typeToken.getRawType().newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
