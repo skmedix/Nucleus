@@ -219,6 +219,7 @@ public class CoreListener extends ListenerBase implements Reloadable {
         CoreConfig c = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CoreConfigAdapter.class)
                 .getNodeOrDefault();
         this.getKickOnStopMessage = c.isKickOnStop() ? c.getKickOnStopMessage() : null;
+        this.warnOnWildcard = c.isCheckForWildcard();
     }
 
     @Listener
@@ -249,8 +250,5 @@ public class CoreListener extends ListenerBase implements Reloadable {
         } else {
             requester.sendMessage(Text.of(TextColors.RED, "[Nucleus] ", plugin.getMessageProvider().getTextMessageWithFormat("command.reload.errorone")));
         }
-
-        this.warnOnWildcard = this.plugin.getInternalServiceManager().getServiceUnchecked(CoreConfigAdapter.class).getNodeOrDefault()
-                .isCheckForWildcard();
     }
 }
