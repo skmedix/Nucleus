@@ -97,7 +97,7 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
 
         if (oi.isPresent()) {
             // YES! I should get a job at the weather service and show them how it's done!
-            w.setWeather(we, oi.get());
+            w.setWeather(we, oi.get() * 20L);
             src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.weather.time", we.getName(), w.getName(), Util.getTimeStringFromSeconds(oi.get())));
         } else {
             // No, probably because I've already gotten a job at the weather service...
