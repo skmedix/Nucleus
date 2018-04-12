@@ -216,7 +216,7 @@ shadowJar.dependsOn(':nucleus-api:build')
 
 task cleanJars() {
     project.file('output').listFiles().each {
-        x -> if (x.name.endsWith("jar") || x.name.endsWith("asc")) { x.delete() }
+        x -> if (x.name.endsWith("jar") || x.name.endsWith("asc") || x.name.endsWith("md")) { x.delete() }
     }
 }
 
@@ -258,6 +258,18 @@ task relnotes {
 task printRelNotes(dependsOn: relnotes) {
     doLast {
         println(relnotes.notes)
+    }
+}
+
+task writeRelNotes(dependsOn: relnotes)  {
+    doLast {
+        new File("$projectDir/changelogs/${version}.md").text = relnotes.notes
+    }
+}
+
+task writeRelNotesInOutput(dependsOn: relnotes)  {
+    doLast {
+        new File("$projectDir/output/${version}.md").text = relnotes.notes
     }
 }
 
@@ -316,3 +328,4 @@ clean.dependsOn(cleanJars)
 copyJars.mustRunAfter(cleanJars)
 build.dependsOn(shadowJar)
 build.dependsOn(copyJars)
+build.dependsOn(writeRelNotesInOutput)
