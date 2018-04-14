@@ -21,7 +21,11 @@ public final class InternalServiceManager {
     }
 
     public <I, C extends I> void registerService(Class<I> key, C service) {
-        if (serviceMap.containsKey(key)) {
+        registerService(key, service, false);
+    }
+
+    public <I, C extends I> void registerService(Class<I> key, C service, boolean rereg) {
+        if (!rereg && serviceMap.containsKey(key)) {
             return;
         }
 

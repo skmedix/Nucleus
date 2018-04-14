@@ -51,6 +51,7 @@ import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusLoggerProxy;
 import io.github.nucleuspowered.nucleus.internal.qsml.QuickStartModuleConstructor;
 import io.github.nucleuspowered.nucleus.internal.qsml.event.BaseModuleEvent;
+import io.github.nucleuspowered.nucleus.internal.services.InventoryReorderService;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTokenServiceImpl;
@@ -389,6 +390,9 @@ public class NucleusPlugin extends Nucleus {
             return;
         }
 
+        // Register the inventory service
+        // TODO: Remove for API 7.1
+        this.serviceManager.registerService(InventoryReorderService.class, InventoryReorderService.DEFAULT);
 
         try {
             Sponge.getEventManager().post(new BaseModuleEvent.AboutToConstructEvent(this));
