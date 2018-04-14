@@ -131,13 +131,13 @@ public abstract class StandardModule implements Module {
             for (RegisterService service : annotations) {
                 Class<?> impl = service.value();
                 // create the impl
-                Object serviceImpl;
-                try {
-                    serviceImpl = impl.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
+                Object serviceImpl = getInstance(service.value());
+                if (serviceImpl == null) {
                     String error = "ERROR: Cannot instantiate " + impl.getName();
                     Nucleus.getNucleus().getLogger().error(error);
-                    throw new IllegalStateException(error, e);
+                    if (!service.optional()) {
+                        throw new IllegalStateException(error);
+                    }
                 }
 
                 Class<?> api = service.apiService();
@@ -145,14 +145,14 @@ public abstract class StandardModule implements Module {
                 if (api != Object.class) {
                     if (api.isInstance(serviceImpl)) {
                         // OK
-                        register((Class) api, (Class) impl, serviceImpl);
+                        register((Class) api, (Class) impl, serviceImpl, service.replaceInternal());
                     } else {
                         String error = "ERROR: " + api.getName() + " does not inherit from " + impl.getName();
                         Nucleus.getNucleus().getLogger().error(error);
                         throw new IllegalStateException(error);
                     }
                 } else {
-                    register((Class) impl, serviceImpl);
+                    register((Class) impl, serviceImpl, service.replaceInternal());
                 }
 
                 if (serviceImpl instanceof Reloadable) {
@@ -540,20 +540,20 @@ public abstract class StandardModule implements Module {
         Nucleus.getNucleus().getInternalServiceManager().registerService(impl, impl.newInstance());
     }
 
-    protected final <I, S extends I> void register(Class<I> api, Class<S> impl) throws IllegalAccessException, InstantiationException {
+    protected final <I, S extends I> void register(Class<I> api, Class<S> impl, boolean re) throws IllegalAccessException, InstantiationException {
         S object = impl.newInstance();
         Sponge.getServiceManager().setProvider(Nucleus.getNucleus(), api, object);
         Nucleus.getNucleus().getInternalServiceManager().registerService(api, object);
-        register(impl, object);
+        register(impl, object, re);
     }
 
-    protected final <I, S extends I> void register(Class<S> impl, S object) {
-        Nucleus.getNucleus().getInternalServiceManager().registerService(impl, object);
+    protected final <I, S extends I> void register(Class<S> impl, S object, boolean re) {
+        Nucleus.getNucleus().getInternalServiceManager().registerService(impl, object, re);
     }
 
-    protected final <I, S extends I> void register(Class<I> api, Class<S> impl, S object) {
+    protected final <I, S extends I> void register(Class<I> api, Class<S> impl, S object, boolean re) {
         Sponge.getServiceManager().setProvider(Nucleus.getNucleus(), api, object);
-        Nucleus.getNucleus().getInternalServiceManager().registerService(api, object);
-        register(impl, object);
+        Nucleus.getNucleus().getInternalServiceManager().registerService(api, object, re);
+        register(impl, object, re);
     }
 }
