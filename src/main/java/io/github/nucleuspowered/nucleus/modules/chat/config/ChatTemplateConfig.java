@@ -25,7 +25,7 @@ public class ChatTemplateConfig {
     private String namestyle = "";
 
     @Setting(comment = "config.chat.template.prefix")
-    @Default(value = "{{prefix}} {{displayname}}{{suffix}}&f: ", saveDefaultIfNull = true)
+    @Default(value = "{{prefix:s}}{{displayname}}{{suffix}}&f: ", saveDefaultIfNull = true)
     private NucleusTextTemplateImpl prefix;
 
     @Setting(comment = "config.chat.template.suffix")
