@@ -24,7 +24,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RunAsync
 @NoModifiers
 @NonnullByDefault
-@Permissions(supportsOthers = true, suggestedLevel = SuggestedLevel.USER)
+@Permissions(prefix = "home", supportsOthers = true, suggestedLevel = SuggestedLevel.USER)
 @RegisterCommand(value = "limit", subcommandOf = HomeCommand.class)
 public class HomeLimitCommand extends AbstractCommand<CommandSource> {
 
