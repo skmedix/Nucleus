@@ -194,7 +194,6 @@ shadowJar {
         include(dependency("com.fasterxml.jackson.core:jackson-core"))
         include(dependency("com.fasterxml.jackson.core:jackson-databind"))
         include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
-        include(dependency("io.github.lukehutch:fast-classpath-scanner"))
     }
 
     relocate 'com.maxmind.geoip2', 'io.github.nucleuspowered.relocate.com.maxmind.geoip2'
