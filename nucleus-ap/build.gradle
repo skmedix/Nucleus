@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'eclipse'
-    id 'maven'
+   // id 'maven'
 }
 
 group 'io.github.nucleuspowered'

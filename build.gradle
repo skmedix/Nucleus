@@ -16,7 +16,7 @@ plugins {
     id 'eclipse'
     id 'com.github.hierynomus.license' version '0.12.1'
     id 'ninja.miserable.blossom' version '1.0.1'
-    id 'maven'
+ //   id 'maven'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
     id 'java'
     // id 'org.spongepowered.plugin' version '0.8.2-SNAPSHOT'
@@ -62,7 +62,8 @@ if (project.ext.suffix != '') {
     project.ext.hash = '-' + gitHash.hash
 }
 
-rootProject.version = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
+rootProject.version = project.versionno + project.suffix + '-S' + project.spongeapiversion
+project.ext.fileVersion = project.versionno + project.suffix + project.ext.hash + '-S' + project.spongeapiversion
 
 project(":nucleus-api") {
     repositories {
