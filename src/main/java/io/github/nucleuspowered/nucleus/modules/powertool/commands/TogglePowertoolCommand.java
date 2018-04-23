@@ -33,18 +33,18 @@ public class TogglePowertoolCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(toggleKey))))};
+        return new CommandElement[] {GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(this.toggleKey))))};
     }
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         PowertoolUserDataModule user = Nucleus.getNucleus().getUserDataManager().getUnchecked(src).get(PowertoolUserDataModule.class);
 
         // If specified - get the key. Else, the inverse of what we have now.
-        boolean toggle = args.<Boolean>getOne(toggleKey).orElse(!user.isPowertoolToggled());
+        boolean toggle = args.<Boolean>getOne(this.toggleKey).orElse(!user.isPowertoolToggled());
         user.setPowertoolToggle(toggle);
 
-        MessageProvider mp = plugin.getMessageProvider();
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
         src.sendMessage(mp.getTextMessageWithFormat("command.powertool.toggle",
                 mp.getMessageWithFormat(toggle ? "standard.enabled" : "standard.disabled")));
         return CommandResult.success();

@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.admin.commands.gamemode;
 
 import com.google.common.collect.Maps;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedGameModeArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.MarkerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -53,13 +54,14 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
             GenericArguments.optional(GenericArguments.firstParsing(
                 // <player> <mode>
                 GenericArguments.seq(
-                        GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(userKey))), permissions.getOthers()),
-                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey))),
+                        GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(
+                                this.userKey))), this.permissions.getOthers()),
+                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey))),
                         new MarkerArgument()
                 ),
 
                 // <mode>
-                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey)))
+                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey)))
             ))
         };
     }
@@ -68,18 +70,18 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Player user;
         if (args.hasAny(MarkerArgument.MARKER)) {
-            user = this.getUserFromArgs(Player.class, src, userKey, args);
+            user = this.getUserFromArgs(Player.class, src, this.userKey, args);
         } else {
             user = this.getUserFromArgs(Player.class, src, "thisisjunk", args);
         }
 
-        Optional<GameMode> ogm = args.getOne(gamemodeKey);
+        Optional<GameMode> ogm = args.getOne(this.gamemodeKey);
         if (!ogm.isPresent()) {
             String mode = user.get(Keys.GAME_MODE).orElse(GameModes.SURVIVAL).getName();
             if (src.equals(user)) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.get.base", mode));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.gamemode.get.base", mode));
             } else {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.get.other", user.getName(), mode));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.gamemode.get.other", user.getName(), mode));
             }
 
             return CommandResult.success();

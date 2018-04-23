@@ -19,12 +19,6 @@ import java.util.Optional;
 
 public class EconHelper {
 
-    private final NucleusPlugin plugin;
-
-    public EconHelper(NucleusPlugin plugin) {
-        this.plugin = plugin;
-    }
-
     public boolean economyServiceExists() {
         return Sponge.getServiceManager().provide(EconomyService.class).isPresent();
     }

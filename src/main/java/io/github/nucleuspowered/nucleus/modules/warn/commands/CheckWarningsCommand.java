@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warn.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -54,16 +55,16 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {GenericArguments.flags().flag("-all", "a").flag("-expired", "e").buildWith(
-                GenericArguments.onlyOne(GenericArguments.user(Text.of(playerKey))))};
+                GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey))))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = args.<User>getOne(playerKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        User user = args.<User>getOne(this.playerKey).get();
 
-        handler.updateWarnings(user);
+        this.handler.updateWarnings(user);
         List<WarnData> warnings;
-        final List<WarnData> allWarnings = handler.getWarningsInternal(user);
+        final List<WarnData> allWarnings = this.handler.getWarningsInternal(user);
         if (args.hasAny("all")) {
             warnings = allWarnings;
         } else if (args.hasAny("expired")) {
@@ -73,19 +74,19 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         }
 
         if (warnings.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.none", user.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.none", user.getName()));
             return CommandResult.success();
         }
 
         List<Text> messages = warnings.stream().sorted(Comparator.comparing(WarnData::getDate)).map(x -> createMessage(allWarnings, x, user)).collect(Collectors.toList());
-        messages.add(0, plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.info"));
+        messages.add(0, Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.info"));
 
         PaginationService paginationService = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class);
         paginationService.builder()
                 .title(
                         Text.builder()
                                 .color(TextColors.GOLD)
-                                .append(Text.of(plugin.getMessageProvider().getMessageWithFormat("command.checkwarnings.header", user.getName())))
+                                .append(Text.of(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.checkwarnings.header", user.getName())))
                                 .build())
                 .padding(
                         Text.builder()
@@ -112,21 +113,21 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         } else if (warning.getTimeFromNextLogin().isPresent()) {
             time = Util.getTimeStringFromSeconds(warning.getTimeFromNextLogin().get().getSeconds());
         } else {
-            time = plugin.getMessageProvider().getMessageWithFormat("standard.restoftime");
+            time = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.restoftime");
         }
 
         //Get the ID of the warning, its index in the users List<WarnData>
         int id = allData.indexOf(warning) + 1;
 
         //Action buttons, for a non expired warning this should look like 'Action > [Delete] - [Expire] - [Return] <'
-        Text.Builder actions = plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.action").toBuilder();
+        Text.Builder actions = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.action").toBuilder();
 
         //Add separation between the word 'Action' and action buttons
         actions.append(Text.of(TextColors.GOLD, " > "));
 
         //Add the delete button [Delete]
-        actions.append(Text.builder().append(Text.of(TextColors.RED, plugin.getMessageProvider().getMessageWithFormat("standard.action.delete")))
-                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.delete")))
+        actions.append(Text.builder().append(Text.of(TextColors.RED, Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.action.delete")))
+                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.delete")))
                 .onClick(TextActions.runCommand("/removewarning --remove " + user.getName() + " " + id))
                 .build());
 
@@ -135,8 +136,9 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
 
         //Add the expire button if the warning isn't expired [Expire]
         if (!warning.isExpired()) {
-            actions.append(Text.builder().append(Text.of(TextColors.YELLOW, plugin.getMessageProvider().getMessageWithFormat("standard.action.expire")))
-                    .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.expire")))
+            actions.append(Text.builder().append(Text.of(TextColors.YELLOW,
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.action.expire")))
+                    .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.expire")))
                     .onClick(TextActions.runCommand("/removewarning " + user.getName() + " " + id))
                     .build());
 
@@ -145,8 +147,8 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
         }
 
         //Add the return button [Return]
-        actions.append(Text.builder().append(Text.of(TextColors.GREEN, plugin.getMessageProvider().getMessageWithFormat("standard.action.return")))
-                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.return")))
+        actions.append(Text.builder().append(Text.of(TextColors.GREEN, Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.action.return")))
+                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.return")))
                 .onClick(TextActions.runCommand("/checkwarnings " + user.getName()))
                 .build());
 
@@ -159,13 +161,15 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
 
         //Create a clickable name providing more information about the warning
         Text.Builder information = Text.builder(name)
-                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.check")))
+                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.hover.check")))
                 .onClick(TextActions.executeCallback(commandSource -> {
-                    commandSource.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.id", String.valueOf(id)));
-                    commandSource.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.date", date));
-                    commandSource.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.remaining", time));
-                    commandSource.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.warner", name));
-                    commandSource.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.warning", warning.getReason()));
+                    commandSource.sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.id", String.valueOf(id)));
+                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.date", date));
+                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.remaining", time));
+                    commandSource.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.warner", name));
+                    commandSource.sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.warning", warning.getReason()));
                     commandSource.sendMessage(actions.build());
                 }));
 
@@ -177,9 +181,9 @@ public class CheckWarningsCommand extends AbstractCommand<CommandSource> {
 
         //Add the remaining length of the warning
         if (warning.isExpired()) {
-            message.append(Text.of(TextColors.GRAY, " " + plugin.getMessageProvider().getMessageWithFormat("standard.status.expired")));
+            message.append(Text.of(TextColors.GRAY, " " + Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.status.expired")));
         } else {
-            message.append(Text.of(TextColors.GREEN, " " + plugin.getMessageProvider().getMessageWithFormat("standard.for") + " "));
+            message.append(Text.of(TextColors.GREEN, " " + Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.for") + " "));
             if (Character.isLetter(time.charAt(0))) {
                 message.append(Text.of(TextColors.YELLOW, time.substring(0, 1).toLowerCase() + time.substring(1)));
             } else {

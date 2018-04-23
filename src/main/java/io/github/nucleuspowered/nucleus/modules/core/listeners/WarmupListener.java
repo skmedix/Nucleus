@@ -17,7 +17,7 @@ import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-public class WarmupListener extends ListenerBase implements Reloadable {
+public class WarmupListener implements Reloadable, ListenerBase {
 
     private NucleusWarmupManagerService service = Nucleus.getNucleus().getWarmupManager();
     private WarmupConfig warmupConfig = Nucleus.getNucleus().getWarmupConfig();
@@ -43,13 +43,13 @@ public class WarmupListener extends ListenerBase implements Reloadable {
     }
 
     private void cancelWarmup(Player player) {
-        service.cleanup();
-        if (service.removeWarmup(player.getUniqueId()) && player.isOnline()) {
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("warmup.cancel"));
+        this.service.cleanup();
+        if (this.service.removeWarmup(player.getUniqueId()) && player.isOnline()) {
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warmup.cancel"));
         }
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.warmupConfig = Nucleus.getNucleus().getWarmupConfig();
     }
 }

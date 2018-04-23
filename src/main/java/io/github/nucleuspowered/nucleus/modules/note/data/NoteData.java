@@ -33,18 +33,18 @@ public class NoteData implements Note {
     }
 
     @Override public String getNote() {
-        return note;
+        return this.note;
     }
 
     @Override public Optional<UUID> getNoter() {
-        return noter.equals(Util.consoleFakeUUID) ? Optional.empty() : Optional.of(noter);
+        return this.noter.equals(Util.consoleFakeUUID) ? Optional.empty() : Optional.of(this.noter);
     }
 
     public UUID getNoterInternal() {
-        return noter;
+        return this.noter;
     }
 
     @Override public Instant getDate() {
-        return Instant.ofEpochMilli(date);
+        return Instant.ofEpochMilli(this.date);
     }
 }

@@ -25,7 +25,7 @@ public class AFKCommandListener extends AbstractAFKListener implements ListenerB
     public void onPlayerCommand(final SendCommandEvent event, @Root Player player) {
         // Did the subject run /afk? Then don't do anything, we'll toggle it
         // anyway.
-        if (!commands.contains(event.getCommand().toLowerCase())) {
+        if (!this.commands.contains(event.getCommand().toLowerCase())) {
             update(player);
         }
     }

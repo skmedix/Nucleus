@@ -69,16 +69,16 @@ public class RealnameCommand extends AbstractCommand<CommandSource> {
 
             return new NameTuple(x.getName().toLowerCase(), x);
         }).filter(x -> x.nickname.startsWith(name.toLowerCase()))
-                .map(x -> Text.builder().append(plugin.getNameUtil().getName(x.player)).append(Text.of(TextColors.GRAY, " -> ")).append(Text.of(x.player.getName())).toText())
+                .map(x -> Text.builder().append(Nucleus.getNucleus().getNameUtil().getName(x.player)).append(Text.of(TextColors.GRAY, " -> ")).append(Text.of(x.player.getName())).toText())
                 .collect(Collectors.toList());
 
         if (realNames.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.realname.nonames", argname));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.realname.nonames", argname));
         } else {
             PaginationList.Builder plb = Sponge.getServiceManager().provideUnchecked(PaginationService.class).builder()
                     .contents(realNames)
                     .padding(Text.of(TextColors.GREEN, "-"))
-                    .title(plugin.getMessageProvider().getTextMessageWithFormat("command.realname.title", argname));
+                    .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.realname.title", argname));
 
             if (!(src instanceof Player)) {
                 plb.linesPerPage(-1);

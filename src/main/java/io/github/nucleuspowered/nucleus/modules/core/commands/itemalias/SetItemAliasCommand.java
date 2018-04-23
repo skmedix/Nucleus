@@ -37,35 +37,35 @@ public class SetItemAliasCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(new ItemAliasArgument(Text.of(item))),
-            GenericArguments.string(Text.of(alias))
+            GenericArguments.optionalWeak(new ItemAliasArgument(Text.of(this.item))),
+            GenericArguments.string(Text.of(this.alias))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // Do we have an item or blockstate?
-        String a = args.<String>getOne(alias).get().toLowerCase();
-        if (itemDataService.getIdFromAlias(a).isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.setitemalias.inuse", a));
+        String a = args.<String>getOne(this.alias).get().toLowerCase();
+        if (this.itemDataService.getIdFromAlias(a).isPresent()) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.setitemalias.inuse", a));
             return CommandResult.empty();
         }
 
         if (!ItemDataNode.ALIAS_PATTERN.matcher(a).matches()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.setitemalias.notvalid", a));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.setitemalias.notvalid", a));
             return CommandResult.empty();
         }
 
-        CatalogType type = getCatalogTypeFromHandOrArgs(src, item, args);
+        CatalogType type = getCatalogTypeFromHandOrArgs(src, this.item, args);
 
         // Set the alias.
         String id = type.getId().toLowerCase();
-        ItemDataNode idn = itemDataService.getDataForItem(id);
+        ItemDataNode idn = this.itemDataService.getDataForItem(id);
         idn.addAlias(a);
-        itemDataService.setDataForItem(id, idn);
+        this.itemDataService.setDataForItem(id, idn);
 
         // Tell the user
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.setitemalias.success", a, id));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.setitemalias.success", a, id));
         return CommandResult.success();
     }
 }

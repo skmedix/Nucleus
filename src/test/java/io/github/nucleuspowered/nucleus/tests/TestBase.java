@@ -169,7 +169,7 @@ public abstract class TestBase {
 
         @Override
         public PermissionRegistry getPermissionRegistry() {
-            return permissionRegistry;
+            return this.permissionRegistry;
         }
 
         @Override
@@ -215,7 +215,7 @@ public abstract class TestBase {
 
         @Override
         public MessageProvider getMessageProvider() {
-            return mp;
+            return this.mp;
         }
 
         @Override

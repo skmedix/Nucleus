@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.world.listeners;
 
 import com.google.common.collect.Sets;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.modules.world.WorldModule;
@@ -25,7 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class WorldListener extends ListenerBase implements ListenerBase.Conditional {
+public class WorldListener implements ListenerBase.Conditional {
 
     private final Set<UUID> messageSent = Sets.newHashSet();
 
@@ -37,7 +38,7 @@ public class WorldListener extends ListenerBase implements ListenerBase.Conditio
         if (!player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "worlds." + target.getName().toLowerCase())) {
             event.setCancelled(true);
             if (!this.messageSent.contains(player.getUniqueId())) {
-                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("world.access.denied", target.getName()));
+                player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("world.access.denied", target.getName()));
             }
 
             if (event instanceof MoveEntityEvent.Teleport.Portal) {
@@ -45,14 +46,14 @@ public class WorldListener extends ListenerBase implements ListenerBase.Conditio
                 Sponge.getScheduler().createTaskBuilder()
                     .delayTicks(1)
                     .execute(relocate(player))
-                    .submit(plugin);
+                    .submit(Nucleus.getNucleus());
             }
         }
     }
 
     @Override
     public boolean shouldEnable() {
-        return plugin.getConfigValue(WorldModule.ID, WorldConfigAdapter.class, WorldConfig::isSeparatePermissions).orElse(false);
+        return Nucleus.getNucleus().getConfigValue(WorldModule.ID, WorldConfigAdapter.class, WorldConfig::isSeparatePermissions).orElse(false);
     }
 
     private Consumer<Task> relocate(Player player) {

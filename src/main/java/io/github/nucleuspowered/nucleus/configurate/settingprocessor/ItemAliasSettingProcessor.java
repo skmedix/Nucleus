@@ -28,7 +28,7 @@ public class ItemAliasSettingProcessor implements SettingProcessor {
             return;
         }
 
-        cn.setValue(ttListString, cn.getList(ttString).stream().map(x -> x.toLowerCase().replace(" ", "_"))
+        cn.setValue(this.ttListString, cn.getList(this.ttString).stream().map(x -> x.toLowerCase().replace(" ", "_"))
                 .filter(x -> ItemDataNode.ALIAS_PATTERN.matcher(x).matches()).collect(Collectors.toSet()));
     }
 }

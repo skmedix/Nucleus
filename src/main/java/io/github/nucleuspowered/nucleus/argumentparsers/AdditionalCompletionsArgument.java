@@ -30,7 +30,7 @@ public class AdditionalCompletionsArgument extends WrappedElement {
     }
 
 
-    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) {
         return null;
     }
 
@@ -41,10 +41,10 @@ public class AdditionalCompletionsArgument extends WrappedElement {
     @Override public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         List<String> s = getWrappedElement().complete(src, args, context);
 
-        if (args.getAll().size() >= minArgs && args.getAll().size() <= maxArgs) {
+        if (args.getAll().size() >= this.minArgs && args.getAll().size() <= this.maxArgs) {
             try {
                 String a = args.peek();
-                s.addAll(additional.apply(src, a));
+                s.addAll(this.additional.apply(src, a));
             } catch (ArgumentParseException e) {
                 // ignored
             }

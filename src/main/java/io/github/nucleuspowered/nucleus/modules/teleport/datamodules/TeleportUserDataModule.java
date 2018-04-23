@@ -14,10 +14,10 @@ public class TeleportUserDataModule extends DataModule<ModularUserService> {
     private boolean isTeleportToggled = true;
 
     public boolean isTeleportToggled() {
-        return isTeleportToggled;
+        return this.isTeleportToggled;
     }
 
     public void setTeleportToggled(boolean teleportToggled) {
-        isTeleportToggled = teleportToggled;
+        this.isTeleportToggled = teleportToggled;
     }
 }

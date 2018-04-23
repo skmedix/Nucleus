@@ -38,15 +38,15 @@ public class MotdCommand extends AbstractCommand<CommandSource> implements Reloa
     private boolean usePagination = true;
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Optional<TextFileController> otfc = plugin.getTextFileController(InfoModule.MOTD_KEY);
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        Optional<TextFileController> otfc = Nucleus.getNucleus().getTextFileController(InfoModule.MOTD_KEY);
         if (!otfc.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.motd.nocontroller"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.motd.nocontroller"));
             return CommandResult.empty();
         }
 
-        if (usePagination) {
-            otfc.get().sendToPlayer(src, title);
+        if (this.usePagination) {
+            otfc.get().sendToPlayer(src, this.title);
         } else {
             otfc.get().getTextFromNucleusTextTemplates(src).forEach(src::sendMessage);
         }

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -49,47 +50,47 @@ public class VoiceCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.player(Text.of(player)),
-                GenericArguments.optional(GenericArguments.bool(Text.of(on)))
+                GenericArguments.player(Text.of(this.player)),
+                GenericArguments.optional(GenericArguments.bool(Text.of(this.on)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        if (!muteHandler.isGlobalMuteEnabled()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.globaloff"));
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        if (!this.muteHandler.isGlobalMuteEnabled()) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.globaloff"));
             return CommandResult.empty();
         }
 
-        Player pl = args.<Player>getOne(player).get();
-        if (permissions.testSuffix(pl, "auto")) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.autovoice", pl.getName()));
+        Player pl = args.<Player>getOne(this.player).get();
+        if (this.permissions.testSuffix(pl, "auto")) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.autovoice", pl.getName()));
             return CommandResult.empty();
         }
 
-        boolean turnOn = args.<Boolean>getOne(on).orElse(!muteHandler.isVoiced(pl.getUniqueId()));
+        boolean turnOn = args.<Boolean>getOne(this.on).orElse(!this.muteHandler.isVoiced(pl.getUniqueId()));
 
         UUID voice = pl.getUniqueId();
-        if (turnOn == muteHandler.isVoiced(voice)) {
+        if (turnOn == this.muteHandler.isVoiced(voice)) {
             if (turnOn) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.alreadyvoiced", pl.getName()));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.alreadyvoiced", pl.getName()));
             } else {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.alreadynotvoiced", pl.getName()));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.alreadynotvoiced", pl.getName()));
             }
 
             return CommandResult.empty();
         }
 
-        MutableMessageChannel mmc = new PermissionMessageChannel(permissions.getPermissionWithSuffix("notify")).asMutable();
+        MutableMessageChannel mmc = new PermissionMessageChannel(this.permissions.getPermissionWithSuffix("notify")).asMutable();
         mmc.addMember(src);
         if (turnOn) {
-            muteHandler.addVoice(pl.getUniqueId());
-            mmc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.voiced.source", pl.getName()));
-            pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.voiced.target"));
+            this.muteHandler.addVoice(pl.getUniqueId());
+            mmc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.voiced.source", pl.getName()));
+            pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.voiced.target"));
         } else {
-            muteHandler.removeVoice(pl.getUniqueId());
-            mmc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.voiced.source", pl.getName()));
-            pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.voice.voiced.target"));
+            this.muteHandler.removeVoice(pl.getUniqueId());
+            mmc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.voiced.source", pl.getName()));
+            pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.voice.voiced.target"));
         }
 
         return CommandResult.success();

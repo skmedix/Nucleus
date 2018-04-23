@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warn.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -52,7 +53,7 @@ public class WarnCommand extends AbstractCommand<CommandSource> implements Reloa
 
     private WarnConfig warnConfig = new WarnConfig();
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.warnConfig = getServiceUnchecked(WarnConfigAdapter.class).getNodeOrDefault();
     }
 
@@ -67,24 +68,24 @@ public class WarnCommand extends AbstractCommand<CommandSource> implements Reloa
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[]{GenericArguments.onlyOne(GenericArguments.user(Text.of(playerKey))),
-                GenericArguments.onlyOne(GenericArguments.optionalWeak(new TimespanArgument(Text.of(durationKey)))),
-                GenericArguments.onlyOne(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(reasonKey))))};
+        return new CommandElement[]{GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey))),
+                GenericArguments.onlyOne(GenericArguments.optionalWeak(new TimespanArgument(Text.of(this.durationKey)))),
+                GenericArguments.onlyOne(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reasonKey))))};
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        final User user = args.<User>getOne(playerKey).get();
-        Optional<Long> optDuration = args.getOne(durationKey);
-        String reason = args.<String>getOne(reasonKey).get();
+        final User user = args.<User>getOne(this.playerKey).get();
+        Optional<Long> optDuration = args.getOne(this.durationKey);
+        String reason = args.<String>getOne(this.reasonKey).get();
 
-        if (permissions.testSuffix(user, "exempt.target", src, false)) {
+        if (this.permissions.testSuffix(user, "exempt.target", src, false)) {
             throw ReturnMessageException.fromKey("command.warn.exempt", user.getName());
         }
 
         //Set default duration if no duration given
-        if (warnConfig.getDefaultLength() != -1 && !optDuration.isPresent()) {
-            optDuration = Optional.of(warnConfig.getDefaultLength());
+        if (this.warnConfig.getDefaultLength() != -1 && !optDuration.isPresent()) {
+            optDuration = Optional.of(this.warnConfig.getDefaultLength());
         }
 
         UUID warner = Util.getUUID(src);
@@ -92,51 +93,58 @@ public class WarnCommand extends AbstractCommand<CommandSource> implements Reloa
                 .orElseGet(() -> new WarnData(Instant.now(), warner, reason));
 
         //Check if too long (No duration provided, it is infinite)
-        if (!optDuration.isPresent() && warnConfig.getMaximumWarnLength() != -1 && !permissions.testSuffix(src, "exempt.length")) {
-            throw ReturnMessageException.fromKey("command.warn.length.toolong", Util.getTimeStringFromSeconds(warnConfig.getMaximumWarnLength()));
+        if (!optDuration.isPresent() && this.warnConfig.getMaximumWarnLength() != -1 && !this.permissions.testSuffix(src, "exempt.length")) {
+            throw ReturnMessageException.fromKey("command.warn.length.toolong", Util.getTimeStringFromSeconds(this.warnConfig.getMaximumWarnLength()));
         }
 
         //Check if too long
-        if (optDuration.orElse(Long.MAX_VALUE) > warnConfig.getMaximumWarnLength() && warnConfig.getMaximumWarnLength() != -1 && !permissions.testSuffix(src, "exempt.length")) {
-            throw ReturnMessageException.fromKey("command.warn.length.toolong", Util.getTimeStringFromSeconds(warnConfig.getMaximumWarnLength()));
+        if (optDuration.orElse(Long.MAX_VALUE) > this.warnConfig.getMaximumWarnLength() && this.warnConfig
+                .getMaximumWarnLength() != -1 && !this.permissions.testSuffix(src, "exempt.length")) {
+            throw ReturnMessageException.fromKey("command.warn.length.toolong", Util.getTimeStringFromSeconds(this.warnConfig.getMaximumWarnLength()));
         }
 
         //Check if too short
-        if (optDuration.orElse(Long.MAX_VALUE) < warnConfig.getMinimumWarnLength() && warnConfig.getMinimumWarnLength() != -1 && !permissions.testSuffix(src, "exempt.length")) {
-            throw ReturnMessageException.fromKey("command.warn.length.tooshort", Util.getTimeStringFromSeconds(warnConfig.getMinimumWarnLength()));
+        if (optDuration.orElse(Long.MAX_VALUE) < this.warnConfig.getMinimumWarnLength() && this.warnConfig
+                .getMinimumWarnLength() != -1 && !this.permissions.testSuffix(src, "exempt.length")) {
+            throw ReturnMessageException.fromKey("command.warn.length.tooshort", Util.getTimeStringFromSeconds(this.warnConfig.getMinimumWarnLength
+                    ()));
         }
 
-        if (handler.addWarning(user, warnData)) {
-            MutableMessageChannel messageChannel = new PermissionMessageChannel(permissions.getPermissionWithSuffix("notify")).asMutable();
+        if (this.handler.addWarning(user, warnData)) {
+            MutableMessageChannel messageChannel = new PermissionMessageChannel(this.permissions.getPermissionWithSuffix("notify")).asMutable();
             messageChannel.addMember(src);
 
             if (optDuration.isPresent()) {
                 String time = Util.getTimeStringFromSeconds(optDuration.get());
-                messageChannel.send(plugin.getMessageProvider().getTextMessageWithFormat("command.warn.success.time", user.getName(), src.getName(), warnData.getReason(), time));
+                messageChannel.send(Nucleus.getNucleus()
+                        .getMessageProvider().getTextMessageWithFormat("command.warn.success.time", user.getName(), src.getName(), warnData.getReason(), time));
 
                 if (user.isOnline()) {
-                    user.getPlayer().get().sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("warn.playernotify.time", warnData.getReason(), time));
+                    user.getPlayer().get().sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warn.playernotify.time", warnData.getReason(), time));
                 }
             } else {
-                messageChannel.send(plugin.getMessageProvider().getTextMessageWithFormat("command.warn.success.norm", user.getName(), src.getName(), warnData.getReason()));
+                messageChannel.send(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warn.success.norm", user.getName(), src.getName(), warnData.getReason()));
 
                 if (user.isOnline()) {
-                    user.getPlayer().get().sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("warn.playernotify.standard", warnData.getReason()));
+                    user.getPlayer().get().sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warn.playernotify.standard", warnData.getReason()));
                 }
             }
 
             //Check if the subject has action command should be executed
-            if (warnConfig.getWarningsBeforeAction() != -1) {
-                if (handler.getWarningsInternal(user, true, false).size() < warnConfig.getWarningsBeforeAction()) {
+            if (this.warnConfig.getWarningsBeforeAction() != -1) {
+                if (this.handler.getWarningsInternal(user, true, false).size() < this.warnConfig.getWarningsBeforeAction()) {
                     return CommandResult.success();
                 }
 
                 //Expire all active warnings
                 // The cause is the plugin, as this isn't directly the warning user.
-                CauseStackHelper.createFrameWithCausesWithConsumer(c -> handler.clearWarnings(user, false, false, c), src);
+                CauseStackHelper.createFrameWithCausesWithConsumer(c -> this.handler.clearWarnings(user, false, false, c), src);
 
                 //Get and run the action command
-                String command = warnConfig.getActionCommand().replaceAll("\\{\\{name}}", user.getName());
+                String command = this.warnConfig.getActionCommand().replaceAll("\\{\\{name}}", user.getName());
                 Sponge.getCommandManager().process(Sponge.getServer().getConsole(), command);
             }
 

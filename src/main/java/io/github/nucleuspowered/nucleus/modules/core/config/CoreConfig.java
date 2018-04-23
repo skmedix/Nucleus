@@ -68,7 +68,7 @@ public class CoreConfig {
     private boolean checkForWildcard = true;
 
     public boolean isDebugmode() {
-        return debugmode;
+        return this.debugmode;
     }
 
     public boolean isPrintOnAutosave() {
@@ -76,39 +76,39 @@ public class CoreConfig {
     }
 
     public boolean isCustommessages() {
-        return custommessages;
+        return this.custommessages;
     }
 
     public WarmupConfig getWarmupConfig() {
-        return warmupConfig;
+        return this.warmupConfig;
     }
 
     public String getCommandOnNameClick() {
-        return commandOnNameClick;
+        return this.commandOnNameClick;
     }
 
     public boolean isKickOnStop() {
-        return kickOnStop.isKickOnStop();
+        return this.kickOnStop.isKickOnStop();
     }
 
     public NucleusTextTemplateImpl getKickOnStopMessage() {
-        return kickOnStop.getKickOnStopMessage();
+        return this.kickOnStop.getKickOnStopMessage();
     }
 
     public boolean isEnableDocGen() {
-        return enableDocGen;
+        return this.enableDocGen;
     }
 
     public boolean isErrorOnStartup() {
-        return errorOnStartup;
+        return this.errorOnStartup;
     }
 
     public SafeTeleportConfig getSafeTeleportConfig() {
-        return safeTeleportConfig;
+        return this.safeTeleportConfig;
     }
 
     public boolean isConsoleOverride() {
-        return consoleOverride;
+        return this.consoleOverride;
     }
 
     /**

@@ -15,13 +15,13 @@ import java.time.temporal.ChronoUnit;
 
 @SuppressWarnings("ALL")
 @NonnullByDefault
-public class AFKTask extends TaskBase {
+public class AFKTask implements TaskBase {
 
     private final AFKHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKHandler.class);
 
     @Override
     public void accept(Task task) {
-        handler.onTick();
+        this.handler.onTick();
     }
 
     @Override

@@ -40,11 +40,11 @@ public class ImprovedCatalogTypeArgument extends CommandElement {
 
         // Try
         GameRegistry registry = Sponge.getRegistry();
-        Optional<? extends CatalogType> catalogType = registry.getType(type, arg);
+        Optional<? extends CatalogType> catalogType = registry.getType(this.type, arg);
         if (!catalogType.isPresent() && !arg.contains(":")) {
-            catalogType = registry.getType(type, "minecraft:" + arg);
+            catalogType = registry.getType(this.type, "minecraft:" + arg);
             if (!catalogType.isPresent()) {
-                catalogType = registry.getType(type, "sponge:" + arg);
+                catalogType = registry.getType(this.type, "sponge:" + arg);
             }
         }
 
@@ -59,11 +59,11 @@ public class ImprovedCatalogTypeArgument extends CommandElement {
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
             String arg = args.peek().toLowerCase();
-            return Sponge.getRegistry().getAllOf(type).stream()
+            return Sponge.getRegistry().getAllOf(this.type).stream()
                     .filter(x -> x.getId().startsWith(arg) || x.getId().startsWith("minecraft:" + arg) || x.getId().startsWith("sponge:" + arg))
                     .map(CatalogType::getId).collect(Collectors.toList());
         } catch (Exception e) {
-            return Sponge.getRegistry().getAllOf(type).stream().map(CatalogType::getId).collect(Collectors.toList());
+            return Sponge.getRegistry().getAllOf(this.type).stream().map(CatalogType::getId).collect(Collectors.toList());
         }
     }
 }

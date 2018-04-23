@@ -50,20 +50,14 @@ import java.util.UUID;
 @NonnullByDefault
 public class JailHandler implements NucleusJailService, ContextCalculator<Subject> {
 
-    private final ModularGeneralService store;
-    private final Nucleus plugin;
+    private final ModularGeneralService store = Nucleus.getNucleus().getGeneralService();
 
     // Used for the context calculator
     private final Map<UUID, Context> jailDataCache = Maps.newHashMap();
     private final static Context jailContext = new Context(NucleusJailService.JAILED_CONTEXT, "true");
 
-    public JailHandler(Nucleus plugin) {
-        this.plugin = plugin;
-        this.store = plugin.getGeneralService();
-    }
-
     private JailGeneralDataModule getModule() {
-        return store.get(JailGeneralDataModule.class);
+        return this.store.get(JailGeneralDataModule.class);
     }
 
     @Override
@@ -87,7 +81,7 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
     }
 
     public boolean isPlayerJailedCached(User user) {
-        return jailDataCache.containsKey(user.getUniqueId());
+        return this.jailDataCache.containsKey(user.getUniqueId());
     }
 
     @Override
@@ -102,12 +96,12 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
 
     public Optional<JailData> getPlayerJailDataInternal(User user) {
         try {
-            Optional<JailData> data = plugin.getUserDataManager().get(user, false)
+            Optional<JailData> data = Nucleus.getNucleus().getUserDataManager().get(user, false)
                     .map(y -> y.get(JailUserDataModule.class).getJailData().orElse(null));
             if (data.isPresent()) {
-                jailDataCache.put(user.getUniqueId(), new Context(NucleusJailService.JAIL_CONTEXT, data.get().getJailName()));
+                this.jailDataCache.put(user.getUniqueId(), new Context(NucleusJailService.JAIL_CONTEXT, data.get().getJailName()));
             } else {
-                jailDataCache.put(user.getUniqueId(), null);
+                this.jailDataCache.put(user.getUniqueId(), null);
             }
 
             return data;
@@ -132,7 +126,7 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
     }
 
     public boolean jailPlayer(User user, JailData data) {
-        ModularUserService modularUserService = plugin.getUserDataManager().getUnchecked(user);
+        ModularUserService modularUserService = Nucleus.getNucleus().getUserDataManager().getUnchecked(user);
         JailUserDataModule jailUserDataModule = modularUserService.get(JailUserDataModule.class);
 
         if (jailUserDataModule.getJailData().isPresent()) {
@@ -155,9 +149,9 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
 
         jailUserDataModule.setJailData(data);
         if (user.isOnline()) {
-            Sponge.getScheduler().createSyncExecutor(plugin).execute(() -> {
+            Sponge.getScheduler().createSyncExecutor(Nucleus.getNucleus()).execute(() -> {
                 Player player = user.getPlayer().get();
-                plugin.getTeleportHandler().teleportPlayer(player, owl.get().getLocation().get(), owl.get().getRotation(),
+                Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, owl.get().getLocation().get(), owl.get().getRotation(),
                     NucleusTeleportHandler.StandardTeleportMode.NO_CHECK, Sponge.getCauseStackManager().getCurrentCause());
                 modularUserService.get(FlyUserDataModule.class).setFlying(false);
             });
@@ -183,7 +177,7 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
     }
 
     public boolean unjailPlayer(User user, Cause cause) {
-        final ModularUserService modularUserService = plugin.getUserDataManager().getUnchecked(user);
+        final ModularUserService modularUserService = Nucleus.getNucleus().getUserDataManager().getUnchecked(user);
         final JailUserDataModule jailUserDataModule = modularUserService.get(JailUserDataModule.class);
         Optional<JailData> ojd = jailUserDataModule.getJailData();
         if (!ojd.isPresent()) {
@@ -191,10 +185,10 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
         }
 
         Optional<Location<World>> ow = ojd.get().getPreviousLocation();
-        jailDataCache.put(user.getUniqueId(), null);
+        this.jailDataCache.put(user.getUniqueId(), null);
         if (user.isOnline()) {
             Player player = user.getPlayer().get();
-            Sponge.getScheduler().createSyncExecutor(plugin).execute(() -> {
+            Sponge.getScheduler().createSyncExecutor(Nucleus.getNucleus()).execute(() -> {
                 NucleusTeleportHandler.setLocation(player, ow.orElseGet(() -> player.getWorld().getSpawnLocation()));
                 player.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.elapsed"));
 
@@ -233,11 +227,11 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
     @Override public void accumulateContexts(Subject calculable, Set<Context> accumulator) {
         if (calculable instanceof User) {
             UUID c = ((User) calculable).getUniqueId();
-            if (!jailDataCache.containsKey(c)) {
+            if (!this.jailDataCache.containsKey(c)) {
                 getPlayerJailDataInternal((User) calculable);
             }
 
-            Context co = jailDataCache.get(c);
+            Context co = this.jailDataCache.get(c);
             if (co != null) {
                 accumulator.add(co);
                 accumulator.add(jailContext);
@@ -249,12 +243,12 @@ public class JailHandler implements NucleusJailService, ContextCalculator<Subjec
         if (context.getKey().equals(NucleusJailService.JAIL_CONTEXT)) {
             if (subject instanceof User) {
                 UUID u = ((User) subject).getUniqueId();
-                return context.equals(jailDataCache.get(u));
+                return context.equals(this.jailDataCache.get(u));
             }
         } else if (context.getKey().equals(NucleusJailService.JAILED_CONTEXT)) {
             if (subject instanceof User) {
                 UUID u = ((User) subject).getUniqueId();
-                return jailDataCache.get(u) != null;
+                return this.jailDataCache.get(u) != null;
             }
         }
 

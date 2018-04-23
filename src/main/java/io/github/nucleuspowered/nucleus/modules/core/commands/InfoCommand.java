@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.core.commands;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.PluginInfo;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -116,9 +117,9 @@ public class InfoCommand extends AbstractCommand<CommandSource> {
         information.add("Nucleus: Enabled Modules");
         information.add(separator);
 
-        plugin.getModuleContainer().getModules().stream().sorted().forEach(information::add);
+        Nucleus.getNucleus().getModuleContainer().getModules().stream().sorted().forEach(information::add);
 
-        Set<String> disabled = plugin.getModuleContainer().getModules(ModuleContainer.ModuleStatusTristate.DISABLE);
+        Set<String> disabled = Nucleus.getNucleus().getModuleContainer().getModules(ModuleContainer.ModuleStatusTristate.DISABLE);
         if (!disabled.isEmpty()) {
             information.add(separator);
             information.add("Nucleus: Disabled Modules");
@@ -137,10 +138,10 @@ public class InfoCommand extends AbstractCommand<CommandSource> {
 
             fw.flush();
         } catch (Exception e) {
-            throw new TextMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.info.fileerror"), e);
+            throw new TextMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.info.fileerror"), e);
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.info.saved", fileName));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.info.saved", fileName));
         return CommandResult.success();
     }
 }

@@ -18,6 +18,6 @@ public class LoreSetCommand extends LoreSetBaseCommand {
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        return setLore(src, args.<String>getOne(loreKey).get(), true);
+        return setLore(src, args.<String>getOne(this.loreKey).get(), true);
     }
 }

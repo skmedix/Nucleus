@@ -300,11 +300,11 @@ public class NucleusTeleportHandler {
             private CoreConfigAdapter coreConfigAdapter = null;
 
             private CoreConfigAdapter getCoreConfigAdapter() throws Exception {
-                if (coreConfigAdapter == null) {
-                    coreConfigAdapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule("core", CoreConfigAdapter.class);
+                if (this.coreConfigAdapter == null) {
+                    this.coreConfigAdapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule("core", CoreConfigAdapter.class);
                 }
 
-                return coreConfigAdapter;
+                return this.coreConfigAdapter;
             }
 
             @Override public Optional<Location<World>> apply(Player player, Location<World> location) {
@@ -355,11 +355,11 @@ public class NucleusTeleportHandler {
             private CoreConfigAdapter coreConfigAdapter = null;
 
             private CoreConfigAdapter getCoreConfigAdapter() throws Exception {
-                if (coreConfigAdapter == null) {
-                    coreConfigAdapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule("core", CoreConfigAdapter.class);
+                if (this.coreConfigAdapter == null) {
+                    this.coreConfigAdapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule("core", CoreConfigAdapter.class);
                 }
 
-                return coreConfigAdapter;
+                return this.coreConfigAdapter;
             }
 
             @Override public Optional<Location<World>> apply(Player player, Location<World> location) {
@@ -481,7 +481,7 @@ public class NucleusTeleportHandler {
         }
 
         public boolean isSuccess() {
-            return b;
+            return this.b;
         }
     }
 }

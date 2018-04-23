@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warn.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarningArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -38,30 +39,30 @@ public class RemoveWarningCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {GenericArguments.flags().flag("-remove", "r").buildWith(
-                GenericArguments.onlyOne(new WarningArgument(Text.of(warningKey), handler)))};
+                GenericArguments.onlyOne(new WarningArgument(Text.of(this.warningKey), this.handler)))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WarningArgument.Result result = args.<WarningArgument.Result>getOne(warningKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        WarningArgument.Result result = args.<WarningArgument.Result>getOne(this.warningKey).get();
         User user = result.user;
         boolean removePermanently = false;
         if (args.hasAny("remove")) {
             removePermanently = true;
         }
 
-        List<WarnData> warnings = handler.getWarningsInternal(user);
+        List<WarnData> warnings = this.handler.getWarningsInternal(user);
         if (warnings.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.none", user.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.none", user.getName()));
             return CommandResult.success();
         }
 
-        if (handler.removeWarning(user, result.warnData, removePermanently, CauseStackHelper.createCause(src))) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.removewarning.success", user.getName()));
+        if (this.handler.removeWarning(user, result.warnData, removePermanently, CauseStackHelper.createCause(src))) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.removewarning.success", user.getName()));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.removewarning.failure", user.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.removewarning.failure", user.getName()));
         return CommandResult.empty();
     }
 }

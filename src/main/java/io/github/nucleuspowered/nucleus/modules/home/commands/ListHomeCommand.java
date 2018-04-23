@@ -66,30 +66,30 @@ public class ListHomeCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {GenericArguments.optional(GenericArguments.onlyOne(
                 GenericArguments.requiringPermission(
-                        SelectorWrapperArgument.nicknameSelector(Text.of(player), NicknameArgument.UnderlyingType.USER, true, Player.class),
-                        permissions.getPermissionWithSuffix("others"))))};
+                        SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.USER, true, Player.class),
+                        this.permissions.getPermissionWithSuffix("others"))))};
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = this.getUserFromArgs(User.class, src, player, args); // args.getOne(subject);
+        User user = this.getUserFromArgs(User.class, src, this.player, args); // args.getOne(subject);
         Text header;
 
         boolean other = src instanceof User && !((User) src).getUniqueId().equals(user.getUniqueId());
         if (other && user.hasPermission(this.exempt)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.listhome.exempt"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.listhome.exempt"));
         }
 
-        List<Home> msw = homeHandler.getHomes(user);
+        List<Home> msw = this.homeHandler.getHomes(user);
         if (msw.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.home.nohomes"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.home.nohomes"));
             return CommandResult.empty();
         }
 
         if (other) {
-            header = plugin.getMessageProvider().getTextMessageWithFormat("home.title.name", user.getName());
+            header = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("home.title.name", user.getName());
         } else {
-            header = plugin.getMessageProvider().getTextMessageWithFormat("home.title.normal");
+            header = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("home.title.normal");
         }
 
         List<Text> lt = msw.stream().sorted(Comparator.comparing(NamedLocation::getName)).map(x -> {
@@ -97,18 +97,20 @@ public class ListHomeCommand extends AbstractCommand<CommandSource> {
             if (!olw.isPresent()) {
                 return Text.builder().append(
                                 Text.builder(x.getName()).color(TextColors.RED)
-                                        .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("home.warphoverinvalid", x.getName())))
+                                        .onHover(TextActions.showText(
+                                                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("home.warphoverinvalid", x.getName())))
                                         .build())
                         .build();
             } else {
                 final Location<World> lw = olw.get();
                 return Text.builder().append(
                                 Text.builder(x.getName()).color(TextColors.GREEN).style(TextStyles.UNDERLINE)
-                                        .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("home.warphover", x.getName())))
+                                        .onHover(TextActions.showText(
+                                                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("home.warphover", x.getName())))
                                         .onClick(TextActions.runCommand(other ? "/homeother " + user.getName() + " " + x.getName()
                                                 : "/home " + x.getName()))
                                         .build())
-                        .append(plugin.getMessageProvider().getTextMessageWithFormat("home.location", lw.getExtent().getName(), String.valueOf(lw.getBlockX()),
+                        .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("home.location", lw.getExtent().getName(), String.valueOf(lw.getBlockX()),
                                 String.valueOf(lw.getBlockY()), String.valueOf(lw.getBlockZ())))
                         .build();
             }

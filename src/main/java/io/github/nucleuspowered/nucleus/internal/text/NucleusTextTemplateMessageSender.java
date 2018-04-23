@@ -41,14 +41,14 @@ public class NucleusTextTemplateMessageSender {
     }
 
     public void send(Collection<CommandSource> source) {
-        if (!textTemplate.containsTokens()) {
-            Text text = postProcess.apply(textTemplate.getForCommandSource(Sponge.getServer().getConsole()));
+        if (!this.textTemplate.containsTokens()) {
+            Text text = this.postProcess.apply(this.textTemplate.getForCommandSource(Sponge.getServer().getConsole()));
             source.forEach(x -> x.sendMessage(text));
         } else {
             Map<String, Function<CommandSource, Optional<Text>>> m = Maps.newHashMap();
-            m.put("sender", cs -> Nucleus.getNucleus().getMessageTokenService().applyPrimaryToken("displayname", sender));
+            m.put("sender", cs -> Nucleus.getNucleus().getMessageTokenService().applyPrimaryToken("displayname", this.sender));
 
-            source.forEach(x -> x.sendMessage(postProcess.apply(textTemplate.getForCommandSource(x, m, null))));
+            source.forEach(x -> x.sendMessage(this.postProcess.apply(this.textTemplate.getForCommandSource(x, m, null))));
         }
     }
 }

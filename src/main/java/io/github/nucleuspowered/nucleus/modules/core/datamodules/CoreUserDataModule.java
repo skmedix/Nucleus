@@ -57,11 +57,11 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     private boolean startedFirstJoin = false;
 
     public Optional<Instant> getLastLogin() {
-        if (login == 0) {
+        if (this.login == 0) {
             return Optional.empty();
         }
 
-        return Optional.of(Instant.ofEpochMilli(login));
+        return Optional.of(Instant.ofEpochMilli(this.login));
     }
 
     public void setLastLogin(Instant login) {
@@ -86,9 +86,9 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public Optional<Location<World>> getLogoutLocation() {
-        if (lastLocation != null) {
+        if (this.lastLocation != null) {
             try {
-                return Optional.ofNullable(lastLocation.getLocation());
+                return Optional.ofNullable(this.lastLocation.getLocation());
             } catch (NoSuchWorldException | NullPointerException e) {
                 return Optional.empty();
             }
@@ -98,12 +98,12 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public Optional<Location<World>> getLocationOnLogin() {
-        if (locationOnLogin == null) {
+        if (this.locationOnLogin == null) {
             return Optional.empty();
         }
 
         try {
-            return Optional.ofNullable(locationOnLogin.getLocation());
+            return Optional.ofNullable(this.locationOnLogin.getLocation());
         } catch (NoSuchWorldException e) {
             return Optional.empty();
         }
@@ -119,7 +119,7 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public Optional<String> getLastIp() {
-        return Optional.ofNullable(ipaddress);
+        return Optional.ofNullable(this.ipaddress);
     }
 
     public void setLastIp(InetAddress address) {
@@ -127,7 +127,7 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public Optional<String> getLastKnownName() {
-        return Optional.ofNullable(lastKnownName);
+        return Optional.ofNullable(this.lastKnownName);
     }
 
     public void setLastKnownName(String lastKnownName) {
@@ -135,7 +135,7 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public boolean isFirstPlay() {
-        return firstPlay;
+        return this.firstPlay;
     }
 
     public void setFirstPlay(boolean firstPlay) {
@@ -143,8 +143,8 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public Optional<Instant> getFirstJoin() {
-        if (firstJoin > 0) {
-            return Optional.of(Instant.ofEpochMilli(firstJoin));
+        if (this.firstJoin > 0) {
+            return Optional.of(Instant.ofEpochMilli(this.firstJoin));
         }
 
         return Optional.empty();
@@ -155,7 +155,7 @@ public class CoreUserDataModule extends DataModule<ModularUserService> {
     }
 
     public boolean isStartedFirstJoin() {
-        return startedFirstJoin;
+        return this.startedFirstJoin;
     }
 
     public void setStartedFirstJoin(boolean startedFirstJoin) {

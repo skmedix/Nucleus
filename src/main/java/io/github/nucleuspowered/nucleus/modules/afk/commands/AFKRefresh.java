@@ -21,9 +21,9 @@ public class AFKRefresh extends AbstractCommand<CommandSource> {
 
     private final AFKHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKHandler.class);
 
-    @Override public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        handler.invalidateAfkCache();
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.afkrefresh.complete"));
+    @Override public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        this.handler.invalidateAfkCache();
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.afkrefresh.complete"));
         return CommandResult.success();
     }
 }

@@ -35,18 +35,18 @@ public class DeleteJailCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(new JailArgument(Text.of(jailKey), handler))};
+        return new CommandElement[] {GenericArguments.onlyOne(new JailArgument(Text.of(this.jailKey), this.handler))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        LocationData wl = args.<LocationData>getOne(jailKey).get();
-        if (handler.removeJail(wl.getName())) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.del.success", wl.getName()));
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        LocationData wl = args.<LocationData>getOne(this.jailKey).get();
+        if (this.handler.removeJail(wl.getName())) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.del.success", wl.getName()));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.del.error", wl.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.del.error", wl.getName()));
         return CommandResult.empty();
     }
 }

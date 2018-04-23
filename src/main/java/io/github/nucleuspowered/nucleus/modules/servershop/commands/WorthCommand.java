@@ -40,21 +40,21 @@ public class WorthCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(new ItemAliasArgument(Text.of(item)))
+            GenericArguments.optionalWeak(new ItemAliasArgument(Text.of(this.item)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        CatalogType type = getCatalogTypeFromHandOrArgs(src, item, args);
+        CatalogType type = getCatalogTypeFromHandOrArgs(src, this.item, args);
         String id = type.getId();
 
         // Get the item from the system.
-        ItemDataNode node = itemDataService.getDataForItem(id);
+        ItemDataNode node = this.itemDataService.getDataForItem(id);
 
         // Get the current item worth.
-        MessageProvider provider = plugin.getMessageProvider();
-        if (!econHelper.economyServiceExists()) {
+        MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
+        if (!this.econHelper.economyServiceExists()) {
             src.sendMessage(provider.getTextMessageWithFormat("command.setworth.noeconservice"));
         }
 
@@ -64,7 +64,7 @@ public class WorthCommand extends AbstractCommand<CommandSource> {
         StringBuilder stringBuilder = new StringBuilder();
 
         if (buyPrice >= 0) {
-            stringBuilder.append(provider.getMessageWithFormat("command.worth.buy", econHelper.getCurrencySymbol(node.getServerBuyPrice())));
+            stringBuilder.append(provider.getMessageWithFormat("command.worth.buy", this.econHelper.getCurrencySymbol(node.getServerBuyPrice())));
         }
 
         if (sellPrice >= 0) {
@@ -72,7 +72,7 @@ public class WorthCommand extends AbstractCommand<CommandSource> {
                 stringBuilder.append(" - ");
             }
 
-            stringBuilder.append(provider.getMessageWithFormat("command.worth.sell", econHelper.getCurrencySymbol(node.getServerSellPrice())));
+            stringBuilder.append(provider.getMessageWithFormat("command.worth.sell", this.econHelper.getCurrencySymbol(node.getServerSellPrice())));
         }
 
         if (stringBuilder.length() == 0) {

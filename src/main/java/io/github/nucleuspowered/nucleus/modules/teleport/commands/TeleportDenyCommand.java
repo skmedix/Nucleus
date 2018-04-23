@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -29,9 +30,9 @@ public class TeleportDenyCommand extends AbstractCommand<Player> {
     private final TeleportHandler teleportHandler = getServiceUnchecked(TeleportHandler.class);
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        boolean denied = teleportHandler.remove(src.getUniqueId());
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(denied ? "command.tpdeny.deny" : "command.tpdeny.fail"));
+    public CommandResult executeCommand(Player src, CommandContext args) {
+        boolean denied = this.teleportHandler.remove(src.getUniqueId());
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(denied ? "command.tpdeny.deny" : "command.tpdeny.fail"));
         return CommandResult.success();
     }
 }

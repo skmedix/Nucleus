@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
  * Core tasks. No module, must always run.
  */
 @NonnullByDefault
-public class CoreTask extends TaskBase implements Reloadable {
+public class CoreTask implements TaskBase, Reloadable {
 
     private boolean printSave = false;
 
@@ -51,7 +51,7 @@ public class CoreTask extends TaskBase implements Reloadable {
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         this.printSave = Nucleus.getNucleus().getConfigValue(CoreModule.ID, CoreConfigAdapter.class, CoreConfig::isPrintOnAutosave)
                 .orElse(false);
     }

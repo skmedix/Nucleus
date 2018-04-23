@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 public class NameBanService extends AbstractService<Map<String, String>> {
 
-    public NameBanService(DataProvider<Map<String, String>> dataProvider) throws Exception {
+    public NameBanService(DataProvider<Map<String, String>> dataProvider) {
         super(dataProvider);
     }
 
@@ -30,7 +30,7 @@ public class NameBanService extends AbstractService<Map<String, String>> {
             // Lowercase the keys.
             List<String> toRemove = Lists.newArrayList();
             Map<String, String> toAdd = Maps.newHashMap();
-            data.forEach((k, v) -> {
+            this.data.forEach((k, v) -> {
                 String lower = k.toLowerCase();
                 if (!k.equals(lower)) {
                     toRemove.add(k);
@@ -38,8 +38,8 @@ public class NameBanService extends AbstractService<Map<String, String>> {
                 }
             });
 
-            toRemove.forEach(data::remove);
-            data.putAll(toAdd);
+            toRemove.forEach(this.data::remove);
+            this.data.putAll(toAdd);
             return true;
         }
 
@@ -48,11 +48,11 @@ public class NameBanService extends AbstractService<Map<String, String>> {
 
     public Optional<String> getBanReason(@Nonnull String name) {
         Preconditions.checkNotNull(name);
-        return Optional.ofNullable(data.get(name.toLowerCase()));
+        return Optional.ofNullable(this.data.get(name.toLowerCase()));
     }
 
     public boolean removeBan(@Nonnull String name) {
-        return data.remove(name.toLowerCase()) != null;
+        return this.data.remove(name.toLowerCase()) != null;
     }
 
     public boolean setBan(@Nonnull String name, @Nonnull String reason) {
@@ -60,11 +60,11 @@ public class NameBanService extends AbstractService<Map<String, String>> {
         Preconditions.checkNotNull(reason);
         Preconditions.checkArgument(!reason.isEmpty());
 
-        if (data.containsKey(name.toLowerCase())) {
+        if (this.data.containsKey(name.toLowerCase())) {
             return false;
         }
 
-        data.put(name.toLowerCase(), reason);
+        this.data.put(name.toLowerCase(), reason);
         return true;
     }
 }

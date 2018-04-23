@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -43,7 +44,7 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.remainingJoinedStrings(Text.of(messageKey))
+                GenericArguments.remainingJoinedStrings(Text.of(this.messageKey))
         };
     }
 
@@ -55,27 +56,27 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
     }
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        String message = args.<String>getOne(messageKey).get();
+    public CommandResult executeCommand(Player src, CommandContext args) {
+        String message = args.<String>getOne(this.messageKey).get();
 
         // Message is about to be sent. Send the event out. If canceled, then
         // that's that.
         if (Sponge.getEventManager().post(new InternalNucleusHelpOpEvent(src, message))) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("message.cancel"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("message.cancel"));
             return CommandResult.empty();
         }
 
-        Text prefix = messageConfig.getHelpOpPrefix().getForCommandSource(src);
+        Text prefix = this.messageConfig.getHelpOpPrefix().getForCommandSource(src);
 
-        new PermissionMessageChannel(permissions.getPermissionWithSuffix("receive"))
+        new PermissionMessageChannel(this.permissions.getPermissionWithSuffix("receive"))
                 .send(src, TextParsingUtils.joinTextsWithColoursFlowing(prefix, Text.of(message)));
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.helpop.success"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.helpop.success"));
 
         return CommandResult.success();
     }
 
     @Override public void onReload() {
-        messageConfig = getServiceUnchecked(MessageConfigAdapter.class).getNodeOrDefault();
+        this.messageConfig = getServiceUnchecked(MessageConfigAdapter.class).getNodeOrDefault();
     }
 }

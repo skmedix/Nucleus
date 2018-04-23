@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -32,19 +33,19 @@ public class CancelChunkGenCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
+                GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, worldKey, args);
-        if (worldHelper.cancelPregenRunningForWorld(wp.getUniqueId())) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.cancelgen.cancelled", wp.getWorldName()));
+        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
+        if (this.worldHelper.cancelPregenRunningForWorld(wp.getUniqueId())) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.cancelgen.cancelled", wp.getWorldName()));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.cancelgen.notask", wp.getWorldName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.cancelgen.notask", wp.getWorldName()));
         return CommandResult.empty();
     }
 }

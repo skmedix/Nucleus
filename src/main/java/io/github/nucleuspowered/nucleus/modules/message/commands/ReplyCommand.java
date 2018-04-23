@@ -47,7 +47,7 @@ public class ReplyCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         boolean b = this.handler.replyMessage(src, args.<String>getOne(MESSAGE_KEY).get());
         if (b) {
             // For Notify on AFK

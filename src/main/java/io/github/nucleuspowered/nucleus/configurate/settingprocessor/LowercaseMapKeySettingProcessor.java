@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.configurate.settingprocessor;
 
 import io.github.nucleuspowered.neutrino.settingprocessor.SettingProcessor;
 import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.util.Tuple;
 
 import java.util.Map;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
  */
 public class LowercaseMapKeySettingProcessor implements SettingProcessor {
 
-    @Override public void onGet(ConfigurationNode input) throws ObjectMappingException {
+    @Override public void onGet(ConfigurationNode input) {
         Map<Object, ? extends ConfigurationNode> nodes = input.getChildrenMap().entrySet()
                 .stream()
                 .map(x -> new Tuple<Object, ConfigurationNode>(x.getKey().toString().toLowerCase(), x.getValue()))
@@ -26,5 +25,5 @@ public class LowercaseMapKeySettingProcessor implements SettingProcessor {
     }
 
     @Override
-    public void process(ConfigurationNode configurationNode) throws ObjectMappingException {}
+    public void process(ConfigurationNode configurationNode) {}
 }

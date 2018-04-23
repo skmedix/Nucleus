@@ -17,6 +17,6 @@ public class InventoryConfig {
     private boolean allowInvseeOnSelf = false;
 
     public boolean isAllowInvseeOnSelf() {
-        return allowInvseeOnSelf;
+        return this.allowInvseeOnSelf;
     }
 }

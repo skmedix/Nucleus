@@ -29,6 +29,8 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
+import org.spongepowered.api.item.inventory.query.QueryOperation;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -55,7 +57,7 @@ public class SellAllCommand extends AbstractCommand<Player> {
         return new CommandElement[] {
             GenericArguments.flags().flag("a", "-accept").buildWith(GenericArguments.none()),
             GenericArguments.optional(
-                new ItemAliasArgument(Text.of(itemKey))
+                new ItemAliasArgument(Text.of(this.itemKey))
             )
         };
     }
@@ -63,55 +65,51 @@ public class SellAllCommand extends AbstractCommand<Player> {
     @Override
     public CommandResult executeCommand(final Player src, CommandContext args) throws Exception {
         boolean accepted = args.hasAny("a");
-        CatalogType ct = getCatalogTypeFromHandOrArgs(src, itemKey, args);
+        CatalogType ct = getCatalogTypeFromHandOrArgs(src, this.itemKey, args);
         String id = ct.getId();
 
-        ItemStack query;
+        QueryOperation<?> query;
         if (ct instanceof BlockState) {
-            query = ItemStack.builder().fromBlockState((BlockState)ct).quantity(1).build();
-            query.setQuantity(-1); // Yeah...
+            query = QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(ItemStack.builder().fromBlockState((BlockState)ct).quantity(1).build());
         } else {
-            // Having a quantity of -1 causes an IllegalArgumentException here...
-            query = ItemStack.of((ItemType) ct, 1);
-
-            // and doesn't care here...
-            query.setQuantity(-1);
+            query = QueryOperationTypes.ITEM_TYPE.of((ItemType) ct);
         }
 
-        ItemDataNode node = itemDataService.getDataForItem(id);
+        ItemDataNode node = this.itemDataService.getDataForItem(id);
         final double sellPrice = node.getServerSellPrice();
         if (sellPrice < 0) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.itemsell.notforselling"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.itemsell.notforselling"));
         }
 
         Iterable<Slot> slots = Util.getStandardInventory(src).query(query).slots();
-        List<ItemStack> itemsToSell = StreamSupport.stream(Util.getStandardInventory(src).query(query).slots().spliterator(), false)
+        List<ItemStack> itemsToSell = StreamSupport.stream(Util.getStandardInventory(src)
+                .query(query).slots().spliterator(), false)
             .map(Inventory::peek).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
 
         // Get the cost.
         final int amt = itemsToSell.stream().mapToInt(ItemStack::getQuantity).sum();
         if (amt <= 0) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itemsellall.none",
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itemsellall.none",
                     Text.of(query)));
         }
 
         final double overallCost = sellPrice * amt;
 
         if (accepted) {
-            if (econHelper.depositInPlayer(src, overallCost, false)) {
+            if (this.econHelper.depositInPlayer(src, overallCost, false)) {
                 slots.forEach(Inventory::clear);
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itemsell.summary",
-                        Text.of(amt), Text.of(query), Text.of(econHelper.getCurrencySymbol(overallCost))));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itemsell.summary",
+                        Text.of(amt), Text.of(query), Text.of(this.econHelper.getCurrencySymbol(overallCost))));
                 return CommandResult.success();
             }
 
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itemsell.error", Text.of(query)));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itemsell.error", Text.of(query)));
         }
 
         src.sendMessage(
-            plugin.getMessageProvider()
+                Nucleus.getNucleus().getMessageProvider()
                 .getTextMessageWithTextFormat("command.itemsellall.summary",
-                    Text.of(amt), Text.of(query), Text.of(econHelper.getCurrencySymbol(overallCost)), Text.of(id))
+                    Text.of(amt), Text.of(query), Text.of(this.econHelper.getCurrencySymbol(overallCost)), Text.of(id))
                 .toBuilder().onClick(TextActions.runCommand("/nucleus:itemsellall -a " + id)).build()
         );
 

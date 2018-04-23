@@ -42,24 +42,25 @@ public class MuteModule extends ConfigurableModule<MuteConfigAdapter> {
         createSeenModule(CheckMuteCommand.class, (c, u) -> {
 
             // If we have a ban service, then check for a ban.
-            MuteHandler jh = plugin.getInternalServiceManager().getServiceUnchecked(MuteHandler.class);
+            MuteHandler jh = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(MuteHandler.class);
             if (jh.isMuted(u)) {
                 MuteData jd = jh.getPlayerMuteData(u).get();
                 // Lightweight checkban.
                 Text.Builder m;
                 if (jd.getRemainingTime().isPresent()) {
-                    m = plugin.getMessageProvider().getTextMessageWithFormat("seen.ismuted.temp", Util.getTimeToNow(jd.getEndTimestamp().get())).toBuilder();
+                    m =
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.ismuted.temp", Util.getTimeToNow(jd.getEndTimestamp().get())).toBuilder();
                 } else {
-                    m = plugin.getMessageProvider().getTextMessageWithFormat("seen.ismuted.perm").toBuilder();
+                    m = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.ismuted.perm").toBuilder();
                 }
 
                 return Lists.newArrayList(
                         m.onClick(TextActions.runCommand("/checkmute " + u.getName()))
-                                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("standard.clicktoseemore"))).build(),
-                        plugin.getMessageProvider().getTextMessageWithFormat("standard.reason", jd.getReason()));
+                                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.clicktoseemore"))).build(),
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reason", jd.getReason()));
             }
 
-            return Lists.newArrayList(plugin.getMessageProvider().getTextMessageWithFormat("seen.notmuted"));
+            return Lists.newArrayList(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.notmuted"));
         });
     }
 

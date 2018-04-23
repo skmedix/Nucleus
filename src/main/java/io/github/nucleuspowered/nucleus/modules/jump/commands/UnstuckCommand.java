@@ -44,7 +44,7 @@ public class UnstuckCommand extends AbstractCommand<Player> implements Reloadabl
         }
 
         if (NucleusTeleportHandler.setLocation(src, location)) {
-            src.sendMessage(this.plugin.getMessageProvider().getTextMessageWithTextFormat("command.unstuck.success"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.unstuck.success"));
             return CommandResult.success();
         }
 
@@ -52,7 +52,7 @@ public class UnstuckCommand extends AbstractCommand<Player> implements Reloadabl
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         Optional<JumpConfig> c = Nucleus.getNucleus().getConfigValue(JumpModule.ID, JumpConfigAdapter.class, Function.identity());
         this.radius = c.map(JumpConfig::getMaxUnstuckRadius).orElse(1);
         this.height = c.map(JumpConfig::getMaxUnstuckHeight).orElse(1);

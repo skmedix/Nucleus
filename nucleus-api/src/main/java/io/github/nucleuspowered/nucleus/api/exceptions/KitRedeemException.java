@@ -30,7 +30,7 @@ public class KitRedeemException extends Exception {
      * @return The reason for failure
      */
     public Reason getReason() {
-        return reason;
+        return this.reason;
     }
 
     public static class PreCancelled extends KitRedeemException {
@@ -58,7 +58,7 @@ public class KitRedeemException extends Exception {
         }
 
         public Duration getTimeLeft() {
-            return timeLeft;
+            return this.timeLeft;
         }
 
     }

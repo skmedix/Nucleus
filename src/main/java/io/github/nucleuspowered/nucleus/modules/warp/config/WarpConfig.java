@@ -29,26 +29,26 @@ public class WarpConfig {
     private boolean descriptionInList = false;
 
     public boolean isSeparatePermissions() {
-        return separatePermissions;
+        return this.separatePermissions;
     }
 
     public double getDefaultWarpCost() {
-        return Math.max(0, defaultWarpCost);
+        return Math.max(0, this.defaultWarpCost);
     }
 
     public boolean isSafeTeleport() {
-        return safeTeleport;
+        return this.safeTeleport;
     }
 
     public boolean isCategoriseWarps() {
-        return categoriseWarps;
+        return this.categoriseWarps;
     }
 
     public String getDefaultName() {
-        return defaultName == null || defaultName.isEmpty() ? "Uncategorised" : defaultName;
+        return this.defaultName == null || this.defaultName.isEmpty() ? "Uncategorised" : this.defaultName;
     }
 
     public boolean isDescriptionInList() {
-        return descriptionInList;
+        return this.descriptionInList;
     }
 }

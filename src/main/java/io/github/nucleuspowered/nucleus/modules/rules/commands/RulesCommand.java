@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.rules.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -35,9 +36,9 @@ public class RulesCommand extends AbstractCommand<CommandSource> implements Relo
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        plugin.getTextFileController(RulesModule.RULES_KEY)
+        Nucleus.getNucleus().getTextFileController(RulesModule.RULES_KEY)
                 .orElseThrow(() -> ReturnMessageException.fromKey("command.rules.empty"))
-                .sendToPlayer(src, title);
+                .sendToPlayer(src, this.title);
         return CommandResult.success();
     }
 

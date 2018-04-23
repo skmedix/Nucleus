@@ -17,10 +17,10 @@ public class PlayerInfoConfig {
     private SeenConfig seen = new SeenConfig();
 
     public ListConfig getList() {
-        return list;
+        return this.list;
     }
 
     public SeenConfig getSeen() {
-        return seen;
+        return this.seen;
     }
 }

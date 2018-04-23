@@ -64,14 +64,14 @@ public class GeoIpDatabaseHandler implements Closeable {
      * @throws Exception If there is a problem. {@link IllegalStateException} is thrown if the licence has not been accepted.
      */
     public void load(LoadType type) throws Exception {
-        if (isLoading) {
+        if (this.isLoading) {
             return;
         }
 
         Preconditions.checkNotNull(type);
         init();
 
-        if (type == LoadType.IF_REQUIRED && databaseReader != null) {
+        if (type == LoadType.IF_REQUIRED && this.databaseReader != null) {
             return;
         }
 
@@ -80,21 +80,21 @@ public class GeoIpDatabaseHandler implements Closeable {
 
     private void onRun(LoadType type) {
         try {
-            isLoading = true;
+            this.isLoading = true;
 
             // Check in case we need it.
             downloadUpdate(type == LoadType.DOWNLOAD);
 
-            if (databaseReader != null) {
-                databaseReader.close();
+            if (this.databaseReader != null) {
+                this.databaseReader.close();
             }
 
-            InputStream inputStream = new FileInputStream(countries.toFile());
-            databaseReader = new DatabaseReader.Builder(inputStream).withCache(new CHMCache()).fileMode(Reader.FileMode.MEMORY).build();
+            InputStream inputStream = new FileInputStream(this.countries.toFile());
+            this.databaseReader = new DatabaseReader.Builder(inputStream).withCache(new CHMCache()).fileMode(Reader.FileMode.MEMORY).build();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            isLoading = false;
+            this.isLoading = false;
         }
     }
 
@@ -109,10 +109,10 @@ public class GeoIpDatabaseHandler implements Closeable {
                 int counter = 0;
 
                 // Load check.
-                if (isLoading) {
+                if (this.isLoading) {
                     while (counter < 30) {
                         Thread.sleep(500);
-                        if (!isLoading) {
+                        if (!this.isLoading) {
                             break;
                         }
 
@@ -125,7 +125,7 @@ public class GeoIpDatabaseHandler implements Closeable {
                     }
                 }
 
-                completableFuture.complete(Optional.ofNullable(databaseReader.country(address).getCountry()));
+                completableFuture.complete(Optional.ofNullable(this.databaseReader.country(address).getCountry()));
             } catch (AddressNotFoundException ex) {
                 completableFuture.complete(Optional.empty());
             } catch (Exception e) {
@@ -137,11 +137,11 @@ public class GeoIpDatabaseHandler implements Closeable {
     }
 
     private void init() throws Exception {
-        if (geoIpConfigAdapter == null) {
-            geoIpConfigAdapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(GeoIpModule.ID, GeoIpConfigAdapter.class);
+        if (this.geoIpConfigAdapter == null) {
+            this.geoIpConfigAdapter = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(GeoIpModule.ID, GeoIpConfigAdapter.class);
         }
 
-        if (!geoIpConfigAdapter.getNodeOrDefault().isAcceptLicence()) {
+        if (!this.geoIpConfigAdapter.getNodeOrDefault().isAcceptLicence()) {
             throw new IllegalStateException("licence");
         }
     }
@@ -149,10 +149,10 @@ public class GeoIpDatabaseHandler implements Closeable {
     private void downloadUpdate(boolean loadAnyway) throws Exception {
         init();
 
-        Files.createDirectories(downloadDirectory);
+        Files.createDirectories(this.downloadDirectory);
 
-        if (loadAnyway || !Files.exists(countries)) {
-            downloadFile(geoIpConfigAdapter.getNodeOrDefault().getCountryData(), countries);
+        if (loadAnyway || !Files.exists(this.countries)) {
+            downloadFile(this.geoIpConfigAdapter.getNodeOrDefault().getCountryData(), this.countries);
         }
     }
 
@@ -176,9 +176,9 @@ public class GeoIpDatabaseHandler implements Closeable {
     }
 
     @Override public void close() throws IOException {
-        if (databaseReader != null) {
-            databaseReader.close();
-            databaseReader = null;
+        if (this.databaseReader != null) {
+            this.databaseReader.close();
+            this.databaseReader = null;
         }
     }
 

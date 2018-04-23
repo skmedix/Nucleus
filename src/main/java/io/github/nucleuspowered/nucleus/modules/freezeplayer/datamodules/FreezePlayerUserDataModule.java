@@ -14,11 +14,11 @@ public class FreezePlayerUserDataModule extends DataModule<ModularUserService> {
     private boolean isFrozen = false;
 
     public boolean isFrozen() {
-        return isFrozen;
+        return this.isFrozen;
     }
 
     public void setFrozen(boolean value) {
-        isFrozen = value;
+        this.isFrozen = value;
     }
 
 }

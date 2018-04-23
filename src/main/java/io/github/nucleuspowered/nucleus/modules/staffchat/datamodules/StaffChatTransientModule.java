@@ -17,7 +17,7 @@ public class StaffChatTransientModule extends TransientModule<ModularUserService
     @Nullable private MessageChannel previousMessageChannel;
 
     public Optional<MessageChannel> getPreviousMessageChannel() {
-        return Optional.ofNullable(previousMessageChannel);
+        return Optional.ofNullable(this.previousMessageChannel);
     }
 
     public void setPreviousMessageChannel(@Nullable MessageChannel previousMessageChannel) {

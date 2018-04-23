@@ -17,10 +17,10 @@ public class ItemConfig {
     private SkullConfig skullConfig = new SkullConfig();
 
     public RepairConfig getRepairConfig() {
-        return repairConfig;
+        return this.repairConfig;
     }
 
     public SkullConfig getSkullConfig() {
-        return skullConfig;
+        return this.skullConfig;
     }
 }

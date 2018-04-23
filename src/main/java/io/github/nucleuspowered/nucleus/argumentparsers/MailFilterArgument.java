@@ -87,15 +87,15 @@ public class MailFilterArgument extends CommandElement {
 
         List<NucleusMailService.MailFilter> lmf = Lists.newArrayList();
         if (console || !players.isEmpty()) {
-            lmf.add(handler.createSenderFilter(console, players));
+            lmf.add(this.handler.createSenderFilter(console, players));
         }
 
         if (ea != null || l != null) {
-            lmf.add(handler.createDateFilter(ea, l));
+            lmf.add(this.handler.createDateFilter(ea, l));
         }
 
         if (!message.isEmpty()) {
-            lmf.add(handler.createMessageFilter(false, message));
+            lmf.add(this.handler.createMessageFilter(false, message));
         }
 
         return lmf.isEmpty() ? null : lmf;

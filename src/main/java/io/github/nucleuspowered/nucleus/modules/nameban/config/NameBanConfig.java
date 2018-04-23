@@ -14,6 +14,6 @@ public class NameBanConfig {
     private String defaultReason = "Your Minecraft username is not appropriate for this server. Please change it before attempting to access this server.";
 
     public String getDefaultReason() {
-        return defaultReason;
+        return this.defaultReason;
     }
 }

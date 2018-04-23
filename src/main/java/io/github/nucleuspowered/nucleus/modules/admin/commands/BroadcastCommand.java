@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -40,24 +41,24 @@ public class BroadcastCommand extends AbstractCommand<CommandSource> implements 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.remainingRawJoinedStrings(Text.of(message))
+                GenericArguments.remainingRawJoinedStrings(Text.of(this.message))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        String m = args.<String>getOne(message).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        String m = args.<String>getOne(this.message).get();
 
         NucleusTextTemplate textTemplate = NucleusTextTemplateFactory.createFromAmpersandString(m);
-        Text p = bc.getPrefix().getForCommandSource(src);
-        Text s = bc.getSuffix().getForCommandSource(src);
+        Text p = this.bc.getPrefix().getForCommandSource(src);
+        Text s = this.bc.getSuffix().getForCommandSource(src);
 
         new NucleusTextTemplateMessageSender(textTemplate, src, t -> TextParsingUtils.joinTextsWithColoursFlowing(p, t, s)).send();
         return CommandResult.success();
     }
 
     @Override public void onReload() {
-        this.bc = plugin
+        this.bc = Nucleus.getNucleus()
             .getConfigValue(AdminModule.ID, AdminConfigAdapter.class, AdminConfig::getBroadcastMessage)
             .orElseGet(BroadcastConfig::new);
     }

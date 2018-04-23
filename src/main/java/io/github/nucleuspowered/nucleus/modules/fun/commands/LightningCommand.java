@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.fun.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -47,19 +48,19 @@ public class LightningCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[]{
                 GenericArguments.optional(
                     GenericArguments.requiringPermission(
-                        SelectorWrapperArgument.nicknameSelector(Text.of(player), NicknameArgument.UnderlyingType.PLAYER, false, Living.class),
-                            permissions.getPermissionWithSuffix("others")))
+                        SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.PLAYER, false, Living.class),
+                            this.permissions.getPermissionWithSuffix("others")))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        Collection<Living> playerCollection = args.getAll(player);
+        Collection<Living> playerCollection = args.getAll(this.player);
 
         // No argument, let's not smite the subject.
         if (playerCollection.isEmpty()) {
             if (!(src instanceof Player)) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.playeronly"));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.playeronly"));
                 return CommandResult.empty();
             }
 
@@ -93,7 +94,7 @@ public class LightningCommand extends AbstractCommand<CommandSource> {
 
         if (CauseStackHelper.createFrameWithCausesWithReturn(c -> world.spawnEntity(bolt), src)) {
             if (target != null) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.lightning.success.other", plugin.getNameUtil()
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.lightning.success.other", Nucleus.getNucleus().getNameUtil()
                         .getName(target)));
             }
 
@@ -101,7 +102,7 @@ public class LightningCommand extends AbstractCommand<CommandSource> {
         }
 
         if (target != null) {
-            throw ReturnMessageException.fromKeyText("command.lightning.errorplayer", plugin.getNameUtil().getName(target));
+            throw ReturnMessageException.fromKeyText("command.lightning.errorplayer", Nucleus.getNucleus().getNameUtil().getName(target));
         } else {
             throw ReturnMessageException.fromKey("command.lightning.error");
         }

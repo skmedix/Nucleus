@@ -40,13 +40,13 @@ public class KillCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            SelectorWrapperArgument.nicknameSelector(Text.of(key), NicknameArgument.UnderlyingType.PLAYER, false, Entity.class)
+            SelectorWrapperArgument.nicknameSelector(Text.of(this.key), NicknameArgument.UnderlyingType.PLAYER, false, Entity.class)
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Collection<Entity> entities = args.getAll(key);
+        Collection<Entity> entities = args.getAll(this.key);
 
         int entityKillCount = 0;
         int playerKillCount = 0;
@@ -71,14 +71,14 @@ public class KillCommand extends AbstractCommand<CommandSource> {
 
             if (x instanceof Player) {
                 playerKillCount++;
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kill.killed",
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kill.killed",
                         Nucleus.getNucleus().getNameUtil().getSerialisedName((Player)x)));
-                ((Player)x).sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kill.killedby", src.getName()));
+                ((Player)x).sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kill.killedby", src.getName()));
             }
         }
 
         if (entityKillCount > playerKillCount) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kill.overall", String.valueOf(entityKillCount),
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kill.overall", String.valueOf(entityKillCount),
                     String.valueOf(playerKillCount)));
         }
 

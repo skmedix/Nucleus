@@ -40,7 +40,7 @@ public class HomeOtherCommand extends AbstractCommand<Player> implements Reloada
     public static final String OTHER_EXEMPT_PERM_SUFFIX = "exempt.target";
     private boolean isSafeTeleport = true;
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.isSafeTeleport = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(HomeConfigAdapter.class).getNodeOrDefault()
                 .isSafeTeleport();
     }
@@ -53,13 +53,13 @@ public class HomeOtherCommand extends AbstractCommand<Player> implements Reloada
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(new HomeOtherArgument(Text.of(home), plugin))};
+        return new CommandElement[] {GenericArguments.onlyOne(new HomeOtherArgument(Text.of(this.home), Nucleus.getNucleus()))};
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
         // Get the home.
-        Home wl = args.<Home>getOne(home).get();
+        Home wl = args.<Home>getOne(this.home).get();
 
         Sponge.getServer().loadWorld(wl.getWorldProperties()
                 .orElseThrow(() -> ReturnMessageException.fromKey("command.home.invalid", wl.getName())));
@@ -69,13 +69,14 @@ public class HomeOtherCommand extends AbstractCommand<Player> implements Reloada
         UseHomeEvent event = CauseStackHelper.createFrameWithCausesWithReturn(c -> new UseHomeEvent(c, src, wl), src);
         if (Sponge.getEventManager().post(event)) {
             throw new ReturnMessageException(event.getCancelMessage().orElseGet(() ->
-                plugin.getMessageProvider().getTextMessageWithFormat("nucleus.eventcancelled")
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.eventcancelled")
             ));
         }
 
         // Warp to it safely.
-        if (plugin.getTeleportHandler().teleportPlayer(src, targetLocation, wl.getRotation(), this.isSafeTeleport).isSuccess()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.homeother.success", wl.getUser().getName(), wl.getName()));
+        if (Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, targetLocation, wl.getRotation(), this.isSafeTeleport).isSuccess()) {
+            src.sendMessage(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.homeother.success", wl.getUser().getName(), wl.getName()));
             return CommandResult.success();
         } else {
             throw ReturnMessageException.fromKey("command.homeother.fail", wl.getUser().getName(), wl.getName());

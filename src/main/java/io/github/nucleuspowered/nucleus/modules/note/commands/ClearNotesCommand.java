@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.note.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -35,25 +36,25 @@ public class ClearNotesCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(playerKey)))};
+        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey)))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = args.<User>getOne(playerKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        User user = args.<User>getOne(this.playerKey).get();
 
-        List<NoteData> notes = handler.getNotesInternal(user);
+        List<NoteData> notes = this.handler.getNotesInternal(user);
         if (notes.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checknotes.none", user.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checknotes.none", user.getName()));
             return CommandResult.success();
         }
 
-        if (handler.clearNotes(user)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.clearnotes.success", user.getName()));
+        if (this.handler.clearNotes(user)) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearnotes.success", user.getName()));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.clearnotes.failure", user.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearnotes.failure", user.getName()));
         return CommandResult.empty();
     }
 }

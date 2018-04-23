@@ -10,7 +10,7 @@ import io.github.nucleuspowered.nucleus.modules.environment.datamodule.Environme
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.world.ChangeWorldWeatherEvent;
 
-public class EnvironmentListener extends ListenerBase {
+public class EnvironmentListener implements ListenerBase {
 
     @Listener
     public void onWeatherChange(ChangeWorldWeatherEvent event) {

@@ -69,12 +69,12 @@ public class UtilTests {
             return new WorldBorder() {
                 @Override
                 public double getNewDiameter() {
-                    return dia;
+                    return WorldBorderTests.this.dia;
                 }
 
                 @Override
                 public double getDiameter() {
-                    return dia;
+                    return WorldBorderTests.this.dia;
                 }
 
                 @Override
@@ -104,7 +104,7 @@ public class UtilTests {
 
                 @Override
                 public Vector3d getCenter() {
-                    return new Vector3d(borderX, borderY, borderZ);
+                    return new Vector3d(WorldBorderTests.this.borderX, WorldBorderTests.this.borderY, WorldBorderTests.this.borderZ);
                 }
 
                 @Override
@@ -160,8 +160,8 @@ public class UtilTests {
             World world = Mockito.mock(World.class);
             Mockito.when(world.getWorldBorder()).thenReturn(wb);
 
-            Location<World> lw = new Location<>(world, new Vector3d(x, y, z));
-            Assert.assertEquals(result, Util.isLocationInWorldBorder(lw));
+            Location<World> lw = new Location<>(world, new Vector3d(this.x, this.y, this.z));
+            Assert.assertEquals(this.result, Util.isLocationInWorldBorder(lw));
         }
     }
 }

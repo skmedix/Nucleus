@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.spawn.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -44,7 +45,7 @@ public class SpawnCommand extends AbstractCommand<Player> implements Reloadable 
     private SpawnConfig sc = new SpawnConfig();
     private final String key = "world";
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.sc = getServiceUnchecked(SpawnConfigAdapter.class).getNodeOrDefault();
     }
 
@@ -61,44 +62,46 @@ public class SpawnCommand extends AbstractCommand<Player> implements Reloadable 
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("force"), "f", "-force").buildWith(
-                GenericArguments.optional(GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.world(Text.of(key))),
-                        permissions.getPermissionWithSuffix("otherworlds"))))
+                GenericArguments.optional(GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.world(Text.of(this.key))),
+                        this.permissions.getPermissionWithSuffix("otherworlds"))))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
         boolean force = args.hasAny("f");
-        GlobalSpawnConfig gsc = sc.getGlobalSpawn();
-        WorldProperties wp = args.<WorldProperties>getOne(key)
+        GlobalSpawnConfig gsc = this.sc.getGlobalSpawn();
+        WorldProperties wp = args.<WorldProperties>getOne(this.key)
             .orElseGet(() -> gsc.isOnSpawnCommand() ? gsc.getWorld().orElse(src.getWorld().getProperties()) : src.getWorld().getProperties());
 
         Optional<World> ow = Sponge.getServer().loadWorld(wp.getUniqueId());
 
         if (!ow.isPresent()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawn.noworld"));
-        } else if (sc.isPerWorldPerms() && !permissions.testSuffix(src, "worlds." + ow.get().getName().toLowerCase())) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawn.nopermsworld", ow.get().getName()));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawn.noworld"));
+        } else if (this.sc.isPerWorldPerms() && !this.permissions.testSuffix(src, "worlds." + ow.get().getName().toLowerCase())) {
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawn.nopermsworld", ow.get().getName()));
         }
 
-        Transform<World> worldTransform = SpawnHelper.getSpawn(wp, plugin, src);
+        Transform<World> worldTransform = SpawnHelper.getSpawn(wp, src);
 
         SendToSpawnEvent event = new SendToSpawnEvent(worldTransform, src, CauseStackHelper.createCause(src));
         if (Sponge.getEventManager().post(event)) {
             if (event.getCancelReason().isPresent()) {
-                throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawnother.self.failed.reason", event.getCancelReason().get()));
+                throw new ReturnMessageException(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.self.failed.reason", event.getCancelReason().get()));
             }
 
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawnother.self.failed.noreason"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.self.failed.noreason"));
         }
 
         // If we don't have a rotation, then use the current rotation
-        NucleusTeleportHandler.TeleportResult result = this.plugin.getTeleportHandler()
+        NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler()
                 .teleportPlayer(src,
-                    SpawnHelper.getSpawn(ow.get().getProperties(), this.plugin, src),
+                    SpawnHelper.getSpawn(ow.get().getProperties(), src),
                     !force && this.sc.isSafeTeleport());
         if (result.isSuccess()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.spawn.success", wp.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawn.success", wp.getWorldName()));
             return CommandResult.success();
         }
 

@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.playerinfo.commands;
 
 import io.github.nucleuspowered.nucleus.NameUtil;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.RegexArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -36,32 +37,32 @@ public class GetFromIpCommand extends AbstractCommand<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new RegexArgument(Text.of(ipKey), "^(\\d{1,3}\\.){3}\\d{1,3}$", "command.getfromip.notvalid")
+            new RegexArgument(Text.of(this.ipKey), "^(\\d{1,3}\\.){3}\\d{1,3}$", "command.getfromip.notvalid")
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        String ip = args.<String>getOne(ipKey).get();
+        String ip = args.<String>getOne(this.ipKey).get();
         if (Arrays.stream(ip.split("\\.")).anyMatch(x -> Integer.parseInt(x) > 255)) {
             throw ReturnMessageException.fromKey("command.getfromip.notvalid");
         }
 
         UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
-        List<User> users = plugin.getUserCacheService().getForIp(ip).stream().map(uss::get).filter(Optional::isPresent)
+        List<User> users = Nucleus.getNucleus().getUserCacheService().getForIp(ip).stream().map(uss::get).filter(Optional::isPresent)
                 .map(Optional::get).collect(Collectors.toList());
 
         if (users.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.getfromip.nousers"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.getfromip.nousers"));
             return CommandResult.success();
         }
 
-        NameUtil name = plugin.getNameUtil();
-        Util.getPaginationBuilder(src).title(plugin.getMessageProvider().getTextMessageWithFormat("command.getfromip.title", ip))
+        NameUtil name = Nucleus.getNucleus().getNameUtil();
+        Util.getPaginationBuilder(src).title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.getfromip.title", ip))
                 .contents(
                     users.stream().map(y -> {
                         Text n = name.getName(y);
                         return n.toBuilder().onClick(TextActions.runCommand("/nucleus:seen " + y.getName()))
-                            .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithTextFormat("command.getfromip.hover", n)))
+                            .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.getfromip.hover", n)))
                             .build();
                     }).collect(Collectors.toList())
                 )

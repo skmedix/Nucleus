@@ -159,13 +159,13 @@ public class ClassUtil {
         if (subclass.equals(superclass)) {
 
             // since the list will be built from the *head*, a linked list is a good choice
-            List<Class<? extends S>> subchain = new LinkedList<Class<? extends S>>();
+            List<Class<? extends S>> subchain = new LinkedList<>();
             subchain.add(subclass);
             return singleton(subchain);
         }
 
         // recursive case: get all superclasses and, if required, interfaces and recurse
-        Set<Class<? extends S>> supertypes = new HashSet<Class<? extends S>>();
+        Set<Class<? extends S>> supertypes = new HashSet<>();
 
         Class<? extends S> immediateSuperclass = (Class<? extends S>) subclass.getSuperclass();
 
@@ -178,7 +178,7 @@ public class ClassUtil {
             supertypes.addAll(asList((Class<? extends S>[]) subclass.getInterfaces()));
         }
 
-        Set<List<Class<? extends S>>> subchains = new HashSet<List<Class<? extends S>>>();
+        Set<List<Class<? extends S>>> subchains = new HashSet<>();
 
         for (Class<? extends S> supertype : supertypes) {
             Set<List<Class<? extends S>>> subchainsFromSupertype =
@@ -253,7 +253,7 @@ public class ClassUtil {
      */
     public static boolean isInstance(Collection<Class<?>> superclasses,
             Object instance) {
-        checkNotNull("Superclasses non-null", superclasses);
+        checkNotNull(superclasses, "Superclasses non-null");
 
         for (Class<?> superclass : superclasses) {
 
@@ -295,7 +295,7 @@ public class ClassUtil {
      */
     public static <T> List<Field> getAllDeclaredFields(Class<T> clazz,
             Class<? super T> superclass) {
-        final List<Field> fields = new ArrayList<Field>();
+        final List<Field> fields = new ArrayList<>();
 
         for (Class<?> immediateSuperclass : getSuperclassChain(clazz, superclass)) {
             fields.addAll(Arrays.asList(immediateSuperclass.getDeclaredFields()));
@@ -320,7 +320,7 @@ public class ClassUtil {
         checkNotNull(clazz, "All arguments must be non-null");
         checkNotNull(annotationType, "All arguments must be non-null");
 
-        final List<Field> annotatedFields = new ArrayList<Field>();
+        final List<Field> annotatedFields = new ArrayList<>();
 
         for (Field field : getAllDeclaredFields(clazz)) {
 
@@ -344,14 +344,14 @@ public class ClassUtil {
      */
     public static Set<Method> getAnnotatedMethods(Class<?> clazz,
             Class<? extends Annotation> annotationType) {
-        checkNotNull("'clazz' must be non-null", clazz);
+        checkNotNull(clazz, "'clazz' must be non-null");
 
         // perhaps this case should throw an exception, but an empty list also seems sensible 
         if (annotationType == null) {
-            return new HashSet<Method>();
+            return new HashSet<>();
         }
 
-        Set<Method> annotatedMethods = new HashSet<Method>();
+        Set<Method> annotatedMethods = new HashSet<>();
 
         for (Method method : clazz.getMethods()) {
 
@@ -425,7 +425,7 @@ public class ClassUtil {
 
         // if the class has no parameters, return
         if (typedClassTypeParams.length == 0) {
-            return new ArrayList<Class<?>>(0);
+            return new ArrayList<>(0);
         }
 
         /*
@@ -440,7 +440,7 @@ public class ClassUtil {
          * equivalent variable in Foo) *is* propagated, but only to the immediate parent!
          */
         Map<TypeVariable<?>, Class<?>> typeAssignments =
-                new HashMap<TypeVariable<?>, Class<?>>(typedClassTypeParams.length);
+                new HashMap<>(typedClassTypeParams.length);
 
         /*
          * Get one possible path from the typed class to the typed superclass. For classes, there
@@ -543,9 +543,7 @@ public class ClassUtil {
         } else {
             Type[] genericInterfaces = clazz.getGenericInterfaces();
 
-            for (int i = 0; i < genericInterfaces.length; i++) {
-                Type interfaceType = genericInterfaces[i];
-
+            for (Type interfaceType : genericInterfaces) {
                 // there is no guarantee that *all* the interfaces are generic
                 if ((interfaceType instanceof ParameterizedType)
                         && (((ParameterizedType) interfaceType).getRawType().equals(supertype))) {
@@ -572,11 +570,11 @@ public class ClassUtil {
             Map<TypeVariable<?>, Class<?>> typeAssignments) {
         int numTypedClassTypeParams = typedClassTypeParams.length;
         List<Class<?>> actualAssignments =
-                new ArrayList<Class<?>>(numTypedClassTypeParams);
+                new ArrayList<>(numTypedClassTypeParams);
 
         // for entries that could not be resolved, null should be returned
-        for (int i = 0; i < numTypedClassTypeParams; i++) {
-            actualAssignments.add(typeAssignments.get(typedClassTypeParams[i]));
+        for (TypeVariable<?> typedClassTypeParam : typedClassTypeParams) {
+            actualAssignments.add(typeAssignments.get(typedClassTypeParam));
         }
 
         return actualAssignments;

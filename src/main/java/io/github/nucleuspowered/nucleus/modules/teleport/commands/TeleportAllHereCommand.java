@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -34,12 +35,12 @@ public class TeleportAllHereCommand extends AbstractCommand<Player> {
     }
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        MessageChannel.TO_ALL.send(plugin.getMessageProvider().getTextMessageWithFormat("command.tpall.broadcast", src.getName()));
+    public CommandResult executeCommand(Player src, CommandContext args) {
+        MessageChannel.TO_ALL.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpall.broadcast", src.getName()));
         Sponge.getServer().getOnlinePlayers().forEach(x -> {
             if (!x.equals(src)) {
                 try {
-                    handler.getBuilder().setFrom(x).setTo(src).setSafe(!args.<Boolean>getOne("f").orElse(false)).setSilentSource(true)
+                    this.handler.getBuilder().setFrom(x).setTo(src).setSafe(!args.<Boolean>getOne("f").orElse(false)).setSilentSource(true)
                             .setBypassToggle(true).startTeleport();
                 } catch (Exception e) {
                     e.printStackTrace();

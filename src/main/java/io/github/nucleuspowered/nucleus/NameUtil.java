@@ -125,8 +125,8 @@ public class NameUtil {
         Optional<Text> dname = player.getPlayer().map(x -> x.get(Keys.DISPLAY_NAME).orElse(null));
 
         Text.Builder tb = null;
-        if (plugin != null && plugin.isModuleLoaded(NicknameModule.ID)) {
-            Optional<ModularUserService> userService = plugin.getUserDataManager().get(player);
+        if (this.plugin != null && this.plugin.isModuleLoaded(NicknameModule.ID)) {
+            Optional<ModularUserService> userService = this.plugin.getUserDataManager().get(player);
             if (userService.isPresent()) {
                 Optional<Text> n = userService.get().get(NicknameUserDataModule.class).getNicknameWithPrefix();
                 if (n.isPresent()) {
@@ -216,7 +216,7 @@ public class NameUtil {
             return returnIfAvailable.apply(os.get());
         }
 
-        Optional<TemplateUtil> optionalTemplateUtil = plugin.getInternalServiceManager().getService(TemplateUtil.class);
+        Optional<TemplateUtil> optionalTemplateUtil = this.plugin.getInternalServiceManager().getService(TemplateUtil.class);
         return optionalTemplateUtil.map(templateUtil -> fromTemplate.apply(templateUtil.getTemplateNow(player))).orElse(def);
 
     }

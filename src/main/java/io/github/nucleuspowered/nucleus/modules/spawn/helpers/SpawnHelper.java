@@ -24,12 +24,12 @@ public final class SpawnHelper {
 
     private SpawnHelper() {}
 
-    public static Transform<World> getSpawn(@Nonnull WorldProperties wp, Nucleus plugin, @Nullable Player player) throws ReturnMessageException {
+    public static Transform<World> getSpawn(@Nonnull WorldProperties wp, @Nullable Player player) throws ReturnMessageException {
         Preconditions.checkNotNull(wp, "WorldProperties");
         Optional<World> ow = Sponge.getServer().getWorld(wp.getUniqueId());
 
         if (!ow.isPresent()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawn.noworld"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawn.noworld"));
         }
 
         return new Transform<>(ow.get(),

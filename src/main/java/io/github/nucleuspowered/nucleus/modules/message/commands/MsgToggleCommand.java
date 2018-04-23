@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -42,17 +43,17 @@ public class MsgToggleCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(GenericArguments.bool(Text.of(toggle)))
+            GenericArguments.optionalWeak(GenericArguments.bool(Text.of(this.toggle)))
         };
     }
 
     @Override
-    protected CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        ModularUserService mus = this.plugin.getUserDataManager().getUnchecked(src);
-        boolean flip = args.<Boolean>getOne(toggle).orElseGet(() -> !mus.get(MessageUserDataModule.class).isMsgToggle());
+    protected CommandResult executeCommand(Player src, CommandContext args) {
+        ModularUserService mus = Nucleus.getNucleus().getUserDataManager().getUnchecked(src);
+        boolean flip = args.<Boolean>getOne(this.toggle).orElseGet(() -> !mus.get(MessageUserDataModule.class).isMsgToggle());
 
         mus.get(MessageUserDataModule.class).setMsgToggle(flip);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.msgtoggle.success." + String.valueOf(flip)));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.msgtoggle.success." + String.valueOf(flip)));
 
         return CommandResult.success();
     }

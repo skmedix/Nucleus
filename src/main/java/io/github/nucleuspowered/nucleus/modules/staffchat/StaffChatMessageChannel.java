@@ -45,23 +45,21 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat {
         return INSTANCE;
     }
 
-    private final Nucleus plugin;
     private final String basePerm;
     private NucleusTextTemplateImpl template;
     private TextColor colour;
 
     StaffChatMessageChannel() {
-        this.plugin = Nucleus.getNucleus();
-        plugin.registerReloadable(this::onReload);
+        Nucleus.getNucleus().registerReloadable(this::onReload);
         this.onReload();
-        this.basePerm = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(StaffChatCommand.class).getBase();
+        this.basePerm = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(StaffChatCommand.class).getBase();
         INSTANCE = this;
     }
 
     @Override
     public void send(@Nullable Object sender, Text original, ChatType type) {
         CommandSource source;
-        if (sender == null || !(sender instanceof CommandSource)) {
+        if (!(sender instanceof CommandSource)) {
             if (sender instanceof String) {
                 source = new NamedSource((String) sender);
             } else {
@@ -71,14 +69,14 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat {
             source = (CommandSource) sender;
         }
 
-        Text prefix = template.getForCommandSource(source);
-        NucleusChatChannel.StaffChat.super.send(sender, Text.of(prefix, colour, original), type);
+        Text prefix = this.template.getForCommandSource(source);
+        NucleusChatChannel.StaffChat.super.send(sender, Text.of(prefix, this.colour, original), type);
     }
 
     @Override
     @Nonnull
     public Collection<MessageReceiver> getMembers() {
-        List<MessageReceiver> c = Sponge.getServer().getOnlinePlayers().stream().filter(x -> x.hasPermission(basePerm)).collect(Collectors.toList());
+        List<MessageReceiver> c = Sponge.getServer().getOnlinePlayers().stream().filter(x -> x.hasPermission(this.basePerm)).collect(Collectors.toList());
         c.add(Sponge.getServer().getConsole());
         return c;
     }
@@ -89,7 +87,7 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat {
     }
 
     private void onReload() {
-        this.plugin.getConfigAdapter(StaffChatModule.ID, StaffChatConfigAdapter.class)
+        Nucleus.getNucleus().getConfigAdapter(StaffChatModule.ID, StaffChatConfigAdapter.class)
                 .ifPresent(x -> {
                     this.formatting = x.getNodeOrDefault().isIncludeStandardChatFormatting();
                     this.template = x.getNodeOrDefault().getMessageTemplate();

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -35,36 +36,40 @@ public class LoadWorldCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.flags().permissionFlag(plugin.getPermissionRegistry().getPermissionsForNucleusCommand(EnableWorldCommand.class).getBase(), "e", "-enable")
-                .buildWith(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
+            GenericArguments.flags().permissionFlag(
+                    Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(EnableWorldCommand.class).getBase(), "e", "-enable")
+                .buildWith(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties worldProperties = args.<WorldProperties>getOne(worldKey).get();
+        WorldProperties worldProperties = args.<WorldProperties>getOne(this.worldKey).get();
         if (!worldProperties.isEnabled() && !args.hasAny("e")) {
             // Not enabled, cannot load.
-            if (plugin.getPermissionRegistry().getPermissionsForNucleusCommand(EnableWorldCommand.class).testBase(src)) {
-                throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.load.notenabled.enable", worldProperties.getWorldName()));
+            if (Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(EnableWorldCommand.class).testBase(src)) {
+                throw new ReturnMessageException(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.load.notenabled.enable", worldProperties.getWorldName()));
             }
 
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.load.notenabled.noenable", worldProperties.getWorldName()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.load.notenabled.noenable", worldProperties.getWorldName()));
         }
 
         if (Sponge.getServer().getWorld(worldProperties.getUniqueId()).isPresent()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.load.alreadyloaded", worldProperties.getWorldName()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.load.alreadyloaded", worldProperties.getWorldName()));
         }
 
         worldProperties.setEnabled(true);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.load.start", worldProperties.getWorldName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.load.start", worldProperties.getWorldName()));
         Optional<World> optional = Sponge.getServer().loadWorld(worldProperties);
         if (optional.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.load.loaded", worldProperties.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.load.loaded", worldProperties.getWorldName()));
             return CommandResult.success();
         }
 
-        throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.load.fail",
+        throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.load.fail",
                 worldProperties.getWorldName()));
     }
 

@@ -16,7 +16,7 @@ import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.channel.MessageChannel;
 
-public class ConnectionMessagesForceListener extends ListenerBase implements ListenerBase.Conditional {
+public class ConnectionMessagesForceListener implements ListenerBase.Conditional {
 
     @Listener(order = Order.FIRST)
     @Include({ClientConnectionEvent.Disconnect.class, ClientConnectionEvent.Join.class})

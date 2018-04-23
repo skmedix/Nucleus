@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -33,12 +34,12 @@ public class ResetBorderCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ALL))),
+            GenericArguments.optionalWeak(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL))),
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
         wp.setWorldBorderCenter(0, 0);
         Optional<World> world = Sponge.getServer().getWorld(wp.getUniqueId());
 
@@ -55,7 +56,7 @@ public class ResetBorderCommand extends AbstractCommand<CommandSource> {
             w.getWorldBorder().setDiameter(diameter);
         });
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.setborder.set",
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setborder.set",
                 wp.getWorldName(),
                 "0",
                 "0",

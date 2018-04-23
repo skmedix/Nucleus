@@ -12,7 +12,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
@@ -38,7 +37,7 @@ public class KitResetUsageCommand extends KitFallbackBase<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(GenericArguments.user(Text.of(user))),
+            GenericArguments.onlyOne(GenericArguments.user(Text.of(this.user))),
             GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
         };
     }
@@ -46,14 +45,15 @@ public class KitResetUsageCommand extends KitFallbackBase<CommandSource> {
     @Override
     public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
         Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
-        User u = args.<User>getOne(user).get();
+        User u = args.<User>getOne(this.user).get();
         KitUserDataModule inu = Nucleus.getNucleus().getUserDataManager().getUnchecked(u).get(KitUserDataModule.class);
 
         if (Util.getKeyIgnoreCase(inu.getKitLastUsedTime(), kitInfo.getName()).isPresent()) {
             // Remove the key.
             inu.removeKitLastUsedTime(kitInfo.getName().toLowerCase());
 
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.resetuser.success", u.getName(), kitInfo.getName()));
+            player.sendMessage(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.resetuser.success", u.getName(), kitInfo.getName()));
             return CommandResult.success();
         }
 

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 @RegisterCommand(value = "debug", subcommandOf = NucleusCommand.class, hasExecutor = false)
 public class DebugCommand extends AbstractCommand<CommandSource> {
 
-    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         return CommandResult.empty();
     }
 
@@ -47,15 +48,15 @@ public class DebugCommand extends AbstractCommand<CommandSource> {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                    GenericArguments.optional(GenericArguments.bool(Text.of(key)))
+                    GenericArguments.optional(GenericArguments.bool(Text.of(this.key)))
             };
         }
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-            boolean set = args.<Boolean>getOne(key).orElseGet(() -> !this.plugin.isSessionDebug());
-            plugin.setSessionDebug(set);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.setsession", String.valueOf(set)));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.setsession2"));
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
+            boolean set = args.<Boolean>getOne(this.key).orElseGet(() -> !Nucleus.getNucleus().isSessionDebug());
+            Nucleus.getNucleus().setSessionDebug(set);
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.setsession", String.valueOf(set)));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.setsession2"));
             return CommandResult.success();
         }
     }
@@ -69,17 +70,17 @@ public class DebugCommand extends AbstractCommand<CommandSource> {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                new NicknameArgument<>(Text.of(userName), NicknameArgument.UnderlyingType.USER, false)
+                new NicknameArgument<>(Text.of(this.userName), NicknameArgument.UnderlyingType.USER, false)
             };
         }
 
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-            Collection<User> users = args.getAll(userName);
+            Collection<User> users = args.getAll(this.userName);
             if (users.isEmpty()) {
                 throw ReturnMessageException.fromKey("command.nucleus.debug.uuid.none");
             }
 
-            MessageProvider provider = plugin.getMessageProvider();
+            MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
             Util.getPaginationBuilder(src)
                 .title(provider.getTextMessageWithFormat("command.nucleus.debug.uuid.title", users.iterator().next().getName()))
                 .header(provider.getTextMessageWithFormat("command.nucleus.debug.uuid.header"))
@@ -87,7 +88,7 @@ public class DebugCommand extends AbstractCommand<CommandSource> {
                     users.stream()
                         .map(
                             x -> Text.builder(x.getUniqueId().toString()).color(x.isOnline() ? TextColors.GREEN : TextColors.RED)
-                                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat(
+                                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(
                                     "command.nucleus.debug.uuid.clicktodelete"
                                 )))
                         .onClick(TextActions.runCommand("/nucleus resetuser -a " + x.getUniqueId().toString()))
@@ -103,11 +104,11 @@ public class DebugCommand extends AbstractCommand<CommandSource> {
     @RegisterCommand(value = "refreshuniquevisitors", subcommandOf = DebugCommand.class)
     public static class RefreshUniqueVisitors extends AbstractCommand<CommandSource> {
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.refreshuniquevisitors.started",
-                String.valueOf(plugin.getGeneralService().getTransient(UniqueUserCountTransientModule.class).getUniqueUserCount())));
-            plugin.getGeneralService().getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount(l ->
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.refreshuniquevisitors.done", String.valueOf(l))));
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.refreshuniquevisitors.started",
+                String.valueOf(Nucleus.getNucleus().getGeneralService().getTransient(UniqueUserCountTransientModule.class).getUniqueUserCount())));
+            Nucleus.getNucleus().getGeneralService().getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount(l ->
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.refreshuniquevisitors.done", String.valueOf(l))));
             return CommandResult.success();
         }
     }

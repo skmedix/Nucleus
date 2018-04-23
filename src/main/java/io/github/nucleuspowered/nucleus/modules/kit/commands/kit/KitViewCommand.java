@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
@@ -11,13 +12,11 @@ import io.github.nucleuspowered.nucleus.internal.annotations.Since;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -54,9 +53,9 @@ public class KitViewCommand extends KitFallbackBase<Player> implements Reloadabl
         final Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
 
         Inventory inventory = Util.getKitInventoryBuilder()
-                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(plugin.getMessageProvider()
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Nucleus.getNucleus().getMessageProvider()
                         .getTextMessageWithFormat("command.kit.view.title", kitInfo.getName())))
-                .build(this.plugin);
+                .build(Nucleus.getNucleus());
 
         List<ItemStack> lis = kitInfo.getStacks().stream().filter(x -> !x.getType().equals(ItemTypes.NONE)).map(ItemStackSnapshot::createStack)
                 .collect(Collectors.toList());
@@ -74,7 +73,7 @@ public class KitViewCommand extends KitFallbackBase<Player> implements Reloadabl
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         this.processTokens = getServiceUnchecked(KitConfigAdapter.class).getNodeOrDefault().isProcessTokens();
     }
 }

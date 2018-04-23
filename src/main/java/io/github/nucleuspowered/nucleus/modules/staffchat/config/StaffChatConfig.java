@@ -25,15 +25,15 @@ public class StaffChatConfig {
     private String messageColour = "b";
 
     public NucleusTextTemplateImpl getMessageTemplate() {
-        return messageTemplate;
+        return this.messageTemplate;
     }
 
     public String getMessageColour() {
-        if (messageColour.isEmpty() || !messageColour.matches("^[0-9a-f]")) {
+        if (this.messageColour.isEmpty() || !this.messageColour.matches("^[0-9a-f]")) {
             return "b";
         }
 
-        return messageColour.substring(0, 1);
+        return this.messageColour.substring(0, 1);
     }
 
     public TextColor getColour() {
@@ -41,6 +41,6 @@ public class StaffChatConfig {
     }
 
     public boolean isIncludeStandardChatFormatting() {
-        return includeStandardChatFormatting;
+        return this.includeStandardChatFormatting;
     }
 }

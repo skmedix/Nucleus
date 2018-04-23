@@ -35,12 +35,12 @@ public class MailOtherCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            SelectorWrapperArgument.nicknameSelector(Text.of(userKey), NicknameArgument.UnderlyingType.USER),
-            GenericArguments.optional(GenericArguments.allOf(new MailFilterArgument(Text.of(MailReadBase.filters), handler)))};
+            SelectorWrapperArgument.nicknameSelector(Text.of(this.userKey), NicknameArgument.UnderlyingType.USER),
+            GenericArguments.optional(GenericArguments.allOf(new MailFilterArgument(Text.of(MailReadBase.filters), this.handler)))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        return MailReadBase.INSTANCE.executeCommand(src, args.<User>getOne(userKey).get(), args.getAll(MailReadBase.filters));
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        return MailReadBase.INSTANCE.executeCommand(src, args.<User>getOne(this.userKey).get(), args.getAll(MailReadBase.filters));
     }
 }

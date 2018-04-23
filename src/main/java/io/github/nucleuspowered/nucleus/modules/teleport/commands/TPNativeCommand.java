@@ -31,12 +31,12 @@ public class TPNativeCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.remainingJoinedStrings(Text.of(a))};
+        return new CommandElement[] {GenericArguments.remainingJoinedStrings(Text.of(this.a))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Sponge.getCommandManager().process(src, String.format("minecraft:tp %s", args.<String>getOne(a).orElse("")));
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        Sponge.getCommandManager().process(src, String.format("minecraft:tp %s", args.<String>getOne(this.a).orElse("")));
         return CommandResult.success();
     }
 }

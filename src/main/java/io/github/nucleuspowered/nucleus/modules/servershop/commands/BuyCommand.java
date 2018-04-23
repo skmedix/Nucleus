@@ -61,25 +61,25 @@ public class BuyCommand extends AbstractCommand<Player> implements Reloadable {
         return new CommandElement[] {
             GenericArguments.flags().flag("y", "f", "a", "-yes", "-auto").buildWith(
                 GenericArguments.seq(
-                    GenericArguments.onlyOne(new ItemAliasArgument(Text.of(itemKey))),
-                    GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(amountKey)))))
+                    GenericArguments.onlyOne(new ItemAliasArgument(Text.of(this.itemKey))),
+                    GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(this.amountKey)))))
         };
     }
 
     @Override
-    public CommandResult executeCommand(final Player src, CommandContext args) throws Exception {
-        CatalogType ct = args.<CatalogType>getOne(itemKey).get();
-        int amount = args.<Integer>getOne(amountKey).get();
+    public CommandResult executeCommand(final Player src, CommandContext args) {
+        CatalogType ct = args.<CatalogType>getOne(this.itemKey).get();
+        int amount = args.<Integer>getOne(this.amountKey).get();
 
-        ItemDataNode node = itemDataService.getDataForItem(ct.getId());
+        ItemDataNode node = this.itemDataService.getDataForItem(ct.getId());
         if (node.getServerBuyPrice() < 0) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.itembuy.notforsale"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.itembuy.notforsale"));
             return CommandResult.empty();
         }
 
-        if (amount > max) {
-            amount = max;
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.itembuy.maximum", String.valueOf(amount)));
+        if (amount > this.max) {
+            amount = this.max;
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.itembuy.maximum", String.valueOf(amount)));
         }
 
         final ItemStack created;
@@ -93,15 +93,15 @@ public class BuyCommand extends AbstractCommand<Player> implements Reloadable {
         final double perUnitCost = node.getServerBuyPrice();
         final int unitCount = amount;
         final double overallCost = perUnitCost * unitCount;
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itembuy.summary",
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itembuy.summary",
                 Text.of(String.valueOf(amount)), Text.of(created),
-                Text.of(econHelper.getCurrencySymbol(overallCost))));
+                Text.of(this.econHelper.getCurrencySymbol(overallCost))));
 
         if (args.hasAny("y")) {
             new BuyCallback(src, overallCost, created, unitCount, perUnitCost).accept(src);
         } else {
             src.sendMessage(
-                    plugin.getMessageProvider().getTextMessageWithFormat("command.itembuy.clickhere").toBuilder()
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.itembuy.clickhere").toBuilder()
                             .onClick(TextActions.executeCallback(new BuyCallback(src, overallCost, created, unitCount, perUnitCost))).build()
             );
         }
@@ -109,7 +109,7 @@ public class BuyCommand extends AbstractCommand<Player> implements Reloadable {
         return CommandResult.success();
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.max = getServiceUnchecked(ServerShopConfigAdapter.class).getNodeOrDefault().getMaxPurchasableAtOnce();
     }
 
@@ -133,34 +133,34 @@ public class BuyCommand extends AbstractCommand<Player> implements Reloadable {
 
         @Override
         public void accept(CommandSource source) {
-            if (hasRun) {
+            if (this.hasRun) {
                 return;
             }
 
-            hasRun = true;
+            this.hasRun = true;
 
             // Get the money, transact, return the money on fail.
-            Inventory target = Util.getStandardInventory(src);
-            if (econHelper.withdrawFromPlayer(src, overallCost, false)) {
-                Text name = Text.of(created);
-                InventoryTransactionResult itr = target.offer(created);
+            Inventory target = Util.getStandardInventory(this.src);
+            if (BuyCommand.this.econHelper.withdrawFromPlayer(this.src, this.overallCost, false)) {
+                Text name = Text.of(this.created);
+                InventoryTransactionResult itr = target.offer(this.created);
                 if (itr.getRejectedItems().isEmpty()) {
-                    src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itembuy.transactionsuccess",
-                            Text.of(unitCount), name, Text.of(econHelper.getCurrencySymbol(overallCost))));
+                    this.src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itembuy.transactionsuccess",
+                            Text.of(this.unitCount), name, Text.of(BuyCommand.this.econHelper.getCurrencySymbol(this.overallCost))));
                 } else {
                     Collection<ItemStackSnapshot> iss = itr.getRejectedItems();
                     int rejected = iss.stream().mapToInt(ItemStackSnapshot::getQuantity).sum();
-                    double refund = rejected * perUnitCost;
-                    econHelper.depositInPlayer(src, refund, false);
-                    src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itembuy.transactionpartial",
+                    double refund = rejected * this.perUnitCost;
+                    BuyCommand.this.econHelper.depositInPlayer(this.src, refund, false);
+                    this.src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itembuy.transactionpartial",
                             Text.of(rejected), name));
-                    src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.itembuy.transactionsuccess",
-                            Text.of(String.valueOf(unitCount - rejected)), name,
-                            Text.of(econHelper.getCurrencySymbol(overallCost - refund))));
+                    this.src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.itembuy.transactionsuccess",
+                            Text.of(String.valueOf(this.unitCount - rejected)), name,
+                            Text.of(BuyCommand.this.econHelper.getCurrencySymbol(this.overallCost - refund))));
                 }
             } else {
                 // No funds.
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.itembuy.nofunds"));
+                this.src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.itembuy.nofunds"));
             }
         }
     }

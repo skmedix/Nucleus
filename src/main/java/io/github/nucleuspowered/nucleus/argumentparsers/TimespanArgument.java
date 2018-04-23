@@ -30,9 +30,9 @@ public class TimespanArgument extends CommandElement {
     private final Pattern timeString = Pattern.compile("^((\\d+)w)?((\\d+)d)?((\\d+)h)?((\\d+)m)?((\\d+)s)?$");
 
     private final int secondsInMinute = 60;
-    private final int secondsInHour = 60 * secondsInMinute;
-    private final int secondsInDay = 24 * secondsInHour;
-    private final int secondsInWeek = 7 * secondsInDay;
+    private final int secondsInHour = 60 * this.secondsInMinute;
+    private final int secondsInDay = 24 * this.secondsInHour;
+    private final int secondsInWeek = 7 * this.secondsInDay;
 
     public TimespanArgument(@Nullable Text key) {
         super(key);
@@ -48,16 +48,16 @@ public class TimespanArgument extends CommandElement {
         String s = args.next();
 
         // First, if just digits, return the number in seconds.
-        if (minorTimeString.matcher(s).matches()) {
+        if (this.minorTimeString.matcher(s).matches()) {
             return Long.parseUnsignedLong(s);
         }
 
-        Matcher m = timeString.matcher(s);
+        Matcher m = this.timeString.matcher(s);
         if (m.matches()) {
-            long time = amount(m.group(2), secondsInWeek);
-            time += amount(m.group(4), secondsInDay);
-            time += amount(m.group(6), secondsInHour);
-            time += amount(m.group(8), secondsInMinute);
+            long time = amount(m.group(2), this.secondsInWeek);
+            time += amount(m.group(4), this.secondsInDay);
+            time += amount(m.group(6), this.secondsInHour);
+            time += amount(m.group(8), this.secondsInMinute);
             time += amount(m.group(10), 1);
 
             if (time > 0) {

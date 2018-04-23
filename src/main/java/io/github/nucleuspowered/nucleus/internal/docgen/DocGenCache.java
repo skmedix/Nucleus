@@ -57,23 +57,23 @@ public class DocGenCache {
     }
 
     public List<CommandDoc> getCommandDocs() {
-        return commandDocs;
+        return this.commandDocs;
     }
 
     public Collection<PermissionDoc> getPermissionDocs() {
-        return permissionDocs.values();
+        return this.permissionDocs.values();
     }
 
     public List<TokenDoc> getTokenDocs() {
-        return tokenDocs;
+        return this.tokenDocs;
     }
 
     public List<EssentialsDoc> getEssentialsDocs() {
-        return essentialsDocs;
+        return this.essentialsDocs;
     }
 
     public Map<String, String> getConfigDocs() {
-        return configDocs;
+        return this.configDocs;
     }
 
     public void addConfigurableModule(String name, ConfigurableModule<?> module) {
@@ -144,7 +144,7 @@ public class DocGenCache {
 
         String desc = abstractCommand.getDescription();
         if (!desc.contains(" ")) {
-            logger.warn("Cannot generate description for: " + abstractCommand.getCommandPath() + ": " + desc);
+            this.logger.warn("Cannot generate description for: " + abstractCommand.getCommandPath() + ": " + desc);
         }
         cmd.setOneLineDescription(desc);
 
@@ -188,10 +188,10 @@ public class DocGenCache {
             doc.setNucleusEquiv(a);
             doc.setExact(ee.isExact());
             doc.setNotes(ee.notes());
-            essentialsDocs.add(doc);
+            this.essentialsDocs.add(doc);
         }
 
-        commandDocs.add(cmd);
+        this.commandDocs.add(cmd);
     }
 
     public void addPermissionDocs(final String moduleID, Map<String, PermissionInformation> msp) {
@@ -200,11 +200,11 @@ public class DocGenCache {
 
     private PermissionDoc addPermissionDocs(final String moduleID, String k, PermissionInformation v) {
         PermissionDoc pd;
-        if (!permissionDocs.containsKey(k)) {
+        if (!this.permissionDocs.containsKey(k)) {
             pd = getPermissionFrom(moduleID, k, v);
-            permissionDocs.put(k, pd);
+            this.permissionDocs.put(k, pd);
         } else {
-            pd = permissionDocs.get(k);
+            pd = this.permissionDocs.get(k);
             if (!pd.getDescription().contains(v.plainDescription)) {
                 pd.setDescription(pd.getDescription().replaceAll("\\.$", "") + ", " + v.plainDescription);
             }
@@ -215,7 +215,7 @@ public class DocGenCache {
 
     public void addTokenDocs(Set<String> tokens) {
         tokens.forEach(x -> Nucleus.getNucleus().getMessageProvider().getMessageFromKey("nucleus.token." + x.toLowerCase()).ifPresent(y ->
-            tokenDocs.add(new TokenDoc().setName(x.toLowerCase()).setDescription(y))
+                this.tokenDocs.add(new TokenDoc().setName(x.toLowerCase()).setDescription(y))
         ));
     }
 

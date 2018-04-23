@@ -36,9 +36,9 @@ public class InfoArgument extends CommandElement {
     @Override
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
         String a = args.next();
-        Optional<TextFileController> list = handler.getSection(a);
+        Optional<TextFileController> list = this.handler.getSection(a);
         if (list.isPresent()) {
-            return new Result(handler.getInfoSections().stream().filter(a::equalsIgnoreCase).findFirst().get(), list.get());
+            return new Result(this.handler.getInfoSections().stream().filter(a::equalsIgnoreCase).findFirst().get(), list.get());
         }
 
         throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.info.noinfo", a));
@@ -48,9 +48,9 @@ public class InfoArgument extends CommandElement {
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
             String p = args.peek();
-            return handler.getInfoSections().stream().filter(x -> x.toLowerCase().startsWith(p.toLowerCase())).collect(Collectors.toList());
+            return this.handler.getInfoSections().stream().filter(x -> x.toLowerCase().startsWith(p.toLowerCase())).collect(Collectors.toList());
         } catch (Exception e) {
-            return new ArrayList<>(handler.getInfoSections());
+            return new ArrayList<>(this.handler.getInfoSections());
         }
     }
 

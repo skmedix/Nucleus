@@ -40,8 +40,8 @@ public class CloneWorldCommand extends AbstractCommand<CommandSource> {
 
     @Override protected CommandElement[] getArguments() {
         return new CommandElement[] {
-                new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ALL),
-                GenericArguments.string(Text.of(newKey))
+                new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL),
+                GenericArguments.string(Text.of(this.newKey))
         };
     }
 

@@ -47,38 +47,38 @@ public class IgnoreCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(userKey))),
-                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(toggleKey))))};
+        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(this.userKey))),
+                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(this.toggleKey))))};
     }
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         // Get the target
-        User target = args.<User>getOne(userKey).get();
+        User target = args.<User>getOne(this.userKey).get();
 
         if (target.equals(src)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ignore.self"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ignore.self"));
             return CommandResult.empty();
         }
 
         IgnoreUserDataModule inu = Nucleus.getNucleus().getUserDataManager().getUnchecked(src).get(IgnoreUserDataModule.class);
 
-        if (permissions.testSuffix(target, "exempt.chat")) {
+        if (this.permissions.testSuffix(target, "exempt.chat")) {
             // Make sure they are removed.
             inu.removeFromIgnoreList(target.getUniqueId());
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ignore.exempt", target.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ignore.exempt", target.getName()));
             return CommandResult.empty();
         }
 
         // Ok, we can ignore or unignore them.
-        boolean ignore = args.<Boolean>getOne(toggleKey).orElse(!inu.getIgnoreList().contains(target.getUniqueId()));
+        boolean ignore = args.<Boolean>getOne(this.toggleKey).orElse(!inu.getIgnoreList().contains(target.getUniqueId()));
 
         if (ignore) {
             inu.addToIgnoreList(target.getUniqueId());
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ignore.added", target.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ignore.added", target.getName()));
         } else {
             inu.removeFromIgnoreList(target.getUniqueId());
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ignore.remove", target.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ignore.remove", target.getName()));
         }
 
         return CommandResult.success();

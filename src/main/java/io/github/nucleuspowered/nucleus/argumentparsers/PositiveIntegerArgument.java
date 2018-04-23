@@ -35,7 +35,7 @@ public class PositiveIntegerArgument extends CommandElement {
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
         try {
             int a = Integer.parseUnsignedInt(args.next());
-            if (allowZero || a != 0) {
+            if (this.allowZero || a != 0) {
                 return a;
             }
 

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.item.commands.lore;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
@@ -30,8 +31,8 @@ abstract class LoreModifyBaseCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                new PositiveIntegerArgument(Text.of(loreLine), false),
-                GenericArguments.remainingJoinedStrings(Text.of(loreKey))
+                new PositiveIntegerArgument(Text.of(this.loreLine), false),
+                GenericArguments.remainingJoinedStrings(Text.of(this.loreKey))
         };
     }
 
@@ -74,7 +75,7 @@ abstract class LoreModifyBaseCommand extends AbstractCommand<Player> {
         if (stack.offer(Keys.ITEM_LORE, loreList).isSuccessful()) {
             src.setItemInHand(HandTypes.MAIN_HAND, stack);
 
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.lore.set.success"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.lore.set.success"));
             return CommandResult.success();
         }
 

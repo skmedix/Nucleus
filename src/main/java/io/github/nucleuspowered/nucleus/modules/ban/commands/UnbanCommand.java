@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.GameProfileArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -43,26 +44,27 @@ public class UnbanCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
             GenericArguments.firstParsing(
                 // GenericArguments.onlyOne(GenericArguments.user(Text.of(key))),
-                GenericArguments.onlyOne(UUIDArgument.gameProfile(Text.of(key))),
-                GenericArguments.onlyOne(new GameProfileArgument(Text.of(key2)))
+                GenericArguments.onlyOne(UUIDArgument.gameProfile(Text.of(this.key))),
+                GenericArguments.onlyOne(new GameProfileArgument(Text.of(this.key2)))
             )
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         GameProfile gp;
-        if (args.hasAny(key)) {
-            gp = args.<GameProfile>getOne(key).get();
+        if (args.hasAny(this.key)) {
+            gp = args.<GameProfile>getOne(this.key).get();
         } else {
-            gp = args.<GameProfile>getOne(key2).get();
+            gp = args.<GameProfile>getOne(this.key2).get();
         }
 
         BanService service = Sponge.getServiceManager().provideUnchecked(BanService.class);
 
         Optional<Ban.Profile> obp = service.getBanFor(gp);
         if (!obp.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkban.notset", gp.getName().orElse(plugin.getMessageProvider().getMessageWithFormat("standard.unknown"))));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkban.notset", gp.getName().orElse(
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.unknown"))));
             return CommandResult.empty();
         }
 
@@ -70,7 +72,7 @@ public class UnbanCommand extends AbstractCommand<CommandSource> {
 
         MutableMessageChannel notify = new PermissionMessageChannel(BanCommand.notifyPermission).asMutable();
         notify.addMember(src);
-        notify.send(plugin.getMessageProvider().getTextMessageWithFormat("command.unban.success", obp.get().getProfile().getName().orElse("standard.unknown"), src.getName()));
+        notify.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.unban.success", obp.get().getProfile().getName().orElse("standard.unknown"), src.getName()));
         return CommandResult.success();
     }
 }

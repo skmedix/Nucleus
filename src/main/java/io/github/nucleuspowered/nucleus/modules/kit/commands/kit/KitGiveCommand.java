@@ -13,14 +13,12 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -53,10 +51,10 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.flags().permissionFlag(permissions.getPermissionWithSuffix("overridecheck"), "i", "-ignore").buildWith(
+            GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("overridecheck"), "i", "-ignore").buildWith(
                 GenericArguments.none()
             ),
-            GenericArguments.onlyOne(GenericArguments.player(Text.of(playerKey))),
+            GenericArguments.onlyOne(GenericArguments.player(Text.of(this.playerKey))),
             GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
         };
     }
@@ -65,10 +63,10 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
 
         Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
-        Player player = args.<Player>getOne(playerKey).get();
+        Player player = args.<Player>getOne(this.playerKey).get();
         boolean skip = args.hasAny("i");
         if (src instanceof Player && player.getUniqueId().equals(((Player) src).getUniqueId())) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.give.self"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.give.self"));
         }
 
         Text playerName = Nucleus.getNucleus().getNameUtil().getName(player);
@@ -78,16 +76,16 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
             if (!redeemResult.rejected().isEmpty()) {
                 // If we drop them, tell the user
                 if (this.isDrop) {
-                    player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithTextFormat("command.kit.give.itemsdropped", playerName));
+                    player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.kit.give.itemsdropped", playerName));
                     redeemResult.rejected().forEach(x -> Util.dropItemOnFloorAtLocation(x, player.getLocation()));
                 } else {
-                    player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithTextFormat("command.kit.give.fullinventory", playerName));
+                    player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.kit.give.fullinventory", playerName));
                 }
             }
 
-            src.sendMessage(this.plugin.getMessageProvider().getTextMessageWithTextFormat("command.kit.give.spawned", playerName, kitName));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.kit.give.spawned", playerName, kitName));
             if (kit.isDisplayMessageOnRedeem()) {
-                player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.spawned", kit.getName()));
+                player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.spawned", kit.getName()));
             }
 
             return CommandResult.success();
@@ -117,7 +115,7 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         KitConfigAdapter kca = getServiceUnchecked(KitConfigAdapter.class);
         this.isDrop = kca.getNodeOrDefault().isDropKitIfFull();
         this.mustGetAll = kca.getNodeOrDefault().isMustGetAll();

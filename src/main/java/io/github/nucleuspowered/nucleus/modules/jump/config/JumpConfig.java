@@ -20,11 +20,11 @@ public class JumpConfig {
     private UnstuckConfig unstuckConfig = new UnstuckConfig();
 
     public int getMaxJump() {
-        return maxjump;
+        return this.maxjump;
     }
 
     public int getMaxThru() {
-        return maxthru;
+        return this.maxthru;
     }
 
     public int getMaxUnstuckRadius() {

@@ -21,7 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
-public class LogoutJailListener extends ListenerBase implements ListenerBase.Conditional {
+public class LogoutJailListener implements ListenerBase.Conditional {
 
     @Listener
     public void onLogout(ClientConnectionEvent.Disconnect event, @Getter("getTargetEntity") Player player) {

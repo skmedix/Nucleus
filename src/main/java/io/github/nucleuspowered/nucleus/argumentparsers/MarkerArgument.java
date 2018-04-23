@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.argumentparsers;
 
 import com.google.common.collect.ImmutableList;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.ArgumentParseException;
 import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -26,7 +25,7 @@ public class MarkerArgument extends CommandElement {
 
     @Nullable
     @Override
-    protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+    protected Object parseValue(CommandSource source, CommandArgs args) {
         return true;
     }
 

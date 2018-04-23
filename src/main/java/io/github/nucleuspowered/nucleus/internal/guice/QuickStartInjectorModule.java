@@ -32,20 +32,20 @@ public class QuickStartInjectorModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(NucleusPlugin.class).toProvider(() -> plugin);
-        bind(Logger.class).toProvider(plugin::getLogger);
-        bind(CommandsConfig.class).toProvider(plugin::getCommandsConfig);
-        bind(UserDataManager.class).toProvider(plugin::getUserDataManager);
-        bind(WorldDataManager.class).toProvider(plugin::getWorldDataManager);
+        bind(NucleusPlugin.class).toProvider(() -> this.plugin);
+        bind(Logger.class).toProvider(this.plugin::getLogger);
+        bind(CommandsConfig.class).toProvider(this.plugin::getCommandsConfig);
+        bind(UserDataManager.class).toProvider(this.plugin::getUserDataManager);
+        bind(WorldDataManager.class).toProvider(this.plugin::getWorldDataManager);
         bind(Game.class).toProvider(Sponge::getGame);
-        bind(PermissionRegistry.class).toProvider(plugin::getPermissionRegistry);
-        bind(EconHelper.class).toProvider(plugin::getEconHelper);
-        bind(ModuleContainer.class).toProvider(plugin::getModuleContainer);
-        bind(InternalServiceManager.class).toProvider(plugin::getInternalServiceManager);
-        bind(ModularGeneralService.class).toProvider(plugin::getGeneralService);
-        bind(TextParsingUtils.class).toProvider(plugin::getTextParsingUtils);
-        bind(MessageProvider.class).toProvider(plugin::getMessageProvider);
-        bind(ItemDataService.class).toProvider(plugin::getItemDataService);
-        bind(KitService.class).toProvider(plugin::getKitService);
+        bind(PermissionRegistry.class).toProvider(this.plugin::getPermissionRegistry);
+        bind(EconHelper.class).toProvider(this.plugin::getEconHelper);
+        bind(ModuleContainer.class).toProvider(this.plugin::getModuleContainer);
+        bind(InternalServiceManager.class).toProvider(this.plugin::getInternalServiceManager);
+        bind(ModularGeneralService.class).toProvider(this.plugin::getGeneralService);
+        bind(TextParsingUtils.class).toProvider(this.plugin::getTextParsingUtils);
+        bind(MessageProvider.class).toProvider(this.plugin::getMessageProvider);
+        bind(ItemDataService.class).toProvider(this.plugin::getItemDataService);
+        bind(KitService.class).toProvider(this.plugin::getKitService);
     }
 }

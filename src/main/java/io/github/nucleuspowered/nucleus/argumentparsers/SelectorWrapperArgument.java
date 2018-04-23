@@ -49,7 +49,7 @@ public class SelectorWrapperArgument<T extends Entity> extends WrappedElement {
 
     @Nullable
     @Override
-    protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+    protected Object parseValue(CommandSource source, CommandArgs args) {
         return null;
     }
 
@@ -59,7 +59,7 @@ public class SelectorWrapperArgument<T extends Entity> extends WrappedElement {
         String a = args.peek();
         if (a.startsWith("@")) {
             // Time to try to eek it all out.
-            Selector.parse(a).resolve(source).stream().filter(entityFilter::isInstance)
+            Selector.parse(a).resolve(source).stream().filter(this.entityFilter::isInstance)
                     .forEach(x ->
                             context.putArg(getKey(), x)
                     );

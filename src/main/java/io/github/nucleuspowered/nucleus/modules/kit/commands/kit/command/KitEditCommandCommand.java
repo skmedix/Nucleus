@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -65,7 +66,7 @@ public class KitEditCommandCommand extends KitFallbackBase<Player> {
         // Create Inventory GUI.
         final InventoryTitle title = InventoryTitle.of(Text.of("Kit Commands: ", kitInfo.getName()));
         final Inventory inventory = Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST)
-            .property(InventoryTitle.PROPERTY_NAME, title).build(plugin);
+            .property(InventoryTitle.PROPERTY_NAME, title).build(Nucleus.getNucleus());
         books.forEach(inventory::offer);
 
         src.openInventory(inventory)

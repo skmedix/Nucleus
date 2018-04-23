@@ -14,6 +14,6 @@ public class ServerShopConfig {
     private int maxPurchasableAtOnce = 64;
 
     public int getMaxPurchasableAtOnce() {
-        return Math.max(maxPurchasableAtOnce, 1);
+        return Math.max(this.maxPurchasableAtOnce, 1);
     }
 }

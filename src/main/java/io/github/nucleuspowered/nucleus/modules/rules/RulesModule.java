@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.rules;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.rules.config.RulesConfigAdapter;
 import org.spongepowered.api.Sponge;
@@ -23,9 +24,9 @@ public class RulesModule extends ConfigurableModule<RulesConfigAdapter> {
     protected void performPreTasks() throws Exception {
         super.performPreTasks();
 
-        plugin.addTextFileController(
+        Nucleus.getNucleus().addTextFileController(
                 RULES_KEY,
-                Sponge.getAssetManager().getAsset(plugin, "rules.txt").get(),
-                plugin.getConfigDirPath().resolve("rules.txt"));
+                Sponge.getAssetManager().getAsset(Nucleus.getNucleus(), "rules.txt").get(),
+                Nucleus.getNucleus().getConfigDirPath().resolve("rules.txt"));
     }
 }

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.item.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
@@ -28,7 +29,7 @@ public class ShowAttributesCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.optional(GenericArguments.bool(Text.of(flag)))
+                GenericArguments.optional(GenericArguments.bool(Text.of(this.flag)))
         };
     }
 
@@ -37,14 +38,14 @@ public class ShowAttributesCommand extends AbstractCommand<Player> {
         ItemStack itemStack = src.getItemInHand(HandTypes.MAIN_HAND)
                 .orElseThrow(() -> ReturnMessageException.fromKey("command.generalerror.handempty"));
 
-        boolean b = args.<Boolean>getOne(flag).orElseGet(() -> itemStack.get(Keys.HIDE_ATTRIBUTES).orElse(false));
+        boolean b = args.<Boolean>getOne(this.flag).orElseGet(() -> itemStack.get(Keys.HIDE_ATTRIBUTES).orElse(false));
 
         // Command is show, key is hide. We invert.
         itemStack.offer(Keys.HIDE_ATTRIBUTES, !b);
         src.setItemInHand(HandTypes.MAIN_HAND, itemStack);
 
-        MessageProvider mp = plugin.getMessageProvider();
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.showitemattributes.success." + String.valueOf(b),
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.showitemattributes.success." + String.valueOf(b),
                 Text.of(itemStack)));
 
         return CommandResult.success();

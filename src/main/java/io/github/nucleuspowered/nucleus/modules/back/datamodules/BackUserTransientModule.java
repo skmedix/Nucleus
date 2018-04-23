@@ -29,7 +29,7 @@ public class BackUserTransientModule extends TransientModule<ModularUserService>
     }
 
     public boolean isLogLastLocation() {
-        return logLastLocation;
+        return this.logLastLocation;
     }
 
     public void setLogLastLocation(boolean logLastLocation) {

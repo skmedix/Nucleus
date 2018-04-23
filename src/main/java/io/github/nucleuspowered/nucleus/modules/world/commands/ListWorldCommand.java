@@ -87,16 +87,16 @@ public class ListWorldCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         // Get all the worlds
         Collection<WorldProperties> cwp = Sponge.getServer().getAllWorldProperties();
         final List<Text> listContent = Lists.newArrayList();
 
-        final boolean canSeeSeeds = permissions.testSuffix(src, "seed");
+        final boolean canSeeSeeds = this.permissions.testSuffix(src, "seed");
         cwp.stream().sorted(Comparator.comparing(WorldProperties::getWorldName)).forEach(x -> getWorldInfo(listContent, x, canSeeSeeds));
 
         Util.getPaginationBuilder(src)
-            .contents(listContent).title(plugin.getMessageProvider().getTextMessageWithFormat("command.world.list.title"))
+            .contents(listContent).title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.list.title"))
             .sendTo(src);
 
         return CommandResult.success();

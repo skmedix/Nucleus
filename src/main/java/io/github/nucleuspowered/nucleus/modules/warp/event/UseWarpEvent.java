@@ -31,6 +31,6 @@ public class UseWarpEvent extends AbstractWarpEvent implements NucleusWarpEvent.
     }
 
     @Override public User getTargetUser() {
-        return user;
+        return this.user;
     }
 }

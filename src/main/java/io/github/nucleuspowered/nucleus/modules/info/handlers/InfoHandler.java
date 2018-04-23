@@ -31,7 +31,7 @@ public class InfoHandler implements Reloadable {
     private final Pattern validFile = Pattern.compile("[a-zA-Z0-9_.\\-]+\\.txt", Pattern.CASE_INSENSITIVE);
 
     public Set<String> getInfoSections() {
-        return ImmutableSet.copyOf(infoFiles.keySet());
+        return ImmutableSet.copyOf(this.infoFiles.keySet());
     }
 
     /**
@@ -42,23 +42,23 @@ public class InfoHandler implements Reloadable {
      *
      */
     public Optional<TextFileController> getSection(String name) {
-        Optional<String> os = infoFiles.keySet().stream().filter(name::equalsIgnoreCase).findFirst();
-        return os.map(infoFiles::get);
+        Optional<String> os = this.infoFiles.keySet().stream().filter(name::equalsIgnoreCase).findFirst();
+        return os.map(this.infoFiles::get);
 
     }
 
     @Override
     public void onReload() throws Exception {
         // Get the config directory, check to see if "info/" exists.
-        Path infoDir = plugin.getConfigDirPath().resolve("info");
+        Path infoDir = Nucleus.getNucleus().getConfigDirPath().resolve("info");
         if (!Files.exists(infoDir)) {
             Files.createDirectories(infoDir);
             AssetManager am = Sponge.getAssetManager();
 
             // They exist.
-            am.getAsset(plugin, "info.txt").get().copyToFile(infoDir.resolve("info.txt"));
-            am.getAsset(plugin, "colors.txt").get().copyToFile(infoDir.resolve("colors.txt"));
-            am.getAsset(plugin, "links.txt").get().copyToFile(infoDir.resolve("links.txt"));
+            am.getAsset(Nucleus.getNucleus(), "info.txt").get().copyToFile(infoDir.resolve("info.txt"));
+            am.getAsset(Nucleus.getNucleus(), "colors.txt").get().copyToFile(infoDir.resolve("colors.txt"));
+            am.getAsset(Nucleus.getNucleus(), "links.txt").get().copyToFile(infoDir.resolve("links.txt"));
         } else if (!Files.isDirectory(infoDir)) {
             throw new IllegalStateException("The file " + infoDir.toAbsolutePath().toString() + " should be a directory.");
         }
@@ -67,7 +67,7 @@ public class InfoHandler implements Reloadable {
         List<Path> files;
         try (Stream<Path> sp = Files.list(infoDir)) {
             files = sp.filter(Files::isRegularFile)
-              .filter(x -> validFile.matcher(x.getFileName().toString()).matches()).collect(Collectors.toList());
+              .filter(x -> this.validFile.matcher(x.getFileName().toString()).matches()).collect(Collectors.toList());
         }
 
         // Collect them and put the resultant controllers into a temporary map.
@@ -77,7 +77,7 @@ public class InfoHandler implements Reloadable {
                 String name = x.getFileName().toString();
                 name = name.substring(0, name.length() - 4);
                 if (mst.keySet().stream().anyMatch(name::equalsIgnoreCase)) {
-                    plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("info.load.duplicate", x.getFileName().toString()));
+                    Nucleus.getNucleus().getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("info.load.duplicate", x.getFileName().toString()));
 
                     // This is a function, so return is appropriate, not break.
                     return;
@@ -90,7 +90,7 @@ public class InfoHandler implements Reloadable {
         });
 
         // All good - replace it all!
-        infoFiles.clear();
-        infoFiles.putAll(mst);
+        this.infoFiles.clear();
+        this.infoFiles.putAll(mst);
     }
 }

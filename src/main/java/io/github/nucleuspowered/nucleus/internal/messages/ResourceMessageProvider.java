@@ -16,23 +16,23 @@ public class ResourceMessageProvider extends MessageProvider {
     final ResourceBundle rb;
 
     ResourceMessageProvider(ResourceBundle resource) {
-        rb = resource;
+        this.rb = resource;
     }
 
     public ResourceMessageProvider(String resource) {
-        rb = ResourceBundle.getBundle(resource, Locale.getDefault(), new UTF8Control());
+        this.rb = ResourceBundle.getBundle(resource, Locale.getDefault(), new UTF8Control());
     }
 
     @Override
     public Optional<String> getMessageFromKey(String key) {
-        if (rb.containsKey(key)) {
-            return Optional.of(rb.getString(key));
+        if (this.rb.containsKey(key)) {
+            return Optional.of(this.rb.getString(key));
         }
 
         return Optional.empty();
     }
 
     public Set<String> getKeys() {
-        return rb.keySet();
+        return this.rb.keySet();
     }
 }

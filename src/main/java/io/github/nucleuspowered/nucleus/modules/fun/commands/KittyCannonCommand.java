@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.fun.commands;
 import com.flowpowered.math.imaginary.Quaterniond;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -54,7 +55,7 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
 
     @Override protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         return new HashMap<String, PermissionInformation>() {{
-            MessageProvider provider = plugin.getMessageProvider();
+            MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
             put("damage", new PermissionInformation(provider.getMessageWithFormat("permission.kittycannon.damage"), SuggestedLevel.ADMIN));
             put("break", new PermissionInformation(provider.getMessageWithFormat("permission.kittycannon.break"), SuggestedLevel.ADMIN));
             put("fire", new PermissionInformation(provider.getMessageWithFormat("permission.kittycannon.fire"), SuggestedLevel.ADMIN));
@@ -64,25 +65,26 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.flags()
-                .permissionFlag(permissions.getPermissionWithSuffix("damage"), "d", "-damageentities")
-                .permissionFlag(permissions.getPermissionWithSuffix("break"), "b", "-breakblocks")
-                .permissionFlag(permissions.getPermissionWithSuffix("fire"), "f", "-fire")
+                .permissionFlag(this.permissions.getPermissionWithSuffix("damage"), "d", "-damageentities")
+                .permissionFlag(this.permissions.getPermissionWithSuffix("break"), "b", "-breakblocks")
+                .permissionFlag(this.permissions.getPermissionWithSuffix("fire"), "f", "-fire")
                 .buildWith(
                     GenericArguments.optional(
                         GenericArguments.requiringPermission(
-                            SelectorWrapperArgument.nicknameSelector(Text.of(playerKey), NicknameArgument.UnderlyingType.PLAYER, false, Player.class),
-                            permissions.getOthers())))
+                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER, false, Player.class),
+
+                                this.permissions.getOthers())))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Collection<Player> playerList = args.getAll(playerKey);
+        Collection<Player> playerList = args.getAll(this.playerKey);
         if (playerList.isEmpty()) {
             if (src instanceof Player) {
                 playerList = Lists.newArrayList((Player)src);
             } else {
-                throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.playeronly"));
+                throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.playeronly"));
             }
         }
 
@@ -95,15 +97,15 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
         // Fire it in the direction that the subject is facing with a speed of 0.5 to 3.5, plus the subject's current velocity.
         Vector3d headRotation = spawnAt.getHeadRotation();
         Quaterniond rot = Quaterniond.fromAxesAnglesDeg(headRotation.getX(), -headRotation.getY(), headRotation.getZ());
-        Vector3d velocity = spawnAt.getVelocity().add(rot.rotate(Vector3d.UNIT_Z).mul(5 * random.nextDouble() + 1));
+        Vector3d velocity = spawnAt.getVelocity().add(rot.rotate(Vector3d.UNIT_Z).mul(5 * this.random.nextDouble() + 1));
         World world = spawnAt.getWorld();
         Entity cat = world.createEntity(EntityTypes.OCELOT, spawnAt.getLocation()
             .getPosition().add(0, 1, 0).add(spawnAt.getTransform().getRotationAsQuaternion().getDirection()));
-        cat.offer(Keys.OCELOT_TYPE, ocelotTypes.get(random.nextInt(ocelotTypes.size())));
+        cat.offer(Keys.OCELOT_TYPE, this.ocelotTypes.get(this.random.nextInt(this.ocelotTypes.size())));
 
         Sponge.getScheduler().createTaskBuilder().intervalTicks(5).delayTicks(5)
-            .execute(new CatTimer(world.getUniqueId(), cat.getUniqueId(), spawnAt, random.nextInt(60) + 20, damageEntities, breakBlocks, causeFire))
-            .submit(plugin);
+            .execute(new CatTimer(world.getUniqueId(), cat.getUniqueId(), spawnAt, this.random.nextInt(60) + 20, damageEntities, breakBlocks, causeFire))
+            .submit(Nucleus.getNucleus());
 
         CauseStackHelper.createFrameWithCausesWithConsumer(c -> world.spawnEntity(cat), source);
         cat.offer(Keys.VELOCITY, velocity);
@@ -130,13 +132,13 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
         }
 
         @Override public void accept(Task task) {
-            Optional<World> oWorld = Sponge.getServer().getWorld(world);
+            Optional<World> oWorld = Sponge.getServer().getWorld(this.world);
             if (!oWorld.isPresent()) {
                 task.cancel();
                 return;
             }
 
-            Optional<Entity> oe = oWorld.get().getEntity(entity);
+            Optional<Entity> oe = oWorld.get().getEntity(this.entity);
             if (!oe.isPresent()) {
                 task.cancel();
                 return;
@@ -148,11 +150,11 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
                 return;
             }
 
-            ticksToDestruction -= 5;
-            if (ticksToDestruction <= 0 || e.isOnGround()) {
+            this.ticksToDestruction -= 5;
+            if (this.ticksToDestruction <= 0 || e.isOnGround()) {
                 // Cat explodes.
-                Explosion explosion = Explosion.builder().location(e.getLocation()).canCauseFire(causeFire)
-                    .shouldDamageEntities(damageEntities).shouldPlaySmoke(true).shouldBreakBlocks(breakBlocks)
+                Explosion explosion = Explosion.builder().location(e.getLocation()).canCauseFire(this.causeFire)
+                    .shouldDamageEntities(this.damageEntities).shouldPlaySmoke(true).shouldBreakBlocks(this.breakBlocks)
                     .radius(2).build();
                 e.remove();
                 CauseStackHelper.createFrameWithCausesWithConsumer(c -> oWorld.get().triggerExplosion(explosion), this.player);

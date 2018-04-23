@@ -34,7 +34,7 @@ public class JailArgument extends CommandElement {
     @Override
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
         String a = args.next().toLowerCase();
-        Optional<NamedLocation> owl = handler.getJail(a);
+        Optional<NamedLocation> owl = this.handler.getJail(a);
         if (owl.isPresent()) {
             return owl.get();
         }
@@ -46,9 +46,9 @@ public class JailArgument extends CommandElement {
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
             String a = args.peek().toLowerCase();
-            return handler.getJails().keySet().stream().filter(x -> x.startsWith(a)).collect(Collectors.toList());
+            return this.handler.getJails().keySet().stream().filter(x -> x.startsWith(a)).collect(Collectors.toList());
         } catch (ArgumentParseException e) {
-            return Lists.newArrayList(handler.getJails().keySet());
+            return Lists.newArrayList(this.handler.getJails().keySet());
         }
     }
 }

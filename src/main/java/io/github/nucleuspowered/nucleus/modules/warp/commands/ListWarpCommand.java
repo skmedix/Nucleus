@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
@@ -64,9 +65,9 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
     }
 
     @Override
-    public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        if (service.getWarpNames().isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.list.nowarps"));
+    public CommandResult executeCommand(final CommandSource src, CommandContext args) {
+        if (this.service.getWarpNames().isEmpty()) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.list.nowarps"));
             return CommandResult.empty();
         }
 
@@ -79,7 +80,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
 
     private CommandResult categories(final CommandSource src) {
         // Get the warp list.
-        Map<WarpCategory, List<Warp>> warps = service.getWarpsWithCategories(x -> canView(src, x.getName()));
+        Map<WarpCategory, List<Warp>> warps = this.service.getWarpsWithCategories(x -> canView(src, x.getName()));
         createMain(src, warps);
         return CommandResult.success();
     }
@@ -102,7 +103,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
                 .onClick(TextActions.executeCallback(source -> createSub(source, null, warps))).build());
         }
 
-        MessageProvider messageProvider = plugin.getMessageProvider();
+        MessageProvider messageProvider = Nucleus.getNucleus().getMessageProvider();
         Util.getPaginationBuilder(src)
             .header(messageProvider.getTextMessageWithFormat("command.warps.list.headercategory"))
             .title(messageProvider.getTextMessageWithFormat("command.warps.list.maincategory")).padding(Text.of(TextColors.GREEN, "-"))
@@ -111,31 +112,31 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
     }
 
     private void createSub(final CommandSource src, @Nullable final WarpCategory category, final Map<WarpCategory, List<Warp>> warpDataList) {
-        final boolean econExists = plugin.getEconHelper().economyServiceExists();
+        final boolean econExists = Nucleus.getNucleus().getEconHelper().economyServiceExists();
         Text name = category == null ? Text.of(this.defaultName) : category.getDisplayName();
 
         List<Text> lt = warpDataList.get(category).stream().sorted(Comparator.comparing(Warp::getName))
-            .map(s -> createWarp(s, s.getName(), econExists, defaultCost)).collect(Collectors.toList());
+            .map(s -> createWarp(s, s.getName(), econExists, this.defaultCost)).collect(Collectors.toList());
 
         Util.getPaginationBuilder(src)
-            .title(plugin.getMessageProvider().getTextMessageWithTextFormat("command.warps.list.category", name)).padding(Text.of(TextColors.GREEN, "-"))
+            .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.warps.list.category", name)).padding(Text.of(TextColors.GREEN, "-"))
             .contents(lt)
-            .footer(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.list.back").toBuilder()
+            .footer(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.list.back").toBuilder()
                 .onClick(TextActions.executeCallback(s -> createMain(s, warpDataList))).build())
             .sendTo(src);
     }
 
     private CommandResult noCategories(final CommandSource src) {
         // Get the warp list.
-        Set<String> ws = service.getWarpNames();
-        final boolean econExists = plugin.getEconHelper().economyServiceExists();
+        Set<String> ws = this.service.getWarpNames();
+        final boolean econExists = Nucleus.getNucleus().getEconHelper().economyServiceExists();
         List<Text> lt = ws.stream().filter(s -> canView(src, s.toLowerCase())).sorted(String::compareTo).map(s -> {
-            Optional<Warp> wd = service.getWarp(s);
-            return createWarp(wd.orElse(null), s, econExists, defaultCost);
+            Optional<Warp> wd = this.service.getWarp(s);
+            return createWarp(wd.orElse(null), s, econExists, this.defaultCost);
         }).collect(Collectors.toList());
 
         Util.getPaginationBuilder(src)
-            .title(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.list.header")).padding(Text.of(TextColors.GREEN, "-"))
+            .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.list.header")).padding(Text.of(TextColors.GREEN, "-"))
             .contents(lt)
             .sendTo(src);
 
@@ -144,7 +145,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
 
     private Text createWarp(@Nullable Warp data, String name, boolean econExists, double defaultCost) {
         if (data == null || !data.getLocation().isPresent()) {
-            return Text.builder(name).color(TextColors.RED).onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat
+            return Text.builder(name).color(TextColors.RED).onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat
                     ("command.warps.unavailable"))).build();
         }
 
@@ -157,9 +158,9 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
         Optional<Text> description = data.getDescription();
         if (this.isDescriptionInList) {
             Text.Builder hoverBuilder = Text.builder()
-                    .append(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warpprompt", name))
+                    .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warpprompt", name))
                     .append(Text.NEW_LINE)
-                    .append(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warplochover", world.getExtent().getName(),
+                    .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warplochover", world.getExtent().getName(),
                             world.getBlockPosition().toString()));
 
             if (econExists) {
@@ -167,7 +168,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
                 if (cost > 0) {
                     hoverBuilder
                         .append(Text.NEW_LINE)
-                        .append(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.list.costhover", plugin.getEconHelper()
+                        .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.list.costhover", Nucleus.getNucleus().getEconHelper()
                         .getCurrencySymbol(cost)));
                 }
             }
@@ -178,23 +179,24 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
             if (description.isPresent()) {
                 inner.onHover(TextActions.showText(
                         Text.of(
-                                plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warpprompt", name),
+                                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warpprompt", name),
                                 Text.NEW_LINE,
                                 description.get()
                         )));
             } else {
-                inner.onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warpprompt", name)));
+                inner.onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warpprompt", name)));
             }
 
             tb = Text.builder().append(inner.build())
-                            .append(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warploc",
+                            .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warploc",
                                     world.getExtent().getName(), world.getBlockPosition().toString()
                             ));
 
             if (econExists) {
                 double cost = data.getCost().orElse(defaultCost);
                 if (cost > 0) {
-                    tb.append(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.list.cost", plugin.getEconHelper().getCurrencySymbol(cost)));
+                    tb.append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.list.cost",
+                            Nucleus.getNucleus().getEconHelper().getCurrencySymbol(cost)));
                 }
             }
         }
@@ -202,7 +204,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
         return tb.build();
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         WarpConfig warpConfig = getServiceUnchecked(WarpConfigAdapter.class).getNodeOrDefault();
         this.defaultName = warpConfig.getDefaultName();
         this.defaultCost = warpConfig.getDefaultWarpCost();

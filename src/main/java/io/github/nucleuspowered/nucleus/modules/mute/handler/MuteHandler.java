@@ -69,12 +69,12 @@ public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteServi
     }
 
     @Override public Optional<MuteInfo> getPlayerMuteInfo(User user) {
-        return getPlayerMuteData(user).map(x -> (MuteInfo)x);
+        return getPlayerMuteData(user).map(x -> x);
     }
 
     // Internal
     public Optional<MuteData> getPlayerMuteData(User user) {
-        Optional<MuteData> nu = ucl.get(user, false).map(x -> x.get(MuteUserDataModule.class).getMuteData().orElse(null));
+        Optional<MuteData> nu = this.ucl.get(user, false).map(x -> x.get(MuteUserDataModule.class).getMuteData().orElse(null));
         this.muteContextCache.put(user.getUniqueId(), nu.isPresent());
         return nu;
     }
@@ -92,7 +92,7 @@ public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteServi
         Preconditions.checkNotNull(user);
         Preconditions.checkNotNull(data);
 
-        Optional<ModularUserService> nu = ucl.get(user);
+        Optional<ModularUserService> nu = this.ucl.get(user);
         if (!nu.isPresent()) {
             return false;
         }
@@ -124,10 +124,10 @@ public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteServi
 
     public boolean unmutePlayer(User user, Cause cause, boolean expired) {
         if (isMuted(user)) {
-            Optional<ModularUserService> o = ucl.get(user);
+            Optional<ModularUserService> o = this.ucl.get(user);
             if (o.isPresent()) {
                 o.get().get(MuteUserDataModule.class).removeMuteData();
-                muteContextCache.put(user.getUniqueId(), false);
+                this.muteContextCache.put(user.getUniqueId(), false);
                 Sponge.getEventManager().post(new MuteEvent.Unmuted(
                         cause,
                         user,
@@ -143,44 +143,44 @@ public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteServi
     }
 
     public boolean isGlobalMuteEnabled() {
-        return globalMuteEnabled;
+        return this.globalMuteEnabled;
     }
 
     public void setGlobalMuteEnabled(boolean globalMuteEnabled) {
         if (this.globalMuteEnabled != globalMuteEnabled) {
-            voicedUsers.clear();
+            this.voicedUsers.clear();
         }
 
         this.globalMuteEnabled = globalMuteEnabled;
     }
 
     public boolean isVoiced(UUID uuid) {
-        return voicedUsers.contains(uuid);
+        return this.voicedUsers.contains(uuid);
     }
 
     public void addVoice(UUID uuid) {
-        voicedUsers.add(uuid);
+        this.voicedUsers.add(uuid);
     }
 
     public void removeVoice(UUID uuid) {
-        voicedUsers.remove(uuid);
+        this.voicedUsers.remove(uuid);
     }
 
     @Override public void accumulateContexts(Subject calculable, Set<Context> accumulator) {
         if (calculable instanceof User) {
             UUID u = ((User) calculable).getUniqueId();
             if (this.muteContextCache.computeIfAbsent(u, k -> isMuted((User) calculable))) {
-                accumulator.add(mutedContext);
+                accumulator.add(this.mutedContext);
             }
         }
     }
 
     @Override public boolean matches(Context context, Subject subject) {
         return context.getKey().equals(NucleusMuteService.MUTED_CONTEXT) && subject instanceof User &&
-                muteContextCache.computeIfAbsent(((User) subject).getUniqueId(), k -> isMuted((User) subject));
+                this.muteContextCache.computeIfAbsent(((User) subject).getUniqueId(), k -> isMuted((User) subject));
     }
 
     public boolean isMutedCached(User x) {
-        return muteContextCache.containsKey(x.getUniqueId());
+        return this.muteContextCache.containsKey(x.getUniqueId());
     }
 }

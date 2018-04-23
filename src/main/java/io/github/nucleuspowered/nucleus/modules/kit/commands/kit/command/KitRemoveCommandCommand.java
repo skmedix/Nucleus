@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
@@ -38,8 +39,8 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
         return new CommandElement[] {
             new KitArgument(Text.of(KIT_PARAMETER), false),
             GenericArguments.firstParsing(
-                new PositiveIntegerArgument(Text.of(index)),
-                GenericArguments.remainingRawJoinedStrings(Text.of(command)))
+                new PositiveIntegerArgument(Text.of(this.index)),
+                GenericArguments.remainingRawJoinedStrings(Text.of(this.command)))
         };
     }
 
@@ -48,8 +49,8 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
         List<String> commands = kitInfo.getCommands();
 
         String cmd;
-        if (args.hasAny(index)) {
-            int idx = args.<Integer>getOne(index).get();
+        if (args.hasAny(this.index)) {
+            int idx = args.<Integer>getOne(this.index).get();
             if (idx == 0) {
                 throw ReturnMessageException.fromKey("command.kit.command.remove.onebased");
             }
@@ -60,7 +61,7 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
 
             cmd = commands.remove(idx - 1);
         } else {
-            cmd = args.<String>getOne(command).get().replace(" {player} ", " {{player}} ");
+            cmd = args.<String>getOne(this.command).get().replace(" {player} ", " {{player}} ");
             if (!commands.remove(cmd)) {
                 throw ReturnMessageException.fromKey("command.kit.command.remove.noexist", cmd, kitInfo.getName());
             }
@@ -68,7 +69,7 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
 
         kitInfo.setCommands(commands);
         KIT_HANDLER.saveKit(kitInfo);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.remove.success", cmd, kitInfo.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.command.remove.success", cmd, kitInfo.getName()));
         return CommandResult.success();
     }
 }

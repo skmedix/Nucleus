@@ -9,7 +9,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.nameban.config.NameBanConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.nameban.handlers.NameBanHandler;
-import org.spongepowered.api.Sponge;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
 @RegisterService(value = NameBanHandler.class, apiService = NucleusNameBanService.class)

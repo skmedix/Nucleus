@@ -50,7 +50,7 @@ public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implem
     public static final int multiplier = 20;
     private int maxSpeed = 5;
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.maxSpeed = getServiceUnchecked(MiscConfigAdapter.class).getNodeOrDefault().getMaxSpeed();
     }
 
@@ -71,18 +71,19 @@ public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implem
         keysMap.put("w", SpeedType.WALKING);
 
         return new CommandElement[] {
-            GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.choices(Text.of(typeKey), keysMap, true))),
-            GenericArguments.optional(GenericArguments.integer(Text.of(speedKey)))
+            GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.choices(Text.of(this.typeKey), keysMap, true))),
+            GenericArguments.optional(GenericArguments.integer(Text.of(this.speedKey)))
         };
     }
 
     @Override
-    public CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) throws Exception {
-        Optional<Integer> ospeed = args.getOne(speedKey);
+    public CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) {
+        Optional<Integer> ospeed = args.getOne(this.speedKey);
         if (!ospeed.isPresent()) {
-            Text t = Text.builder().append(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.walk")).append(Text.of(" "))
+            Text t = Text.builder().append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.walk")).append(Text.of(" "))
                     .append(Text.of(TextColors.YELLOW, Math.round(pl.get(Keys.WALKING_SPEED).orElse(0.1d) * 20)))
-                    .append(Text.builder().append(Text.of(TextColors.GREEN, ", ")).append(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.flying"))
+                    .append(Text.builder().append(Text.of(TextColors.GREEN, ", ")).append(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.flying"))
                             .build())
                     .append(Text.of(" ")).append(Text.of(TextColors.YELLOW, Math.round(pl.get(Keys.FLYING_SPEED).orElse(0.05d) * 20)))
                     .append(Text.of(TextColors.GREEN, ".")).build();
@@ -93,32 +94,33 @@ public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implem
             return CommandResult.empty();
         }
 
-        SpeedType key = args.<SpeedType>getOne(typeKey).orElseGet(() -> pl.get(Keys.IS_FLYING).orElse(false) ? SpeedType.FLYING : SpeedType.WALKING);
+        SpeedType key = args.<SpeedType>getOne(this.typeKey).orElseGet(() -> pl.get(Keys.IS_FLYING).orElse(false) ? SpeedType.FLYING : SpeedType.WALKING);
         int speed = ospeed.get();
 
         if (speed < 0) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.negative"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.negative"));
             return CommandResult.empty();
         }
 
-        if (!permissions.testSuffix(src, "exempt.max", src, true) && maxSpeed < speed) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.max", String.valueOf(maxSpeed)));
+        if (!this.permissions.testSuffix(src, "exempt.max", src, true) && this.maxSpeed < speed) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.max", String.valueOf(this.maxSpeed)));
             return CommandResult.empty();
         }
 
         DataTransactionResult dtr = pl.offer(key.speedKey, (double) speed / (double) multiplier);
 
         if (dtr.isSuccessful()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.success.base", key.name, String.valueOf(speed)));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.success.base", key.name, String.valueOf(speed)));
 
             if (!isSelf) {
-                src.sendMessages(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.success.other", pl.getName(), key.name, String.valueOf(speed)));
+                src.sendMessages(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.success.other", pl.getName(), key.name, String.valueOf(speed)));
             }
 
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.speed.fail", key.name));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.fail", key.name));
         return CommandResult.empty();
     }
 

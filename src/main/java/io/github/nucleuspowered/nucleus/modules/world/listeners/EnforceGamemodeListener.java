@@ -29,7 +29,7 @@ import org.spongepowered.api.world.World;
 import java.util.Map;
 import java.util.Set;
 
-public class EnforceGamemodeListener extends ListenerBase implements ListenerBase.Conditional {
+public class EnforceGamemodeListener implements ListenerBase.Conditional {
 
     private final String perm = "nucleus.world.force-gamemode.override";
 
@@ -72,7 +72,7 @@ public class EnforceGamemodeListener extends ListenerBase implements ListenerBas
 
     @Override
     public boolean shouldEnable() {
-        return plugin.getConfigValue(WorldModule.ID, WorldConfigAdapter.class, WorldConfig::isEnforceGamemodeOnWorldChange).orElse(false);
+        return Nucleus.getNucleus().getConfigValue(WorldModule.ID, WorldConfigAdapter.class, WorldConfig::isEnforceGamemodeOnWorldChange).orElse(false);
     }
 
 }

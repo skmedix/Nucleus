@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.playerinfo.commands;
 
 import com.flowpowered.math.vector.Vector3i;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -40,7 +41,7 @@ public class GetPosCommand extends AbstractCommand<CommandSource> {
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> mspi = super.permissionSuffixesToRegister();
         mspi.put("others", new PermissionInformation(
-                plugin.getMessageProvider().getMessageWithFormat("permission.getpos.others"),
+                Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.getpos.others"),
                 SuggestedLevel.MOD
         ));
         return mspi;
@@ -48,17 +49,17 @@ public class GetPosCommand extends AbstractCommand<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(GenericArguments.requiringPermission(GenericArguments.user(Text.of(playerKey)), permissions.getOthers()))
+            GenericArguments.optionalWeak(GenericArguments.requiringPermission(GenericArguments.user(Text.of(this.playerKey)), this.permissions.getOthers()))
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = this.getUserFromArgs(User.class, src, playerKey, args);
+        User user = this.getUserFromArgs(User.class, src, this.playerKey, args);
         Location<World> location;
         if (user.isOnline()) {
             location = user.getPlayer().get().getLocation();
         } else {
-            location = plugin.getUserDataManager().get(user)
+            location = Nucleus.getNucleus().getUserDataManager().get(user)
                     .orElseThrow(() -> ReturnMessageException.fromKey("command.getpos.location.nolocation", user.getName()))
                     .get(CoreUserDataModule.class).getLogoutLocation()
                     .orElseThrow(() -> ReturnMessageException.fromKey("command.getpos.location.nolocation", user.getName()));
@@ -68,7 +69,7 @@ public class GetPosCommand extends AbstractCommand<CommandSource> {
         Vector3i blockPos = location.getBlockPosition();
         if (isSelf) {
             src.sendMessage(
-                plugin.getMessageProvider()
+                    Nucleus.getNucleus().getMessageProvider()
                     .getTextMessageWithFormat(
                             "command.getpos.location.self",
                             location.getExtent().getName(),
@@ -79,10 +80,10 @@ public class GetPosCommand extends AbstractCommand<CommandSource> {
             );
         } else {
             src.sendMessage(
-                plugin.getMessageProvider()
+                    Nucleus.getNucleus().getMessageProvider()
                     .getTextMessageWithFormat(
                             "command.getpos.location.other",
-                            plugin.getNameUtil().getSerialisedName(user),
+                            Nucleus.getNucleus().getNameUtil().getSerialisedName(user),
                             location.getExtent().getName(),
                             String.valueOf(blockPos.getX()),
                             String.valueOf(blockPos.getY()),
@@ -93,7 +94,7 @@ public class GetPosCommand extends AbstractCommand<CommandSource> {
                         String.valueOf(blockPos.getX()),
                         String.valueOf(blockPos.getY()),
                         String.valueOf(blockPos.getZ()))))
-                        .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.getpos.hover")))
+                        .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.getpos.hover")))
                         .build()
             );
         }

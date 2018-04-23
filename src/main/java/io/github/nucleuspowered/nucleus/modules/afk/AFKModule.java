@@ -18,7 +18,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
 import java.util.Map;

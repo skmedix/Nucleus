@@ -20,7 +20,6 @@ import io.github.nucleuspowered.nucleus.internal.TimingsDummy;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -51,9 +50,9 @@ public abstract class DataManager<I, P, S extends Service> {
 
         try {
             Nucleus plugin = Nucleus.getNucleus();
-            GENERAL_LOAD_TIMINGS = Timings.of(plugin, this.getClass().getSimpleName() + " - General");
-            ACTUAL_LOAD_TIMINGS = Timings.of(plugin, this.getClass().getSimpleName() + " - Loading");
-            SAVE_TIMINGS = Timings.of(plugin, this.getClass().getSimpleName() + " - Saving");
+            this.GENERAL_LOAD_TIMINGS = Timings.of(plugin, this.getClass().getSimpleName() + " - General");
+            this.ACTUAL_LOAD_TIMINGS = Timings.of(plugin, this.getClass().getSimpleName() + " - Loading");
+            this.SAVE_TIMINGS = Timings.of(plugin, this.getClass().getSimpleName() + " - Saving");
         } catch (Exception e) {
             // ignored
         }
@@ -78,7 +77,7 @@ public abstract class DataManager<I, P, S extends Service> {
 
             if (value != null) {
                 try {
-                    SAVE_TIMINGS.startTimingIfSync();
+                    DataManager.this.SAVE_TIMINGS.startTimingIfSync();
                     value.saveInternal();
                 } catch (Exception e) {
                     if (Nucleus.getNucleus().isDebugMode()) {
@@ -94,7 +93,7 @@ public abstract class DataManager<I, P, S extends Service> {
 
                     return;
                 } finally {
-                    SAVE_TIMINGS.stopTimingIfSync();
+                    DataManager.this.SAVE_TIMINGS.stopTimingIfSync();
                 }
             }
 
@@ -108,17 +107,17 @@ public abstract class DataManager<I, P, S extends Service> {
 
         @CheckForNull @Override public S load(@Nonnull I key) throws Exception {
             try {
-                GENERAL_LOAD_TIMINGS.startTimingIfSync();
-                ACTUAL_LOAD_TIMINGS.startTimingIfSync();
-                DataProvider<P> d = dataProviderFactory.apply(key, true);
+                DataManager.this.GENERAL_LOAD_TIMINGS.startTimingIfSync();
+                DataManager.this.ACTUAL_LOAD_TIMINGS.startTimingIfSync();
+                DataProvider<P> d = DataManager.this.dataProviderFactory.apply(key, true);
                 if (d == null) {
                     return null;
                 }
 
                 return getNew(key, d).orElse(null);
             } finally {
-                GENERAL_LOAD_TIMINGS.stopTimingIfSync();
-                ACTUAL_LOAD_TIMINGS.stopTimingIfSync();
+                DataManager.this.GENERAL_LOAD_TIMINGS.stopTimingIfSync();
+                DataManager.this.ACTUAL_LOAD_TIMINGS.stopTimingIfSync();
             }
         }
     }
@@ -147,13 +146,10 @@ public abstract class DataManager<I, P, S extends Service> {
 
     public abstract Optional<S> getNew(I data, DataProvider<P> dataProvider) throws Exception;
 
-    final void invalidate(I key, boolean save) {
+    final void invalidate(I key) {
         S value = this.cache.getIfPresent(key);
         if (value != null) {
-            if (!save) {
-                this.bypassSave.add(key);
-            }
-
+            this.bypassSave.add(key);
             this.cache.invalidate(key);
         }
     }
@@ -166,12 +162,12 @@ public abstract class DataManager<I, P, S extends Service> {
 
     public final void saveAll() {
         try {
-            SAVE_TIMINGS.startTimingIfSync();
+            this.SAVE_TIMINGS.startTimingIfSync();
             for (S s : this.cache.asMap().values()) {
                 s.save();
             }
         } finally {
-            SAVE_TIMINGS.stopTimingIfSync();
+            this.SAVE_TIMINGS.stopTimingIfSync();
         }
     }
 }

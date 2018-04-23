@@ -27,8 +27,8 @@ public class WarmupManager implements NucleusWarmupManagerService {
     @Override
     public void addWarmup(UUID player, Task task) {
         Task t;
-        synchronized (mapLock) {
-            t = warmupTasks.put(player, task);
+        synchronized (this.mapLock) {
+            t = this.warmupTasks.put(player, task);
         }
 
         if (t != null) {
@@ -43,10 +43,10 @@ public class WarmupManager implements NucleusWarmupManagerService {
 
     @Override
     public boolean removeWarmup(UUID player) {
-        if (warmupTasks.containsKey(player)) {
+        if (this.warmupTasks.containsKey(player)) {
             Task t;
-            synchronized (mapLock) {
-                t = warmupTasks.remove(player);
+            synchronized (this.mapLock) {
+                t = this.warmupTasks.remove(player);
             }
 
             if (t != null && t.cancel()) {
@@ -63,11 +63,11 @@ public class WarmupManager implements NucleusWarmupManagerService {
 
     @Override
     public void cleanup() {
-        synchronized (mapLock) {
-            warmupTasks.entrySet().stream().filter(v -> !Sponge.getGame().getScheduler().getScheduledTasks().contains(v.getValue()))
+        synchronized (this.mapLock) {
+            this.warmupTasks.entrySet().stream().filter(v -> !Sponge.getGame().getScheduler().getScheduledTasks().contains(v.getValue()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList())
-                    .forEach(warmupTasks::remove);
+                    .forEach(this.warmupTasks::remove);
         }
     }
 }

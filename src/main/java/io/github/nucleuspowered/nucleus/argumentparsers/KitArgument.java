@@ -47,7 +47,7 @@ public class KitArgument extends CommandElement {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.kit.noname"));
         }
 
-        Kit kit = kitHandler.getKit(kitName)
+        Kit kit = this.kitHandler.getKit(kitName)
                 .orElseThrow(() -> args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.kit.noexist")));
 
         if (!checkPermission(source, kit)) {
@@ -60,7 +60,7 @@ public class KitArgument extends CommandElement {
     @Override
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
-            final boolean showhidden = src.hasPermission(showhiddenperm);
+            final boolean showhidden = src.hasPermission(this.showhiddenperm);
             String name = args.peek().toLowerCase();
             return this.kitHandler.getKitNames().stream()
                     .filter(s -> s.toLowerCase().startsWith(name))

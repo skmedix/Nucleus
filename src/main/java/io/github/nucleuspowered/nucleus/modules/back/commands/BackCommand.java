@@ -58,18 +58,18 @@ public class BackCommand extends AbstractCommand<Player> {
     @Override
     @SuppressWarnings("deprecation")
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        Optional<Transform<World>> ol = handler.getLastLocation(src);
+        Optional<Transform<World>> ol = this.handler.getLastLocation(src);
         if (!ol.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.back.noloc"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.back.noloc"));
             return CommandResult.empty();
         }
 
         Transform<World> loc = ol.get();
-        NucleusTeleportHandler.TeleportResult result = args.hasAny(key)
-                ? plugin.getTeleportHandler().teleportPlayer(src, loc, NucleusTeleportHandler.StandardTeleportMode.NO_CHECK)
-                : plugin.getTeleportHandler().teleportPlayer(src, loc);
+        NucleusTeleportHandler.TeleportResult result = args.hasAny(this.key)
+                ? Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, loc, NucleusTeleportHandler.StandardTeleportMode.NO_CHECK)
+                : Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, loc);
         if (result.isSuccess()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.back.success"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.back.success"));
             return CommandResult.success();
         } else if (result == NucleusTeleportHandler.TeleportResult.FAILED_NO_LOCATION) {
             throw ReturnMessageException.fromKey("command.back.nosafe");

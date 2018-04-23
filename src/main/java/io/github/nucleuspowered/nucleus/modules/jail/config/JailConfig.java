@@ -26,18 +26,18 @@ public class JailConfig {
     private boolean requireUnjailPermission = false;
 
     public List<String> getAllowedCommands() {
-        return allowedCommands;
+        return this.allowedCommands;
     }
 
     public boolean isMuteOnJail() {
-        return muteOnJail;
+        return this.muteOnJail;
     }
 
     public boolean isJailOnlineOnly() {
-        return jailOnlineOnly;
+        return this.jailOnlineOnly;
     }
 
     public boolean isRequireUnjailPermission() {
-        return requireUnjailPermission;
+        return this.requireUnjailPermission;
     }
 }

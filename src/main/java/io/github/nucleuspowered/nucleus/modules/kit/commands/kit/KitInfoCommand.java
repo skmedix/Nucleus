@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
@@ -12,7 +13,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.Since;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import org.spongepowered.api.command.CommandResult;
@@ -40,9 +40,9 @@ public class KitInfoCommand extends KitFallbackBase<CommandSource> {
     }
 
     @Override
-    protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
-        MessageProvider mp = this.plugin.getMessageProvider();
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
         Util.getPaginationBuilder(src).title(mp.getTextMessageWithFormat("command.kit.info.title", kit.getName()))
                 .contents(
                         addViewHover(mp, kit),

@@ -15,7 +15,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RegisterCommand(value = "itemname", hasExecutor = false)
 public class ItemNameCommand extends AbstractCommand<Player> {
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         return CommandResult.empty();
     }
 }

@@ -23,23 +23,23 @@ public class ProtectionConfig {
     private BlockBreaking blockBreaking = new BlockBreaking();
 
     public boolean isDisableAnyCropTrample() {
-        return disableCropTrample.players || disableCropTrample.mobs;
+        return this.disableCropTrample.players || this.disableCropTrample.mobs;
     }
 
     public boolean isDisablePlayerCropTrample() {
-        return disableCropTrample.players;
+        return this.disableCropTrample.players;
     }
 
     public boolean isDisableMobCropTrample() {
-        return disableCropTrample.mobs;
+        return this.disableCropTrample.mobs;
     }
 
     public boolean isEnableProtection() {
-        return blockBreaking.enableProtection;
+        return this.blockBreaking.enableProtection;
     }
 
     public List<EntityType> getWhitelistedEntities() {
-        return blockBreaking.whitelist;
+        return this.blockBreaking.whitelist;
     }
 
     @ConfigSerializable

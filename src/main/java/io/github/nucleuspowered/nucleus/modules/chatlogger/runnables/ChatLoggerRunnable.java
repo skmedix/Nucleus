@@ -19,7 +19,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 @NonnullByDefault
-public class ChatLoggerRunnable extends TaskBase implements Reloadable {
+public class ChatLoggerRunnable implements TaskBase, Reloadable {
 
     private final ChatLoggerHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatLoggerHandler.class);
     private ChatLoggingConfig config = new ChatLoggingConfig();
@@ -41,12 +41,12 @@ public class ChatLoggerRunnable extends TaskBase implements Reloadable {
             return;
         }
 
-        if (config.isEnableLog()) {
-            handler.onTick();
+        if (this.config.isEnableLog()) {
+            this.handler.onTick();
         }
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.config = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatLoggingConfigAdapter.class).getNodeOrDefault();
     }
 }

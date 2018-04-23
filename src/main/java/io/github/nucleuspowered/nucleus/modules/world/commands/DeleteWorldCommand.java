@@ -53,37 +53,39 @@ public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(world), NucleusWorldPropertiesArgument.Type.ALL)),
+            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.world), NucleusWorldPropertiesArgument.Type.ALL)),
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties properties = args.<WorldProperties>getOne(world).get();
+        WorldProperties properties = args.<WorldProperties>getOne(this.world).get();
         if (!properties.isEnabled()) {
             throw ReturnMessageException.fromKey("args.worldproperties.noexistdisabled", properties.getWorldName());
         }
 
-        if (confirm != null && confirm.getFirst().isAfter(Instant.now()) && confirm.getSecond().equals(Util.getUUID(src)) && confirm.getThird().getUniqueId().equals(properties.getUniqueId())) {
+        if (this.confirm != null && this.confirm.getFirst().isAfter(Instant.now()) && this.confirm
+                .getSecond().equals(Util.getUUID(src)) && this.confirm.getThird().getUniqueId().equals(properties.getUniqueId())) {
             try {
                 completeDeletion(src);
             } finally {
-                confirm = null;
+                this.confirm = null;
             }
 
             return CommandResult.success();
         }
 
-        confirm = null;
+        this.confirm = null;
         runChecks(properties);
 
         // Scary warning.
-        Path path = plugin.getDataPath().getParent().resolve("world").resolve(properties.getWorldName());
+        Path path = Nucleus.getNucleus().getDataPath().getParent().resolve("world").resolve(properties.getWorldName());
         if (Files.exists(path)) {
-            confirm = Tuples.of(Instant.now().plus(30, ChronoUnit.SECONDS), Util.getUUID(src), properties, path);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.delete.warning1", properties.getWorldName()));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.delete.warning2", path.toAbsolutePath().toString()));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.delete.warning3", properties.getWorldName()));
+            this.confirm = Tuples.of(Instant.now().plus(30, ChronoUnit.SECONDS), Util.getUUID(src), properties, path);
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning1", properties.getWorldName()));
+            src.sendMessage(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning2", path.toAbsolutePath().toString()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning3", properties.getWorldName()));
             return CommandResult.success();
         } else {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.notfound", properties.getWorldName()));
@@ -91,20 +93,20 @@ public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
     }
 
     private void completeDeletion(CommandSource src) throws Exception {
-        Preconditions.checkNotNull(confirm);
-        String worldName = confirm.getThird().getWorldName();
-        Path path = confirm.getFourth();
-        runChecks(confirm.getThird());
+        Preconditions.checkNotNull(this.confirm);
+        String worldName = this.confirm.getThird().getWorldName();
+        Path path = this.confirm.getFourth();
+        runChecks(this.confirm.getThird());
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.delete.confirmed", worldName));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.confirmed", worldName));
 
         DeletionWalker d = new DeletionWalker();
         Files.walkFileTree(path, d);
 
         if (d.error) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.delete.complete.error", worldName));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.complete.error", worldName));
         } else {
-            Text message = plugin.getMessageProvider().getTextMessageWithFormat("command.world.delete.complete.success", worldName);
+            Text message = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.complete.success", worldName);
             src.sendMessage(message);
             Nucleus.getNucleus().getLogger().info(message.toPlain());
         }
@@ -125,7 +127,7 @@ public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
         private boolean error = false;
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
             return FileVisitResult.CONTINUE;
         }
 
@@ -136,9 +138,10 @@ public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
         }
 
         @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            plugin.getLogger().warn(plugin.getMessageProvider().getMessageWithFormat("command.world.delete.unabletoremove", file.toString()));
-            error = true;
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+            Nucleus.getNucleus().getLogger().warn(
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.world.delete.unabletoremove", file.toString()));
+            this.error = true;
             return FileVisitResult.CONTINUE;
         }
 

@@ -4,16 +4,15 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.Since;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -51,30 +50,31 @@ public class KitCreateCommand extends KitFallbackBase<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.string(Text.of(name)))};
+        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.string(Text.of(this.name)))};
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource source, CommandContext args) throws ReturnMessageException {
-        String kitName = args.<String>getOne(name).get();
+        String kitName = args.<String>getOne(this.name).get();
 
         if (KIT_HANDLER.getKitNames().stream().anyMatch(kitName::equalsIgnoreCase)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", kitName));
+            throw new ReturnMessageException(Nucleus
+                    .getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", kitName));
         }
 
         if (source instanceof Player) {
             final Player player = (Player)source;
             Inventory inventory = Util.getKitInventoryBuilder()
                     .property(InventoryTitle.PROPERTY_NAME,
-                            InventoryTitle.of(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.create.title", kitName)))
-                    .build(plugin);
+                            InventoryTitle.of(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.create.title", kitName)))
+                    .build(Nucleus.getNucleus());
             Container container = player.openInventory(inventory)
                     .orElseThrow(() -> ReturnMessageException.fromKey("command.kit.create.notcreated"));
-            Sponge.getEventManager().registerListeners(plugin, new TemporaryEventListener(inventory, container, kitName));
+            Sponge.getEventManager().registerListeners(Nucleus.getNucleus(), new TemporaryEventListener(inventory, container, kitName));
         } else {
             try {
                 KIT_HANDLER.saveKit(KIT_HANDLER.createKit(kitName));
-                source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.addempty.success", kitName));
+                source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.addempty.success", kitName));
             } catch (IllegalArgumentException ex) {
                 throw ReturnMessageException.fromKey("command.kit.create.failed", kitName);
             }
@@ -102,11 +102,13 @@ public class KitCreateCommand extends KitFallbackBase<CommandSource> {
                 this.run = true;
                 Sponge.getEventManager().unregisterListeners(this);
 
-                if (KIT_HANDLER.getKitNames().stream().noneMatch(kitName::equalsIgnoreCase)) {
-                    KIT_HANDLER.saveKit(KIT_HANDLER.createKit(kitName).updateKitInventory(this.inventory));
-                    player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.success", this.kitName));
+                if (KIT_HANDLER.getKitNames().stream().noneMatch(this.kitName::equalsIgnoreCase)) {
+                    KIT_HANDLER.saveKit(KIT_HANDLER.createKit(this.kitName).updateKitInventory(this.inventory));
+                    player.sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.add.success", this.kitName));
                 } else {
-                    player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", this.kitName));
+                    player.sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.add.alreadyexists", this.kitName));
                 }
 
                 // Now return the items to the subject.

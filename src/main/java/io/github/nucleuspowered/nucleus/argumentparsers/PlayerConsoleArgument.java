@@ -66,12 +66,12 @@ public class PlayerConsoleArgument extends CommandElement {
     }
 
     public List<CommandSource> parseInternal(String name, CommandSource src, CommandArgs args) throws ArgumentParseException {
-        if (console && name.equals("-")) {
+        if (this.console && name.equals("-")) {
             return Lists.newArrayList(Sponge.getServer().getConsole());
         }
 
-        List<CommandSource> players = onlinePlayersSupplier.get().stream().filter(x -> x.getName().toLowerCase().startsWith(name))
-                .filter(x -> filter.test(src, x))
+        List<CommandSource> players = this.onlinePlayersSupplier.get().stream().filter(x -> x.getName().toLowerCase().startsWith(name))
+                .filter(x -> this.filter.test(src, x))
                 .sorted(Comparator.comparing(User::getName)).collect(Collectors.toList());
         if (players.isEmpty()) {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.playerconsole.noexist"));
@@ -98,10 +98,10 @@ public class PlayerConsoleArgument extends CommandElement {
     List<String> completeInternal(final String name, CommandSource src, CommandArgs args, CommandContext context) {
         List<String> list = Sponge.getServer().getOnlinePlayers().stream()
             .filter(x -> PlayerConsoleArgument.shouldShow(x, src))
-            .filter(x -> filter.test(src, x))
+            .filter(x -> this.filter.test(src, x))
             .map(User::getName).collect(Collectors.toList());
         // Console.
-        if (console) {
+        if (this.console) {
             list.add("-");
         }
 

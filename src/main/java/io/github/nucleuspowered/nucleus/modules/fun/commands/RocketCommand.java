@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.fun.commands;
 
 import com.flowpowered.math.vector.Vector3d;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveDoubleArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -76,7 +77,7 @@ public class RocketCommand extends AbstractCommand<CommandSource> {
                     .radius((float) v * 2.0f)
                     .build();
             ex.getWorld().triggerExplosion(ex);
-            Sponge.getScheduler().createSyncExecutor(this.plugin)
+            Sponge.getScheduler().createSyncExecutor(Nucleus.getNucleus())
                     .schedule(() ->
                                     ex.getWorld().playSound(SoundTypes.ENTITY_FIREWORK_LAUNCH, target.getLocation().getPosition(), 2),
                             500,
@@ -86,11 +87,11 @@ public class RocketCommand extends AbstractCommand<CommandSource> {
         Vector3d velocity = new Vector3d(0, v, 0);
         target.offer(Keys.VELOCITY, velocity);
         if (!args.hasAny("s")) {
-            target.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.rocket.self"));
+            target.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rocket.self"));
         }
 
         if (!isSelf) {
-            src.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.rocket.other", target.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rocket.other", target.getName()));
         }
 
         return CommandResult.success();

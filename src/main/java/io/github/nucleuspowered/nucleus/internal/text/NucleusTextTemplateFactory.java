@@ -36,14 +36,14 @@ public class NucleusTextTemplateFactory {
         String s = tokenStart.trim();
         String e = tokenEnd.trim();
         Preconditions.checkArgument(!(s.contains("{{") || e.contains("}}")));
-        if (registered.stream().anyMatch(x -> x.getFirst().equalsIgnoreCase(s) || x.getSecond().equalsIgnoreCase(e))) {
+        if (this.registered.stream().anyMatch(x -> x.getFirst().equalsIgnoreCase(s) || x.getSecond().equalsIgnoreCase(e))) {
             return false;
         }
 
         // Create replacement regex.
         String replacementRegex = Pattern.quote(tokenStart.trim()) + "([^\\s{}]+)" + Pattern.quote(tokenEnd.trim());
-        replacements.add(st -> st.replaceAll(replacementRegex, "{{" + replacement + "}}"));
-        registered.add(Tuple.of(s, e));
+        this.replacements.add(st -> st.replaceAll(replacementRegex, "{{" + replacement + "}}"));
+        this.registered.add(Tuple.of(s, e));
         return true;
     }
 
@@ -72,7 +72,7 @@ public class NucleusTextTemplateFactory {
     }
 
     String performReplacements(String string) {
-        for (Function<String, String> replacementFunction : replacements) {
+        for (Function<String, String> replacementFunction : this.replacements) {
             string = replacementFunction.apply(string);
         }
 

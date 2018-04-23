@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -30,10 +31,10 @@ import java.util.stream.Collectors;
 public class CheckMutedCommand extends AbstractCommand<CommandSource> {
 
     @Override
-    protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         // Using the cache, tell us who is jailed.
-        MessageProvider provider = plugin.getMessageProvider();
-        List<UUID> usersInMute = plugin.getUserCacheService().getMuted();
+        MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
+        List<UUID> usersInMute = Nucleus.getNucleus().getUserCacheService().getMuted();
 
         if (usersInMute.isEmpty()) {
             src.sendMessage(provider.getTextMessageWithFormat("command.checkmuted.none"));
@@ -44,7 +45,7 @@ public class CheckMutedCommand extends AbstractCommand<CommandSource> {
         Util.getPaginationBuilder(src)
             .title(provider.getTextMessageWithFormat("command.checkmuted.header"))
             .contents(usersInMute.stream().map(x -> {
-                Text name = plugin.getNameUtil().getName(x).orElseGet(() -> Text.of("unknown: ", x.toString()));
+                Text name = Nucleus.getNucleus().getNameUtil().getName(x).orElseGet(() -> Text.of("unknown: ", x.toString()));
                 return name.toBuilder()
                     .onHover(TextActions.showText(provider.getTextMessageWithFormat("command.checkmuted.hover")))
                     .onClick(TextActions.runCommand("/nucleus:checkmute " + x.toString()))

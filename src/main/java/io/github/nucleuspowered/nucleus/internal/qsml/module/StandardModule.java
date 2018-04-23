@@ -78,8 +78,8 @@ public abstract class StandardModule implements Module {
         this.moduleId = md.id();
         this.moduleName = md.name();
         this.plugin = NucleusPlugin.getNucleus();
-        this.serviceManager = plugin.getInternalServiceManager();
-        this.commandsConfig = plugin.getCommandsConfig();
+        this.serviceManager = this.plugin.getInternalServiceManager();
+        this.commandsConfig = this.plugin.getCommandsConfig();
     }
 
     public void init(Map<String, List<String>> m) {
@@ -91,11 +91,7 @@ public abstract class StandardModule implements Module {
         if (this.getClass().isAnnotationPresent(ServerOnly.class) && !Nucleus.getNucleus().isServer()) {
             throw new MissingDependencyException("This module is server only and will not be loaded.");
         }
-
-        otherDeps();
     }
-
-    protected void otherDeps() throws MissingDependencyException { }
 
     protected Map<String, Tokens.Translator> tokensToRegister() {
         return ImmutableMap.of();
@@ -255,8 +251,8 @@ public abstract class StandardModule implements Module {
                             .collect(Collectors.toSet()));
 
             // Find all commands that are also scannable.
-            performFilter(plugin.getModuleContainer().getLoadedClasses().stream()
-                    .filter(x -> x.getPackage().getName().startsWith(packageName))
+            performFilter(this.plugin.getModuleContainer().getLoadedClasses().stream()
+                    .filter(x -> x.getPackage().getName().startsWith(this.packageName))
                     .filter(x -> x.isAnnotationPresent(Scan.class))
                     .flatMap(x -> Arrays.stream(x.getDeclaredClasses()))
                     .filter(AbstractCommand.class::isAssignableFrom)
@@ -270,27 +266,26 @@ public abstract class StandardModule implements Module {
             return (rc != null && rc.subcommandOf().equals(AbstractCommand.class));
         }).collect(Collectors.toSet());
 
-        CommandBuilder builder = new CommandBuilder(plugin, cmds, moduleId, moduleName);
+        CommandBuilder builder = new CommandBuilder(this.plugin, cmds, this.moduleId, this.moduleName);
         commandBases.forEach(builder::buildCommand);
 
         try {
-            commandsConfig.mergeDefaults(builder.getNodeToMerge());
-            commandsConfig.save();
+            this.commandsConfig.mergeDefaults(builder.getNodeToMerge());
+            this.commandsConfig.save();
         } catch (Exception e) {
-            plugin.getLogger().error("Could not save defaults.");
+            this.plugin.getLogger().error("Could not save defaults.");
             e.printStackTrace();
         }
     }
 
     private Stream<Class<? extends AbstractCommand<?>>> performFilter(Stream<Class<? extends AbstractCommand<?>>> stream) {
-        return stream.filter(x -> x.isAnnotationPresent(RegisterCommand.class))
-            .map(x -> (Class<? extends AbstractCommand<?>>)x); // Keeping the compiler happy...
+        return stream.filter(x -> x.isAnnotationPresent(RegisterCommand.class));
     }
 
     @SuppressWarnings("unchecked")
     private void loadEvents() {
         Set<Class<? extends ListenerBase>> listenersToLoad;
-        if (msls != null) {
+        if (this.msls != null) {
             listenersToLoad = new HashSet<>();
             List<String> l = this.msls.get(Constants.LISTENER);
             if (l == null) {
@@ -308,11 +303,11 @@ public abstract class StandardModule implements Module {
             listenersToLoad = getStreamForModule(ListenerBase.class).collect(Collectors.toSet());
         }
 
-        Optional<DocGenCache> docGenCache = plugin.getDocGenCache();
+        Optional<DocGenCache> docGenCache = this.plugin.getDocGenCache();
         listenersToLoad.stream().map(x -> this.getInstance(x, true)).filter(Objects::nonNull).forEach(c -> {
             // Register suggested permissions
-            c.getPermissions().forEach((k, v) -> plugin.getPermissionRegistry().registerOtherPermission(k, v));
-            docGenCache.ifPresent(x -> x.addPermissionDocs(moduleId, c.getPermissions()));
+            c.getPermissions().forEach((k, v) -> this.plugin.getPermissionRegistry().registerOtherPermission(k, v));
+            docGenCache.ifPresent(x -> x.addPermissionDocs(this.moduleId, c.getPermissions()));
 
             if (c instanceof ListenerBase.Conditional) {
                 // Add reloadable to load in the listener dynamically if required.
@@ -323,21 +318,21 @@ public abstract class StandardModule implements Module {
                     }
 
                     if (((ListenerBase.Conditional) c).shouldEnable()) {
-                        Sponge.getEventManager().registerListeners(plugin, c);
+                        Sponge.getEventManager().registerListeners(this.plugin, c);
                     }
                 };
 
-                plugin.registerReloadable(tae);
+                this.plugin.registerReloadable(tae);
                 try {
                     tae.onReload();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else if (c instanceof Reloadable) {
-                plugin.registerReloadable(((Reloadable) c));
-                Sponge.getEventManager().registerListeners(plugin, c);
+                this.plugin.registerReloadable(((Reloadable) c));
+                Sponge.getEventManager().registerListeners(this.plugin, c);
             } else {
-                Sponge.getEventManager().registerListeners(plugin, c);
+                Sponge.getEventManager().registerListeners(this.plugin, c);
             }
         });
     }
@@ -345,7 +340,7 @@ public abstract class StandardModule implements Module {
     @SuppressWarnings("unchecked")
     private void loadRunnables() {
         Set<Class<? extends TaskBase>> tasksToLoad;
-        if (msls != null) {
+        if (this.msls != null) {
             tasksToLoad = new HashSet<>();
             List<String> l = this.msls.get(Constants.RUNNABLE);
             if (l == null) {
@@ -363,11 +358,11 @@ public abstract class StandardModule implements Module {
             tasksToLoad = getStreamForModule(TaskBase.class).collect(Collectors.toSet());
         }
 
-        Optional<DocGenCache> docGenCache = plugin.getDocGenCache();
+        Optional<DocGenCache> docGenCache = this.plugin.getDocGenCache();
 
         tasksToLoad.stream().map(this::getInstance).filter(Objects::nonNull).forEach(c -> {
-            c.getPermissions().forEach((k, v) -> plugin.getPermissionRegistry().registerOtherPermission(k, v));
-            docGenCache.ifPresent(x -> x.addPermissionDocs(moduleId, c.getPermissions()));
+            c.getPermissions().forEach((k, v) -> this.plugin.getPermissionRegistry().registerOtherPermission(k, v));
+            docGenCache.ifPresent(x -> x.addPermissionDocs(this.moduleId, c.getPermissions()));
             Task.Builder tb = Sponge.getScheduler().createTaskBuilder().interval(c.interval().toMillis(), TimeUnit.MILLISECONDS);
             if (Nucleus.getNucleus().isServer()) {
                 tb.execute(c);
@@ -383,7 +378,7 @@ public abstract class StandardModule implements Module {
                 tb.async();
             }
 
-            tb.submit(plugin);
+            tb.submit(this.plugin);
 
             if (c instanceof Reloadable) {
                 this.plugin.registerReloadable((Reloadable) c);
@@ -415,7 +410,7 @@ public abstract class StandardModule implements Module {
     private <T> Stream<Class<? extends T>> getStreamForModule(Class<T> assignableClass) {
         return Nucleus.getNucleus().getModuleContainer().getLoadedClasses().stream()
                 .filter(assignableClass::isAssignableFrom)
-                .filter(x -> x.getPackage().getName().startsWith(packageName))
+                .filter(x -> x.getPackage().getName().startsWith(this.packageName))
                 .filter(x -> !Modifier.isAbstract(x.getModifiers()) && !Modifier.isInterface(x.getModifiers()))
                 .filter(this::checkPlatform)
                 .map(x -> (Class<? extends T>)x);
@@ -425,7 +420,7 @@ public abstract class StandardModule implements Module {
 
     protected void performEnableTasks() throws Exception { }
 
-    protected void performPostTasks() throws Exception { }
+    protected void performPostTasks() { }
 
     void configTasks() {
 
@@ -472,7 +467,7 @@ public abstract class StandardModule implements Module {
                         }
                     }
                 } catch (ClassNotFoundException | RuntimeException | NoClassDefFoundError e) {
-                    plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider()
+                    this.plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider()
                             .getMessageWithFormat("startup.injectablenotloaded", clazz.getName()));
                     return null;
                 }
@@ -488,7 +483,7 @@ public abstract class StandardModule implements Module {
         // I can't believe I have to do this...
         } catch (IllegalAccessException | InstantiationException | RuntimeException | NoClassDefFoundError e) {
             if (clazz.isAnnotationPresent(SkipOnError.class)) {
-                plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("startup.injectablenotloaded", clazz.getName()));
+                this.plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("startup.injectablenotloaded", clazz.getName()));
                 return null;
             }
 
@@ -513,7 +508,7 @@ public abstract class StandardModule implements Module {
             String platformId = Sponge.getPlatform().getContainer(Platform.Component.GAME).getId();
             boolean loadable = Arrays.stream(clazz.getAnnotation(RequiresPlatform.class).value()).anyMatch(platformId::equalsIgnoreCase);
             if (!loadable) {
-                plugin.getLogger().warn("Not loading /" + clazz.getSimpleName() + ": platform " + platformId + " is not supported.");
+                this.plugin.getLogger().warn("Not loading /" + clazz.getSimpleName() + ": platform " + platformId + " is not supported.");
                 return false;
             }
         }
@@ -527,13 +522,13 @@ public abstract class StandardModule implements Module {
 
     protected final void createSeenModule(@Nullable Class<? extends AbstractCommand> permissionClass, BiFunction<CommandSource, User, Collection<Text>> function) {
         // Register seen information.
-        CommandPermissionHandler permissionHandler = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(permissionClass);
+        CommandPermissionHandler permissionHandler = this.plugin.getPermissionRegistry().getPermissionsForNucleusCommand(permissionClass);
         createSeenModule(permissionHandler == null ? null : permissionHandler.getBase(), function);
     }
 
     protected void createSeenModule(@Nullable String permission, BiFunction<CommandSource, User, Collection<Text>> function) {
-        plugin.getInternalServiceManager().getService(SeenHandler.class).ifPresent(x ->
-                x.register(plugin, this.getClass().getAnnotation(ModuleData.class).name(), new BasicSeenInformationProvider(permission, function)));
+        this.plugin.getInternalServiceManager().getService(SeenHandler.class).ifPresent(x ->
+                x.register(this.plugin, this.getClass().getAnnotation(ModuleData.class).name(), new BasicSeenInformationProvider(permission, function)));
     }
 
     protected final <I, S extends I> void register(Class<S> impl) throws IllegalAccessException, InstantiationException {

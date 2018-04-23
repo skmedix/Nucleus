@@ -25,7 +25,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class WorldCommand extends AbstractCommand<CommandSource> {
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         return CommandResult.empty();
     }
 }

@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.misc.commands;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.DataScanner;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -47,7 +48,7 @@ public class EntityInfoCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.flags().permissionFlag(permissions.getPermissionWithSuffix("extended"), "e", "-extended")
+        return new CommandElement[] {GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("extended"), "e", "-extended")
                 .buildWith(GenericArguments.none())};
     }
 
@@ -59,7 +60,7 @@ public class EntityInfoCommand extends AbstractCommand<Player> {
     }
 
     @Override
-    public CommandResult executeCommand(Player player, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player player, CommandContext args) {
         // Get all the entities in the world.
         Vector3i playerPos = player.getLocation().getBlockPosition();
         Collection<Entity> entities = player.getWorld().getEntities().stream()
@@ -87,7 +88,7 @@ public class EntityInfoCommand extends AbstractCommand<Player> {
             Optional<Entity> entityOptional = entities.stream().filter(e -> {
                 Vector3i current = e.getLocation().getBlockPosition();
                 return current.equals(location.toInt()) || current.equals(locationOneUp.toInt());
-            }).sorted(Comparator.comparingDouble(x -> x.getLocation().getPosition().distanceSquared(location))).findFirst();
+            }).min(Comparator.comparingDouble(x -> x.getLocation().getPosition().distanceSquared(location)));
 
             if (entityOptional.isPresent()) {
                 // Display info about the entity
@@ -95,8 +96,8 @@ public class EntityInfoCommand extends AbstractCommand<Player> {
                 EntityType type = entity.getType();
 
                 List<Text> lt = new ArrayList<>();
-                lt.add(plugin.getMessageProvider().getTextMessageWithFormat("command.entityinfo.id", type.getId(), Util.getTranslatableIfPresent(type)));
-                lt.add(plugin.getMessageProvider().getTextMessageWithFormat("command.entityinfo.uuid", entity.getUniqueId().toString()));
+                lt.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.entityinfo.id", type.getId(), Util.getTranslatableIfPresent(type)));
+                lt.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.entityinfo.uuid", entity.getUniqueId().toString()));
 
                 if (args.hasAny("e") || args.hasAny("extended")) {
                     // For each key, see if the entity supports it. If so, get and print the value.
@@ -116,7 +117,7 @@ public class EntityInfoCommand extends AbstractCommand<Player> {
                 }
 
                 Sponge.getServiceManager().provideUnchecked(PaginationService.class).builder().contents(lt).padding(Text.of(TextColors.GREEN, "-"))
-                    .title(plugin.getMessageProvider().getTextMessageWithFormat("command.entityinfo.list.header", String.valueOf(brh.getBlockX()),
+                    .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.entityinfo.list.header", String.valueOf(brh.getBlockX()),
                         String.valueOf(brh.getBlockY()), String.valueOf(brh.getBlockZ())))
                     .sendTo(player);
 
@@ -124,7 +125,7 @@ public class EntityInfoCommand extends AbstractCommand<Player> {
             }
         }
 
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.entityinfo.none"));
+        player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.entityinfo.none"));
         return CommandResult.empty();
     }
 }

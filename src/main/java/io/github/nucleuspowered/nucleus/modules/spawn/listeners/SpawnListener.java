@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SpawnListener extends ListenerBase implements Reloadable {
+public class SpawnListener implements Reloadable, ListenerBase {
 
     private SpawnConfig spawnConfig;
 
@@ -46,7 +46,7 @@ public class SpawnListener extends ListenerBase implements Reloadable {
     @Override
     public Map<String, PermissionInformation> getPermissions() {
         Map<String, PermissionInformation> mpi = Maps.newHashMap();
-        mpi.put(spawnExempt, PermissionInformation.getWithTranslation("permission.spawn.exempt.login", SuggestedLevel.ADMIN));
+        mpi.put(this.spawnExempt, PermissionInformation.getWithTranslation("permission.spawn.exempt.login", SuggestedLevel.ADMIN));
         return mpi;
     }
 
@@ -64,8 +64,8 @@ public class SpawnListener extends ListenerBase implements Reloadable {
                 // setting the location the player safely. If this cannot be done in either case, send them to world spawn.
                 if (ofs.isPresent()) {
                     NucleusTeleportHandler.StandardTeleportMode
-                            mode = spawnConfig.isSafeTeleport() ? NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT : NucleusTeleportHandler.StandardTeleportMode.WALL_CHECK;
-                    Optional<Location<World>> location = plugin.getTeleportHandler().getSafeLocation(null, ofs.get().getLocation(), mode);
+                            mode = this.spawnConfig.isSafeTeleport() ? NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT : NucleusTeleportHandler.StandardTeleportMode.WALL_CHECK;
+                    Optional<Location<World>> location = Nucleus.getNucleus().getTeleportHandler().getSafeLocation(null, ofs.get().getLocation(), mode);
 
                     if (location.isPresent()) {
                         loginEvent.setToTransform(new Transform<>(location.get().getExtent(), process(location.get().getPosition()), ofs.get().getRotation()));
@@ -88,17 +88,17 @@ public class SpawnListener extends ListenerBase implements Reloadable {
 
         // Throw them to the default world spawn if the config suggests so.
         User user = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).getOrCreate(loginEvent.getProfile());
-        if (spawnConfig.isSpawnOnLogin() && !user.hasPermission(spawnExempt)) {
+        if (this.spawnConfig.isSpawnOnLogin() && !user.hasPermission(this.spawnExempt)) {
 
-            GlobalSpawnConfig sc = spawnConfig.getGlobalSpawn();
+            GlobalSpawnConfig sc = this.spawnConfig.getGlobalSpawn();
             World world = loginEvent.getFromTransform().getExtent();
             if (sc.isOnLogin() && sc.getWorld().isPresent()) {
                 world = Sponge.getServer().getWorld(sc.getWorld().get().getUniqueId()).orElse(world);
             }
 
             Location<World> lw = world.getSpawnLocation().add(0.5, 0, 0.5);
-            Optional<Location<World>> safe = plugin.getTeleportHandler().getSafeLocation(null, lw,
-                    spawnConfig.isSafeTeleport() ? NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT_ASCENDING : NucleusTeleportHandler.StandardTeleportMode.NO_CHECK);
+            Optional<Location<World>> safe = Nucleus.getNucleus().getTeleportHandler().getSafeLocation(null, lw,
+                    this.spawnConfig.isSafeTeleport() ? NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT_ASCENDING : NucleusTeleportHandler.StandardTeleportMode.NO_CHECK);
             if (safe.isPresent()) {
                 try {
                     Optional<Vector3d> ov = Nucleus.getNucleus().getWorldDataManager().getWorld(world.getUniqueId()).get().get(SpawnWorldDataModule.class).getSpawnRotation();
@@ -137,7 +137,7 @@ public class SpawnListener extends ListenerBase implements Reloadable {
             return;
         }
 
-        GlobalSpawnConfig sc = spawnConfig.getGlobalSpawn();
+        GlobalSpawnConfig sc = this.spawnConfig.getGlobalSpawn();
         World world = event.getToTransform().getExtent();
 
         // Get the world.
@@ -156,8 +156,8 @@ public class SpawnListener extends ListenerBase implements Reloadable {
             .ifPresent(y -> event.setToTransform(to.setRotation(y))));
     }
 
-    @Override public void onReload() throws Exception {
-        spawnConfig = getServiceUnchecked(SpawnConfigAdapter.class).getNodeOrDefault();
+    @Override public void onReload() {
+        this.spawnConfig = getServiceUnchecked(SpawnConfigAdapter.class).getNodeOrDefault();
     }
 
     private static Location<World> process(Location<World> v3d) {

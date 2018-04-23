@@ -45,7 +45,7 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
         Tuple<TextTemplate, Map<String, Function<CommandSource, Text>>> t = parse(representation);
         this.textTemplate = t.getFirst();
 
-        tokenMap.putAll(t.getSecond());
+        this.tokenMap.putAll(t.getSecond());
     }
 
     @Override public boolean isEmpty() {
@@ -53,17 +53,17 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
     }
 
     public String getRepresentation() {
-        return representation;
+        return this.representation;
     }
 
     @Override public TextTemplate getTextTemplate() {
-        return textTemplate;
+        return this.textTemplate;
     }
 
     abstract Tuple<TextTemplate, Map<String, Function<CommandSource, Text>>> parse(String parser);
 
     @Override public boolean containsTokens() {
-        return !textTemplate.getArguments().isEmpty();
+        return !this.textTemplate.getArguments().isEmpty();
     }
 
     @Override @SuppressWarnings("SameParameterValue")
@@ -71,15 +71,15 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
             @Nullable Map<String, Object> variables) {
         final Map<String, Object> variables2 = variables == null ? emptyVariables : variables;
 
-        Map<String, TextTemplate.Arg> tokens = textTemplate.getArguments();
+        Map<String, TextTemplate.Arg> tokens = this.textTemplate.getArguments();
         Map<String, Text> finalArgs = Maps.newHashMap();
 
         tokens.forEach((k, v) -> {
             String key = k.toLowerCase();
 
             Text t;
-            if (tokenMap.containsKey(key)) {
-                t = tokenMap.get(key).apply(source);
+            if (this.tokenMap.containsKey(key)) {
+                t = this.tokenMap.get(key).apply(source);
             } else if (tokensArray != null && tokensArray.containsKey(key)) {
                 t = tokensArray.get(key).apply(source).orElse(null);
             } else {
@@ -91,11 +91,11 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
             }
         });
 
-        return textTemplate.apply(finalArgs).build();
+        return this.textTemplate.apply(finalArgs).build();
     }
 
     public Text toText() {
-        return textTemplate.toText();
+        return this.textTemplate.toText();
     }
 
     /**
@@ -188,7 +188,7 @@ public abstract class NucleusTextTemplateImpl implements NucleusTextTemplate {
                 }
             }
 
-            return Tuple.of(TextTemplate.of(texts.toArray(new Object[texts.size()])), tokens);
+            return Tuple.of(TextTemplate.of(texts.toArray(new Object[0])), tokens);
         }
     }
 

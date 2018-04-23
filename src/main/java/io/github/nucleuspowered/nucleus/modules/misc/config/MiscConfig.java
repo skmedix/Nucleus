@@ -14,6 +14,6 @@ public class MiscConfig {
     private int maxSpeed = 5;
 
     public int getMaxSpeed() {
-        return maxSpeed;
+        return this.maxSpeed;
     }
 }

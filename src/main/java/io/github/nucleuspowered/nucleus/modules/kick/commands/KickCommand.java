@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kick.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -39,8 +40,8 @@ public class KickCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.player(Text.of(player))),
-                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(reason))))
+        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.player(Text.of(this.player))),
+                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reason))))
         };
     }
 
@@ -54,18 +55,18 @@ public class KickCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player pl = args.<Player>getOne(player).get();
-        String r = args.<String>getOne(reason).orElse(plugin.getMessageProvider().getMessageWithFormat("command.kick.defaultreason"));
+        Player pl = args.<Player>getOne(this.player).get();
+        String r = args.<String>getOne(this.reason).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.kick.defaultreason"));
 
-        if (permissions.testSuffix(pl, "exempt.target", src, false)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.kick.exempt", pl.getName()));
+        if (this.permissions.testSuffix(pl, "exempt.target", src, false)) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kick.exempt", pl.getName()));
         }
 
         pl.kick(TextSerializers.FORMATTING_CODE.deserialize(r));
 
-        MessageChannel mc = new PermissionMessageChannel(permissions.getPermissionWithSuffix("notify"));
-        mc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.kick.message", pl.getName(), src.getName()));
-        mc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.reason", r));
+        MessageChannel mc = new PermissionMessageChannel(this.permissions.getPermissionWithSuffix("notify"));
+        mc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kick.message", pl.getName(), src.getName()));
+        mc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reason", r));
         return CommandResult.success();
     }
 }

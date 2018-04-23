@@ -126,13 +126,13 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
             if (oi.isPresent()) {
 
                 // if it's one time only and the user does not have an exemption...
-                if (kit.isOneTime() && !player.hasPermission(cph.getPermissionWithSuffix("exempt.onetime"))) {
+                if (kit.isOneTime() && !player.hasPermission(this.cph.getPermissionWithSuffix("exempt.onetime"))) {
                     throw new KitRedeemException("Already redeemed", KitRedeemException.Reason.ALREADY_REDEEMED);
                 }
 
                 // If we have a cooldown for the kit, and we don't have permission to
                 // bypass it...
-                if (!cph.testCooldownExempt(player) && kit.getCooldown().map(Duration::getSeconds).orElse(0L) > 0) {
+                if (!this.cph.testCooldownExempt(player) && kit.getCooldown().map(Duration::getSeconds).orElse(0L) > 0) {
 
                     // ...and we haven't reached the cooldown point yet...
                     Instant timeForNextUse = oi.get().plus(kit.getCooldown().get());
@@ -156,7 +156,7 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
         InventoryTransactionResult inventoryTransactionResult = EMPTY_ITR;
         if (!kit.getStacks().isEmpty()) {
-            inventoryTransactionResult = addToStandardInventory(player, kit.getStacks(), isProcessTokens);
+            inventoryTransactionResult = addToStandardInventory(player, kit.getStacks(), this.isProcessTokens);
             if (!isFirstJoin && !inventoryTransactionResult.getRejectedItems().isEmpty() && isMustGetAll) {
                 Inventory inventory = Util.getStandardInventory(player);
 
@@ -199,8 +199,8 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
     @Override
     public boolean removeKit(String kitName) {
-        if (store.removeKit(kitName)) {
-            store.save();
+        if (this.store.removeKit(kitName)) {
+            this.store.save();
             return true;
         }
 
@@ -210,14 +210,14 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
     @Override
     public synchronized void saveKit(Kit kit) {
         Preconditions.checkArgument(kit instanceof SingleKit);
-        Util.getKeyIgnoreCase(store.getKitNames(true), kit.getName()).ifPresent(store::removeKit);
-        store.addKit(kit);
-        store.save();
+        Util.getKeyIgnoreCase(this.store.getKitNames(true), kit.getName()).ifPresent(this.store::removeKit);
+        this.store.addKit(kit);
+        this.store.save();
     }
 
     @Override
     public Kit createKit(String name) throws IllegalArgumentException {
-        Optional<String> key = Util.getKeyIgnoreCase(store.getKitNames(true), name);
+        Optional<String> key = Util.getKeyIgnoreCase(this.store.getKitNames(true), name);
         key.ifPresent(s -> {
             throw new IllegalArgumentException("Kit " + name + " already exists!");
         });
@@ -225,33 +225,33 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
     }
 
     public Optional<Tuple<Kit, Inventory>> getCurrentlyOpenInventoryKit(Container inventory) {
-        return Optional.ofNullable(inventoryKitMap.get(inventory));
+        return Optional.ofNullable(this.inventoryKitMap.get(inventory));
     }
 
     public boolean isOpen(String kitName) {
-        return inventoryKitMap.values().stream().anyMatch(x -> x.getFirst().getName().equalsIgnoreCase(kitName));
+        return this.inventoryKitMap.values().stream().anyMatch(x -> x.getFirst().getName().equalsIgnoreCase(kitName));
     }
 
     public void addKitInventoryToListener(Tuple<Kit, Inventory> kit, Container inventory) {
-        Preconditions.checkState(!inventoryKitMap.containsKey(inventory));
-        inventoryKitMap.put(inventory, kit);
+        Preconditions.checkState(!this.inventoryKitMap.containsKey(inventory));
+        this.inventoryKitMap.put(inventory, kit);
     }
 
     public void removeKitInventoryFromListener(Container inventory) {
-        inventoryKitMap.remove(inventory);
+        this.inventoryKitMap.remove(inventory);
     }
 
     public Optional<Tuple<Kit, Inventory>> getCurrentlyOpenInventoryCommandKit(Container inventory) {
-        return Optional.ofNullable(inventoryKitCommandMap.get(inventory));
+        return Optional.ofNullable(this.inventoryKitCommandMap.get(inventory));
     }
 
     public void addKitCommandInventoryToListener(Tuple<Kit, Inventory> kit, Container inventory) {
-        Preconditions.checkState(!inventoryKitCommandMap.containsKey(inventory));
-        inventoryKitCommandMap.put(inventory, kit);
+        Preconditions.checkState(!this.inventoryKitCommandMap.containsKey(inventory));
+        this.inventoryKitCommandMap.put(inventory, kit);
     }
 
     public void removeKitCommandInventoryFromListener(Container inventory) {
-        inventoryKitCommandMap.remove(inventory);
+        this.inventoryKitCommandMap.remove(inventory);
     }
 
     public void addViewer(Container inventory) {
@@ -340,7 +340,7 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         KitConfig kitConfig = this.getServiceUnchecked(KitConfigAdapter.class).getNodeOrDefault();
         this.isMustGetAll = kitConfig.isMustGetAll();
         this.isProcessTokens = kitConfig.isProcessTokens();

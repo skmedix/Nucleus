@@ -41,41 +41,39 @@ public class ItemDataNode {
     private PriceNode shop = new PriceNode();
 
     public List<String> getAliases() {
-        return ImmutableList.copyOf(aliases);
+        return ImmutableList.copyOf(this.aliases);
     }
 
     public void addAlias(String alias) {
         String lowerCase = alias.toLowerCase();
         Preconditions.checkArgument(ALIAS_PATTERN.matcher(lowerCase).matches());
 
-        if (!aliases.contains(lowerCase)) {
-            aliases.add(lowerCase);
-        }
+        this.aliases.add(lowerCase);
     }
 
     public void removeAlias(String alias) {
         alias = alias.toLowerCase();
-        aliases.remove(alias);
+        this.aliases.remove(alias);
     }
 
     public void clearAliases() {
-        aliases.clear();
+        this.aliases.clear();
     }
 
     public double getServerBuyPrice() {
-        return shop.getBuy();
+        return this.shop.getBuy();
     }
 
     public void setServerBuyPrice(double serverBuyPrice) {
-        shop.setBuy(serverBuyPrice);
+        this.shop.setBuy(serverBuyPrice);
     }
 
     public double getServerSellPrice() {
-        return shop.getSell();
+        return this.shop.getSell();
     }
 
     public void setServerSellPrice(double serverSellPrice) {
-        shop.setSell(serverSellPrice);
+        this.shop.setSell(serverSellPrice);
     }
 
 }

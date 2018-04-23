@@ -4,14 +4,13 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandArgs;
@@ -43,17 +42,17 @@ public class KitAddCommand extends KitFallbackBase<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(GenericArguments.string(Text.of(name)))
+                GenericArguments.onlyOne(GenericArguments.string(Text.of(this.name)))
         };
     }
 
     @Override
     public CommandResult executeCommand(final Player player, CommandContext args) throws Exception {
-        String kitName = args.<String>getOne(name).get();
+        String kitName = args.<String>getOne(this.name).get();
 
         if (KIT_HANDLER.getKitNames().stream().noneMatch(kitName::equalsIgnoreCase)) {
             KIT_HANDLER.saveKit(KIT_HANDLER.createKit(kitName).updateKitInventory(player));
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.add.success", kitName));
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.add.success", kitName));
             return CommandResult.success();
         } else {
             throw ReturnMessageException.fromKey("command.kit.add.alreadyexists", kitName);

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -32,18 +33,19 @@ public class GlobalMuteCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.bool(Text.of(on)))
+            GenericArguments.optional(GenericArguments.bool(Text.of(this.on)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        boolean turnOn = args.<Boolean>getOne(on).orElse(!muteHandler.isGlobalMuteEnabled());
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        boolean turnOn = args.<Boolean>getOne(this.on).orElse(!this.muteHandler.isGlobalMuteEnabled());
 
-        muteHandler.setGlobalMuteEnabled(turnOn);
-        String onOff = plugin.getMessageProvider().getMessageFromKey(turnOn ? "standard.enabled" : "standard.disabled").get();
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.globalmute.status", onOff));
-        MessageChannel.TO_ALL.send(plugin.getMessageProvider().getTextMessageWithFormat("command.globalmute.broadcast." + (turnOn ? "enabled" : "disabled")));
+        this.muteHandler.setGlobalMuteEnabled(turnOn);
+        String onOff = Nucleus.getNucleus().getMessageProvider().getMessageFromKey(turnOn ? "standard.enabled" : "standard.disabled").get();
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.globalmute.status", onOff));
+        MessageChannel.TO_ALL.send(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.globalmute.broadcast." + (turnOn ? "enabled" : "disabled")));
 
         return CommandResult.success();
     }

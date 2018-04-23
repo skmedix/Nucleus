@@ -18,7 +18,7 @@ public class BaseLoggerListener extends AbstractLoggerListener {
     @Listener
     public void onShutdown(GameStoppedServerEvent event) {
         try {
-            handler.onServerShutdown();
+            this.handler.onServerShutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }

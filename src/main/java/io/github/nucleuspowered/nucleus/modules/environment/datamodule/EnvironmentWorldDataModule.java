@@ -14,7 +14,7 @@ public class EnvironmentWorldDataModule extends DataModule<ModularWorldService> 
     private boolean lockWeather = false;
 
     public boolean isLockWeather() {
-        return lockWeather;
+        return this.lockWeather;
     }
 
     public void setLockWeather(boolean lockWeather) {

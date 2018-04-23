@@ -32,31 +32,31 @@ public class AFKConfig {
     private Triggers triggers = new Triggers();
 
     public Triggers getTriggers() {
-        return triggers;
+        return this.triggers;
     }
 
     public long getAfkTime() {
-        return afkTime;
+        return this.afkTime;
     }
 
     public long getAfkTimeToKick() {
-        return afkTimeToKick;
+        return this.afkTimeToKick;
     }
 
     public boolean isAfkOnVanish() {
-        return afkOnVanish;
+        return this.afkOnVanish;
     }
 
     public boolean isAlertSenderOnAfk() {
-        return alertSenderOnAfk;
+        return this.alertSenderOnAfk;
     }
 
     public boolean isBroadcastOnKick() {
-        return broadcastOnKick;
+        return this.broadcastOnKick;
     }
 
     public MessagesConfig getMessages() {
-        return messages;
+        return this.messages;
     }
 
     @ConfigSerializable
@@ -78,23 +78,23 @@ public class AFKConfig {
         private boolean onInteract = true;
 
         public boolean isOnChat() {
-            return onChat;
+            return this.onChat;
         }
 
         public boolean isOnCommand() {
-            return onCommand;
+            return this.onCommand;
         }
 
         public boolean isOnMovement() {
-            return onMovement;
+            return this.onMovement;
         }
 
         public boolean isOnRotation() {
-            return onRotation;
+            return this.onRotation;
         }
 
         public boolean isOnInteract() {
-            return onInteract;
+            return this.onInteract;
         }
     }
 }

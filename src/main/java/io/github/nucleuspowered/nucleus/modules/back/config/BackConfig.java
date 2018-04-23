@@ -20,14 +20,14 @@ public class BackConfig {
     private boolean onPortal = false;
 
     public boolean isOnDeath() {
-        return onDeath;
+        return this.onDeath;
     }
 
     public boolean isOnTeleport() {
-        return onTeleport;
+        return this.onTeleport;
     }
 
     public boolean isOnPortal() {
-        return onPortal;
+        return this.onPortal;
     }
 }

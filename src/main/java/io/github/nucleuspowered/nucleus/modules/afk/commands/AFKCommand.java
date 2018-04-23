@@ -46,16 +46,16 @@ public class AFKCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        if (!ServiceChangeListener.isOpOnly() && permissions.testSuffix(src, "exempt.toggle")) {
+        if (!ServiceChangeListener.isOpOnly() && this.permissions.testSuffix(src, "exempt.toggle")) {
             throw ReturnMessageException.fromKey("command.afk.exempt");
         }
 
-        boolean isAFK = afkHandler.isAfk(src);
+        boolean isAFK = this.afkHandler.isAfk(src);
 
         if (isAFK) {
-            afkHandler.stageUserActivityUpdate(src);
+            this.afkHandler.stageUserActivityUpdate(src);
         } else if (!this.afkHandler.setAfk(src, CauseStackHelper.createCause(src), true)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.afk.notset"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.afk.notset"));
         }
 
         return CommandResult.success();

@@ -20,7 +20,7 @@ import org.spongepowered.api.event.filter.type.Exclude;
 import java.util.List;
 
 @SuppressWarnings("ALL")
-public class MobProtectionListener extends ListenerBase implements Reloadable, ListenerBase.Conditional {
+public class MobProtectionListener implements Reloadable, ListenerBase.Conditional {
 
     private List<EntityType> whitelistedTypes;
 

@@ -9,7 +9,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.staffchat.config.StaffChatConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.staffchat.service.StaffChatService;
-import org.spongepowered.api.Sponge;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
 @RegisterService(value = StaffChatService.class, apiService = NucleusStaffChatService.class)

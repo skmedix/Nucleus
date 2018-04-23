@@ -40,9 +40,9 @@ public abstract class AbstractLoggingHandler {
     }
 
     public void queueEntry(String s) {
-        if (logger != null) {
-            synchronized (locking) {
-                queueEntry.add(s);
+        if (this.logger != null) {
+            synchronized (this.locking) {
+                this.queueEntry.add(s);
             }
         }
     }
@@ -55,32 +55,32 @@ public abstract class AbstractLoggingHandler {
     }
 
     protected void onShutdown() throws IOException {
-        if (logger != null) {
-            logger.close();
-            logger = null;
+        if (this.logger != null) {
+            this.logger.close();
+            this.logger = null;
         }
     }
 
     protected abstract boolean enabledLog();
 
     public void onTick() {
-        if (queueEntry.isEmpty()) {
+        if (this.queueEntry.isEmpty()) {
             return;
         }
 
         List<String> l;
-        synchronized (locking) {
-            l = Lists.newArrayList(queueEntry);
-            queueEntry.clear();
+        synchronized (this.locking) {
+            l = Lists.newArrayList(this.queueEntry);
+            this.queueEntry.clear();
         }
 
-        if (logger == null) {
+        if (this.logger == null) {
             if (enabledLog()) {
                 try {
                     createLogger();
                 } catch (IOException e) {
-                    plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("commandlog.couldnotwrite"));
-                    if (plugin.isDebugMode()) {
+                    this.plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("commandlog.couldnotwrite"));
+                    if (this.plugin.isDebugMode()) {
                         e.printStackTrace();
                     }
 
@@ -94,22 +94,22 @@ public abstract class AbstractLoggingHandler {
         try {
             writeEntry(l);
         } catch (IOException e) {
-            plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("commandlog.couldnotwrite"));
-            if (plugin.isDebugMode()) {
+            this.plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("commandlog.couldnotwrite"));
+            if (this.plugin.isDebugMode()) {
                 e.printStackTrace();
             }
         }
     }
 
     protected void createLogger() throws IOException {
-        logger = new DateRotatableFileLogger(directoryName, filePrefix, s -> "[" +
+        this.logger = new DateRotatableFileLogger(this.directoryName, this.filePrefix, s -> "[" +
             formatter.format(Instant.now().atZone(ZoneOffset.systemDefault())) +
             "] " + s);
     }
 
     private void writeEntry(Iterable<String> entry) throws IOException {
-        if (logger != null) {
-            logger.logEntry(entry);
+        if (this.logger != null) {
+            this.logger.logEntry(entry);
         }
     }
 }

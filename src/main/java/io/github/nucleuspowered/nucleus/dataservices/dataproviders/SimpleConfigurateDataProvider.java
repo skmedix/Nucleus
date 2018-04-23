@@ -19,11 +19,11 @@ public class SimpleConfigurateDataProvider extends AbstractConfigurateDataProvid
         super(loaderProvider, file, logger);
     }
 
-    @Override protected ConfigurationNode transformOnLoad(ConfigurationNode node) throws Exception {
+    @Override protected ConfigurationNode transformOnLoad(ConfigurationNode node) {
         return node;
     }
 
-    @Override protected ConfigurationNode transformOnSave(ConfigurationNode info) throws Exception {
+    @Override protected ConfigurationNode transformOnSave(ConfigurationNode info) {
         return info;
     }
 }

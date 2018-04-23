@@ -35,7 +35,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.entity.MainPlayerInventory;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
-import org.spongepowered.api.item.inventory.query.QueryOperation;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.context.Context;
@@ -315,7 +314,7 @@ public class Util {
     public static Optional<CatalogType> getCatalogTypeForItemFromId(String id) {
         // Check for ItemType.
         Optional<CatalogType> oit = Sponge.getRegistry().getAllOf(ItemType.class).stream().filter(x -> x.getId().equalsIgnoreCase(id))
-                .findFirst().map(x -> (CatalogType)x);
+                .findFirst().map(x -> x);
         return oit.map(Optional::of)
                 .orElseGet(() -> Sponge.getRegistry().getAllOf(BlockState.class).stream().filter(x -> x.getId().equalsIgnoreCase(id)).findFirst()
                         .map(x -> (CatalogType) x));

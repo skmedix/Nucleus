@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 
-public class WhitelistServerListListener extends ListenerBase implements Reloadable, ListenerBase.Conditional {
+public class WhitelistServerListListener implements Reloadable, ListenerBase.Conditional {
 
     private final Random random = new Random();
     private ServerListConfig config;
@@ -36,7 +36,7 @@ public class WhitelistServerListListener extends ListenerBase implements Reloada
             return;
         }
 
-        Optional<Text> ott = plugin.getGeneralService().get(ServerListGeneralDataModule.class).getMessage();
+        Optional<Text> ott = Nucleus.getNucleus().getGeneralService().get(ServerListGeneralDataModule.class).getMessage();
 
         if (!ott.isPresent() &&  !this.config.getWhitelist().isEmpty()) {
             List<NucleusTextTemplateImpl> list = this.config.getWhitelist();
@@ -49,8 +49,8 @@ public class WhitelistServerListListener extends ListenerBase implements Reloada
     }
 
     @Override
-    public void onReload() throws Exception {
-        this.config = this.plugin.getConfigValue(ServerListModule.ID, ServerListConfigAdapter.class, Function.identity())
+    public void onReload() {
+        this.config = Nucleus.getNucleus().getConfigValue(ServerListModule.ID, ServerListConfigAdapter.class, Function.identity())
                 .orElseGet(ServerListConfig::new);
     }
 

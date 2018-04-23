@@ -57,8 +57,8 @@ public class CommandBuilder {
 
         T c = optionalCommand.get();
         try {
-            c.setModuleName(moduleID, moduleName);
-            c.setModuleCommands(commandSet);
+            c.setModuleName(this.moduleID, this.moduleName);
+            c.setModuleCommands(this.commandSet);
             c.setCommandBuilder(this);
             c.postInit();
         } catch (Exception e) {
@@ -67,13 +67,13 @@ public class CommandBuilder {
         }
 
         // If we are using DocGen, add the command information to the system.
-        plugin.getDocGenCache().ifPresent(x -> x.addCommand(moduleID, c));
+        this.plugin.getDocGenCache().ifPresent(x -> x.addCommand(this.moduleID, c));
 
         String commandSection = c.getAliases()[0].toLowerCase();
-        sn.getNode(commandSection).setValue(c.getDefaults());
+        this.sn.getNode(commandSection).setValue(c.getDefaults());
 
-        if (plugin.getCommandsConfig().getCommandNode(commandSection).getNode("enabled").getBoolean(true)) {
-            ConfigurationNode cn = plugin.getCommandsConfig().getCommandNode(commandSection);
+        if (this.plugin.getCommandsConfig().getCommandNode(commandSection).getNode("enabled").getBoolean(true)) {
+            ConfigurationNode cn = this.plugin.getCommandsConfig().getCommandNode(commandSection);
             ConfigurationNode node = cn.getNode("aliases");
             if (node.getValue() == null) {
                 cn.removeChild("aliases");
@@ -86,22 +86,22 @@ public class CommandBuilder {
                     String first = c.getAliases()[0];
                     String[] aliases = Arrays.stream(c.getAliases()).filter(x -> x.equals(first) || node.getNode(x).getBoolean(true))
                             .toArray(String[]::new);
-                    checkMapping(Sponge.getCommandManager().register(plugin, c, aliases).orElse(null), aliases);
+                    checkMapping(Sponge.getCommandManager().register(this.plugin, c, aliases).orElse(null), aliases);
                 }
 
                 // Register as another full blown command.
                 for (String st : c.getRootCommandAliases()) {
                     if (cn.getNode("aliases", st).getBoolean(true)) {
-                        checkMapping(Sponge.getCommandManager().register(plugin, c, st).orElse(null), new String[] { st });
+                        checkMapping(Sponge.getCommandManager().register(this.plugin, c, st).orElse(null), new String[] { st });
                         // Sponge.getCommandManager().register(plugin, c, st);
                     }
                 }
 
                 if (c instanceof Reloadable) {
-                    plugin.registerReloadable(((Reloadable) c));
+                    this.plugin.registerReloadable(((Reloadable) c));
                 }
             } catch (Exception e) {
-                throw new IllegalStateException(plugin.getMessageProvider().getMessageWithFormat("startup.commandfailiure", c.getAliases()[0],
+                throw new IllegalStateException(this.plugin.getMessageProvider().getMessageWithFormat("startup.commandfailiure", c.getAliases()[0],
                         commandClass.getName()));
             }
 
@@ -124,7 +124,7 @@ public class CommandBuilder {
             // I can't believe I have to do this...
         } catch (IllegalAccessException | InstantiationException | RuntimeException | NoClassDefFoundError e) {
             if (clazz.isAnnotationPresent(SkipOnError.class)) {
-                plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("startup.injectablenotloaded", clazz.getName()));
+                this.plugin.getLogger().warn(NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("startup.injectablenotloaded", clazz.getName()));
                 return Optional.empty();
             }
 
@@ -137,7 +137,7 @@ public class CommandBuilder {
     }
 
     public CommentedConfigurationNode getNodeToMerge() {
-        return sn;
+        return this.sn;
     }
 
     private void checkMapping(@Nullable CommandMapping commandMapping, String[] aliases) {

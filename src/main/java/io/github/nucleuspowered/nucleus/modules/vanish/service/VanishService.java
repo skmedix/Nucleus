@@ -4,8 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.modules.vanish.service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.modules.vanish.commands.VanishCommand;
@@ -14,15 +12,9 @@ import io.github.nucleuspowered.nucleus.modules.vanish.datamodules.VanishUserDat
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.tab.TabList;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class VanishService implements Reloadable {
 
@@ -31,7 +23,7 @@ public class VanishService implements Reloadable {
     private boolean isAlter = false;
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         String property = System.getProperty("nucleus.vanish.tablist.enable");
         this.isAlter = property != null && !property.isEmpty() &&
             Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(VanishConfigAdapter.class).getNodeOrDefault().isAlterTabList();

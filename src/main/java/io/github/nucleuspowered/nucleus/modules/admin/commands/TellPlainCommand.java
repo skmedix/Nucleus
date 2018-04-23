@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -36,17 +37,17 @@ public class TellPlainCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             SelectorWrapperArgument.nicknameSelector(Text.of(this.target), NicknameArgument.UnderlyingType.PLAYER_CONSOLE, false, Player.class),
-            GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(message)))
+            GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.message)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         try {
-            new NucleusTextTemplateMessageSender(NucleusTextTemplateFactory.createFromString(args.<String>getOne(message).get()), src)
-                    .send(args.getAll(target));
+            new NucleusTextTemplateMessageSender(NucleusTextTemplateFactory.createFromString(args.<String>getOne(this.message).get()), src)
+                    .send(args.getAll(this.target));
         } catch (Throwable throwable) {
-            if (plugin.isDebugMode()) {
+            if (Nucleus.getNucleus().isDebugMode()) {
                 throwable.printStackTrace();
             }
 

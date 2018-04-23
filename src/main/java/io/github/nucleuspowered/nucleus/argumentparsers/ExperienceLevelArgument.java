@@ -36,7 +36,7 @@ public class ExperienceLevelArgument extends CommandElement {
     @Nullable
     @Override
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
-        Matcher m = argumentPattern.matcher(args.next());
+        Matcher m = this.argumentPattern.matcher(args.next());
         if (m.find(0) && m.group(1) != null || m.group(3) != null ) {
             return Integer.parseInt(m.group(2));
         }

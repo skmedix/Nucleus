@@ -58,14 +58,14 @@ public class GenerateChunksCommand extends AbstractCommand<CommandSource> {
                     .valueFlag(new BoundedIntegerArgument(Text.of(tickFrequency), 1, 100), "f", "-frequency")
                     .buildWith(
                         GenericArguments.optional(
-                            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))))
+                            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, worldKey, args);
-        if (worldHelper.isPregenRunningForWorld(wp.getUniqueId())) {
+        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
+        if (this.worldHelper.isPregenRunningForWorld(wp.getUniqueId())) {
             throw ReturnMessageException.fromKey("command.world.gen.alreadyrunning", wp.getWorldName());
         }
 

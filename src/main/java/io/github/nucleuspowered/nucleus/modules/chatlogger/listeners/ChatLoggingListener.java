@@ -40,8 +40,8 @@ public class ChatLoggingListener extends AbstractLoggerListener {
     }
 
     private void log(String s, CommandSource source) {
-        String message = plugin.getMessageProvider().getMessageWithFormat("chatlog.chat", source.getName(), s);
-        handler.queueEntry(message);
+        String message = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("chatlog.chat", source.getName(), s);
+        this.handler.queueEntry(message);
     }
 
     @Override public boolean shouldEnable() {

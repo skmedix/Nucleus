@@ -62,15 +62,15 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
                 GenericArguments.firstParsing(
                         GenericArguments.seq(
-                                GenericArguments.literal(Text.of(this.withGroupsKey), withGroupsKey),
+                                GenericArguments.literal(Text.of(this.withGroupsKey), this.withGroupsKey),
                                 GenericArguments.optional(
-                                        GenericArguments.literal(Text.of(this.acceptGroupKey), acceptGroupKey))),
+                                        GenericArguments.literal(Text.of(this.acceptGroupKey), this.acceptGroupKey))),
                         GenericArguments.flags()
                                 .flag("r", "-reset")
                                 .flag("i", "-inherit")
                                 .buildWith(GenericArguments.seq(
-                            GenericArguments.onlyOne(GenericArguments.enumValue(Text.of(roleKey), SuggestedLevel.class)),
-                            GenericArguments.onlyOne(new GroupArgument(Text.of(groupKey))))))
+                            GenericArguments.onlyOne(GenericArguments.enumValue(Text.of(this.roleKey), SuggestedLevel.class)),
+                            GenericArguments.onlyOne(new GroupArgument(Text.of(this.groupKey))))))
         };
     }
 
@@ -85,9 +85,9 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
             if (args.hasAny(this.acceptGroupKey)) {
                 setupGroups(src);
             } else {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.permission.groups.info"));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.permission.groups.info"));
                 src.sendMessage(
-                        plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.permission.groups.info2")
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.permission.groups.info2")
                             .toBuilder().onClick(TextActions.runCommand("/nucleus:nucleus setupperms -g -y"))
                             .onHover(TextActions.showText(Text.of("/nucleus:nucleus setupperms -g -y")))
                             .build()
@@ -98,8 +98,8 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
         }
 
         // The GroupArgument should have already checked for this.
-        SuggestedLevel sl = args.<SuggestedLevel>getOne(roleKey).get();
-        Subject group = args.<Subject>getOne(groupKey).get();
+        SuggestedLevel sl = args.<SuggestedLevel>getOne(this.roleKey).get();
+        Subject group = args.<Subject>getOne(this.groupKey).get();
         boolean reset = args.hasAny("r");
         boolean inherit = args.hasAny("i");
 
@@ -149,7 +149,7 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
         });
     }
 
-    private void setupPerms(CommandSource src, Subject group, SuggestedLevel level, boolean reset, boolean inherit) throws Exception {
+    private void setupPerms(CommandSource src, Subject group, SuggestedLevel level, boolean reset, boolean inherit) {
         if (inherit && level.getLowerLevel() != null) {
             setupPerms(src, group, level.getLowerLevel(), reset, inherit);
         }
@@ -161,7 +161,7 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
         MessageProvider messageProvider = Nucleus.getNucleus().getMessageProvider();
 
         // Register all the permissions, but only those that have yet to be assigned.
-        permissionRegistry.getPermissions().entrySet().stream()
+        this.permissionRegistry.getPermissions().entrySet().stream()
                 .filter(x -> x.getValue().level == level)
                 .filter(x -> reset || !definedPermissions.contains(x.getKey()))
                 .forEach(x -> {
@@ -169,7 +169,7 @@ public class SetupPermissionsCommand extends AbstractCommand<CommandSource> {
                     data.setPermission(globalContext, x.getKey(), Tristate.TRUE);
                 });
 
-        src.sendMessage(plugin.getMessageProvider()
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider()
                 .getTextMessageWithFormat("command.nucleus.permission.complete", level.toString().toLowerCase(), group.getIdentifier()));
     }
 

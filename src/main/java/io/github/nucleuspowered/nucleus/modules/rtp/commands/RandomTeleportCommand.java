@@ -88,8 +88,8 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         return new CommandElement[] {
             GenericArguments.optionalWeak(
                 GenericArguments.requiringPermission(
-                    new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY),
-                    permissions.getPermissionWithSuffix("world")
+                    new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY),
+                        this.permissions.getPermissionWithSuffix("world")
                 ))
         };
     }
@@ -101,14 +101,14 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         // Get the current world.
         final WorldProperties wp;
         if (this.rc.getDefaultWorld().isPresent()) {
-            wp = args.<WorldProperties>getOne(worldKey).orElseGet(() -> this.rc.getDefaultWorld().get());
+            wp = args.<WorldProperties>getOne(this.worldKey).orElseGet(() -> this.rc.getDefaultWorld().get());
         } else {
-            wp = this.getWorldFromUserOrArgs(src, worldKey, args);
+            wp = this.getWorldFromUserOrArgs(src, this.worldKey, args);
         }
 
-        if (rc.isPerWorldPermissions()) {
+        if (this.rc.isPerWorldPermissions()) {
             String name = wp.getWorldName();
-            permissions.checkSuffix(src, "worlds." + name.toLowerCase(), () -> ReturnMessageException.fromKey("command.rtp.worldnoperm", name));
+            this.permissions.checkSuffix(src, "worlds." + name.toLowerCase(), () -> ReturnMessageException.fromKey("command.rtp.worldnoperm", name));
         }
 
         World currentWorld = Sponge.getServer().loadWorld(wp.getUniqueId()).orElse(null);
@@ -119,28 +119,29 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         // World border
         WorldBorder wb = currentWorld.getWorldBorder();
 
-        int diameter = Math.min(Math.abs(rc.getRadius(currentWorld.getName()) * 2), (int)wb.getDiameter());
-        int minDiameter = Math.max(Math.abs(rc.getMinRadius(currentWorld.getName()) * 2), 0);
+        int diameter = Math.min(Math.abs(this.rc.getRadius(currentWorld.getName()) * 2), (int)wb.getDiameter());
+        int minDiameter = Math.max(Math.abs(this.rc.getMinRadius(currentWorld.getName()) * 2), 0);
         Vector3d centre = wb.getCenter();
 
         src.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.searching"));
 
         if (self) {
             Sponge.getScheduler().createTaskBuilder().execute(
-                    new RTPTask(plugin, centre, minDiameter, diameter, getCost(src, args), player, currentWorld, rc))
-                    .submit(plugin);
+                    new RTPTask(Nucleus.getNucleus(), centre, minDiameter, diameter, getCost(src, args), player, currentWorld, this.rc))
+                    .submit(Nucleus.getNucleus());
         } else {
             Sponge.getScheduler().createTaskBuilder().execute(
-                    new RTPTask(plugin, centre, minDiameter, diameter, getCost(src, args), player, currentWorld, src, rc)).submit(plugin);
+                    new RTPTask(Nucleus.getNucleus(), centre, minDiameter, diameter, getCost(src, args), player, currentWorld, src, this.rc)).submit(
+                    Nucleus.getNucleus());
         }
 
         return CommandResult.success();
     }
 
     @Override public void onReload() {
-        this.rc = this.plugin.getConfigAdapter(RTPModule.ID, RTPConfigAdapter.class)
+        this.rc = Nucleus.getNucleus().getConfigAdapter(RTPModule.ID, RTPConfigAdapter.class)
                 .map(TypedAbstractConfigAdapter::getNodeOrDefault).orElseGet(RTPConfig::new);
-        CoreConfig cc = this.plugin.getInternalServiceManager().getService(CoreConfigAdapter.class)
+        CoreConfig cc = Nucleus.getNucleus().getInternalServiceManager().getService(CoreConfigAdapter.class)
                 .map(TypedAbstractConfigAdapter::getNodeOrDefault).orElseGet(CoreConfig::new);
         this.height = cc.getSafeTeleportConfig().getHeight();
     }
@@ -179,7 +180,7 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         private RTPTask(Nucleus plugin, Vector3d centre, int minDiameter, int diameter, double cost, Player target,
             World currentWorld, RTPConfig config) {
             this(plugin, centre, minDiameter, diameter, cost, target, currentWorld, target, config);
-            isSelf = true;
+            this.isSelf = true;
         }
 
         private RTPTask(Nucleus plugin, Vector3d centre, int minDiameter, int diameter, double cost, Player target, World currentWorld,
@@ -209,13 +210,14 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
 
         @Override
         public void accept(Task task) {
-            count--;
-            if (!target.isOnline()) {
+            this.count--;
+            if (!this.target.isOnline()) {
                 onCancel();
                 return;
             }
 
-            plugin.getLogger().debug(String.format("RTP of %s, attempt %s of %s", target.getName(), maxCount - count, maxCount));
+            Nucleus.getNucleus()
+                    .getLogger().debug(String.format("RTP of %s, attempt %s of %s", this.target.getName(), this.maxCount - this.count, this.maxCount));
 
             // Generate random co-ords.
             int x;
@@ -228,8 +230,8 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
                     return;
                 }
 
-                x = RandomTeleportCommand.this.random.nextInt(diameter - minDiameter) - diameter / 2;
-                z = RandomTeleportCommand.this.random.nextInt(diameter - minDiameter) - diameter / 2;
+                x = RandomTeleportCommand.this.random.nextInt(this.diameter - this.minDiameter) - this.diameter / 2;
+                z = RandomTeleportCommand.this.random.nextInt(this.diameter - this.minDiameter) - this.diameter / 2;
                 if (this.minDiameter > 0) {
                     x += (x / Math.abs(x)) * this.minDiameter;
                     z += (z / Math.abs(z)) * this.minDiameter;
@@ -250,7 +252,7 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
                 }
 
                 // If this is a prohibited type, loop again.
-            } while (prohibitedBiomeTypes.contains(this.currentWorld.getBiome(x, 0, z).getId()));
+            } while (RandomTeleportCommand.this.prohibitedBiomeTypes.contains(this.currentWorld.getBiome(x, 0, z).getId()));
 
             int y;
             if (this.onSurface && this.currentWorld.getDimension().hasSky()) {
@@ -262,11 +264,11 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
             } else {
                 // We remove 11 to avoid getting a location too high up for the safe location teleporter to handle.
                 y = Math.min(this.currentWorld.getBlockMax().getY() - RandomTeleportCommand.this.height - 1,
-                        random.nextInt(maxY - minY + 1) + minY);
+                        RandomTeleportCommand.this.random.nextInt(this.maxY - this.minY + 1) + this.minY);
             }
 
             // To get within the world border, add the centre on.
-            final Location<World> test = new Location<>(this.currentWorld, new Vector3d(x + centre.getX(), y, z + centre.getZ()));
+            final Location<World> test = new Location<>(this.currentWorld, new Vector3d(x + this.centre.getX(), y, z + this.centre.getZ()));
             Optional<Location<World>> oSafeLocation =
                     Nucleus.getNucleus().getTeleportHandler().getSafeLocation(this.target, test, this.mode);
 
@@ -274,8 +276,8 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
             // We also check to see that it's not in water or lava, and if enabled, we see if the subject would end up on the surface.
             try {
                 if (oSafeLocation.isPresent()
-                    && oSafeLocation.get().getPosition().getY() >= minY
-                    && oSafeLocation.get().getPosition().getY() <= maxY
+                    && oSafeLocation.get().getPosition().getY() >= this.minY
+                    && oSafeLocation.get().getPosition().getY() <= this.maxY
                     && !isProhibitedBlockType(oSafeLocation.get().sub(Vector3d.UNIT_Y))
                     && !isProhibitedBlockType(oSafeLocation.get().sub(Vector3d.UNIT_Y).sub(Vector3d.UNIT_Y))
                     && Util.isLocationInWorldBorder(oSafeLocation.get())) {
@@ -291,27 +293,28 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
 
                     Location<World> tpTarget = oSafeLocation.get();
 
-                    plugin.getLogger().debug(String.format("RTP of %s, found location %s, %s, %s", target.getName(),
+                    Nucleus.getNucleus().getLogger().debug(String.format("RTP of %s, found location %s, %s, %s", this.target.getName(),
                             String.valueOf(tpTarget.getBlockX()),
                             String.valueOf(tpTarget.getBlockY()),
                             String.valueOf(tpTarget.getBlockZ())));
                     if (NucleusTeleportHandler.setLocation(this.target, tpTarget)) {
-                        if (!isSelf) {
-                            target.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.other"));
-                            source.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.successother",
-                                target.getName(),
+                        if (!this.isSelf) {
+                            this.target.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.other"));
+                            this.source.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp"
+                                            + ".successother",
+                                    this.target.getName(),
                                 String.valueOf(tpTarget.getBlockX()),
                                 String.valueOf(tpTarget.getBlockY()),
                                 String.valueOf(tpTarget.getBlockZ())));
                         }
 
-                        target.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.success",
+                        this.target.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.success",
                                 String.valueOf(tpTarget.getBlockX()),
                                 String.valueOf(tpTarget.getBlockY()),
                                 String.valueOf(tpTarget.getBlockZ())));
                         return;
                     } else {
-                        source.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.cancelled"));
+                        this.source.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.cancelled"));
                         onCancel();
                         return;
                     }
@@ -324,14 +327,14 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         }
 
         private void onUnsuccesfulAttempt() {
-            if (count <= 0) {
-                plugin.getLogger().debug(String.format("RTP of %s was unsuccessful", subject.getName()));
-                subject.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.error"));
+            if (this.count <= 0) {
+                Nucleus.getNucleus().getLogger().debug(String.format("RTP of %s was unsuccessful", this.subject.getName()));
+                this.subject.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.rtp.error"));
                 onCancel();
             } else {
                 // We're using a scheduler to allow some ticks to go by between attempts to find a
                 // safe place.
-                Sponge.getScheduler().createTaskBuilder().delayTicks(2).execute(this).submit(plugin);
+                Sponge.getScheduler().createTaskBuilder().delayTicks(2).execute(this).submit(Nucleus.getNucleus());
             }
         }
 
@@ -340,8 +343,8 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         }
 
         private Set<BlockType> getProhibitedTypes() {
-            if (prohibitedTypes == null) {
-                prohibitedTypes = Sets.newHashSet(
+            if (RandomTeleportCommand.this.prohibitedTypes == null) {
+                RandomTeleportCommand.this.prohibitedTypes = Sets.newHashSet(
                     BlockTypes.WATER,
                     BlockTypes.LAVA,
                     BlockTypes.FLOWING_WATER,
@@ -349,7 +352,7 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
                 );
             }
 
-            return prohibitedTypes;
+            return RandomTeleportCommand.this.prohibitedTypes;
         }
 
         private boolean isSolid(Location<World> location) {
@@ -360,8 +363,8 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         @Override
         public void onCancel() {
             super.onCancel();
-            if (isSelf) {
-                RandomTeleportCommand.this.removeCooldown(target.getUniqueId());
+            if (this.isSelf) {
+                RandomTeleportCommand.this.removeCooldown(this.target.getUniqueId());
             }
         }
     }

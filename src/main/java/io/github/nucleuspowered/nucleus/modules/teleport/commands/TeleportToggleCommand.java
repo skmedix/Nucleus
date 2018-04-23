@@ -44,16 +44,17 @@ public class TeleportToggleCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(key))))};
+        return new CommandElement[] {GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(this.key))))};
     }
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         final TeleportUserDataModule iqsu = Nucleus.getNucleus().getUserDataManager().getUnchecked(src).get(TeleportUserDataModule.class);
-        boolean flip = args.<Boolean>getOne(key).orElseGet(() -> !iqsu.isTeleportToggled());
+        boolean flip = args.<Boolean>getOne(this.key).orElseGet(() -> !iqsu.isTeleportToggled());
         iqsu.setTeleportToggled(flip);
         src.sendMessage(Text.builder().append(
-                plugin.getMessageProvider().getTextMessageWithFormat("command.tptoggle.success", plugin.getMessageProvider().getMessageWithFormat(flip ? "standard.enabled" : "standard.disabled")))
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tptoggle.success",
+                        Nucleus.getNucleus().getMessageProvider().getMessageWithFormat(flip ? "standard.enabled" : "standard.disabled")))
                 .build());
         return CommandResult.success();
     }

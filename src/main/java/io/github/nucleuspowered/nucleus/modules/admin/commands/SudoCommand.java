@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -42,8 +43,8 @@ public class SudoCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.onlyOne(GenericArguments.player(Text.of(playerKey))),
-                GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(commandKey)))
+                GenericArguments.onlyOne(GenericArguments.player(Text.of(this.playerKey))),
+                GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.commandKey)))
         };
     }
 
@@ -56,16 +57,16 @@ public class SudoCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player pl = args.<Player>getOne(playerKey).get();
-        String cmd = args.<String>getOne(commandKey).get();
-        if (pl.equals(src) || permissions.testSuffix(pl, "exempt.target", src, false)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sudo.noperms"));
+        Player pl = args.<Player>getOne(this.playerKey).get();
+        String cmd = args.<String>getOne(this.commandKey).get();
+        if (pl.equals(src) || this.permissions.testSuffix(pl, "exempt.target", src, false)) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sudo.noperms"));
             return CommandResult.empty();
         }
 
         if (cmd.startsWith("c:")) {
             if (cmd.equals("c:")) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sudo.chatfail"));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sudo.chatfail"));
                 return CommandResult.empty();
             }
 
@@ -82,7 +83,7 @@ public class SudoCommand extends AbstractCommand<CommandSource> {
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sudo.force", pl.getName(), cmd));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sudo.force", pl.getName(), cmd));
         Sponge.getCommandManager().process(pl, cmd);
         return CommandResult.success();
     }

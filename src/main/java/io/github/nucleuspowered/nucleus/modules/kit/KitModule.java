@@ -24,7 +24,7 @@ public class KitModule extends ConfigurableModule<KitConfigAdapter> {
     }
 
     @Override
-    protected void performPostTasks() throws Exception {
+    protected void performPostTasks() {
         if (!getAdapter().getNodeOrDefault().isSeparatePermissions()) {
             Nucleus.getNucleus().addStartupMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.kit.perm.msg1"));
             Nucleus.getNucleus().addStartupMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.kit.perm.msg2"));

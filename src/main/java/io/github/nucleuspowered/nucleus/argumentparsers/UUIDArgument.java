@@ -55,8 +55,8 @@ public class UUIDArgument<T> extends CommandElement {
             }
 
             UUID uuid = UUID.fromString(a);
-            if (validator != null) {
-                return validator.apply(uuid).orElseThrow(() ->
+            if (this.validator != null) {
+                return this.validator.apply(uuid).orElseThrow(() ->
                     args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.uuid.notvalid.nomatch")));
             }
 

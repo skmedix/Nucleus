@@ -17,10 +17,10 @@ public class DeathMessageConfig {
     private boolean forceForAll = true;
 
     public boolean isEnableDeathMessages() {
-        return enableDeathMessages;
+        return this.enableDeathMessages;
     }
 
     public boolean isForceForAll() {
-        return forceForAll;
+        return this.forceForAll;
     }
 }

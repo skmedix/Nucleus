@@ -14,6 +14,6 @@ public class RulesConfig {
     private String rulesTitle = "&6Server Rules";
 
     public String getRulesTitle() {
-        return rulesTitle;
+        return this.rulesTitle;
     }
 }

@@ -20,7 +20,7 @@ public class WarnUserDataModule extends DataModule<ModularUserService> {
     private List<WarnData> warnings = Lists.newArrayList();
 
     public List<WarnData> getWarnings() {
-        return ImmutableList.copyOf(warnings);
+        return ImmutableList.copyOf(this.warnings);
     }
 
     public void setWarnings(List<WarnData> warnings) {
@@ -28,21 +28,21 @@ public class WarnUserDataModule extends DataModule<ModularUserService> {
     }
 
     public void addWarning(WarnData warning) {
-        if (warnings == null) {
-            warnings = Lists.newArrayList();
+        if (this.warnings == null) {
+            this.warnings = Lists.newArrayList();
         }
 
-        warnings.add(warning);
-        warnings.sort((x, y) -> Boolean.compare(x.isExpired(), y.isExpired()));
+        this.warnings.add(warning);
+        this.warnings.sort((x, y) -> Boolean.compare(x.isExpired(), y.isExpired()));
     }
 
     public boolean removeWarning(Warning warning) {
-        return warnings.removeIf(x -> x.equals(warning));
+        return this.warnings.removeIf(x -> x.equals(warning));
     }
 
     public boolean clearWarnings() {
-        if (!warnings.isEmpty()) {
-            warnings.clear();
+        if (!this.warnings.isEmpty()) {
+            this.warnings.clear();
             return true;
         } else {
             return false;

@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 @SuppressWarnings("ALL")
-public class TeleportTask extends TaskBase {
+public class TeleportTask implements TaskBase {
 
     private final TeleportHandler handler = getServiceUnchecked(TeleportHandler.class);
 

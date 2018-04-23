@@ -34,16 +34,17 @@ public class DeleteOtherHomeCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(new HomeOtherArgument(Text.of(homeKey), plugin))
+                GenericArguments.onlyOne(new HomeOtherArgument(Text.of(this.homeKey), Nucleus.getNucleus()))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Home wl = args.<Home>getOne(homeKey).get();
+        Home wl = args.<Home>getOne(this.homeKey).get();
 
-        CauseStackHelper.createFrameWithCausesWithConsumer(c -> homeHandler.removeHomeInternal(c, wl), src);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.home.delete.other.success", wl.getUser().getName(), wl.getName()));
+        CauseStackHelper.createFrameWithCausesWithConsumer(c -> this.homeHandler.removeHomeInternal(c, wl), src);
+        src.sendMessage(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.home.delete.other.success", wl.getUser().getName(), wl.getName()));
         return CommandResult.success();
     }
 }

@@ -52,17 +52,18 @@ public class NicknameCommand extends AbstractCommand<CommandSource> {
 
         MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
 
-        String colPerm = permissions.getPermissionWithSuffix("colour.");
-        String colPerm2 = permissions.getPermissionWithSuffix("color.");
+        String colPerm = this.permissions.getPermissionWithSuffix("colour.");
+        String colPerm2 = this.permissions.getPermissionWithSuffix("color.");
 
         NameUtil.getColours().forEach((key, value) -> {
-            permissionToDesc.put(colPerm + value.getName(),
+            this.permissionToDesc.put(colPerm + value.getName(),
                     mp.getMessageWithFormat("permission.nick.colourspec", value.getName().toLowerCase(), key.toString()));
-            permissionToDesc.put(colPerm2 + value.getName(), mp.getMessageWithFormat("permission.nick.colorspec", value.getName().toLowerCase(), key.toString()));
+            this.permissionToDesc
+                    .put(colPerm2 + value.getName(), mp.getMessageWithFormat("permission.nick.colorspec", value.getName().toLowerCase(), key.toString()));
         });
 
-        String stylePerm = permissions.getPermissionWithSuffix("style.");
-        NameUtil.getStyleKeys().entrySet().stream().filter(x -> x.getKey() != 'k').forEach((k) -> permissionToDesc.put(stylePerm + k.getValue().toLowerCase(),
+        String stylePerm = this.permissions.getPermissionWithSuffix("style.");
+        NameUtil.getStyleKeys().entrySet().stream().filter(x -> x.getKey() != 'k').forEach((k) -> this.permissionToDesc.put(stylePerm + k.getValue().toLowerCase(),
             mp.getMessageWithFormat("permission.nick.stylespec", k.getValue().toLowerCase(), k.getKey().toString())));
     }
 
@@ -81,7 +82,7 @@ public class NicknameCommand extends AbstractCommand<CommandSource> {
 
     @Override
     protected Map<String, PermissionInformation> permissionsToRegister() {
-        return permissionToDesc.entrySet().stream().collect(Collectors.toMap(
+        return this.permissionToDesc.entrySet().stream().collect(Collectors.toMap(
             Map.Entry::getKey, v -> new PermissionInformation(v.getValue(), SuggestedLevel.ADMIN, true, false)));
     }
 
@@ -89,23 +90,24 @@ public class NicknameCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.optionalWeak(GenericArguments.requiringPermission(
-                        GenericArguments.onlyOne(GenericArguments.user(Text.of(playerKey))), permissions.getPermissionWithSuffix("others"))),
-                GenericArguments.onlyOne(GenericArguments.string(Text.of(nickName)))};
+                        GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey))), this.permissions.getPermissionWithSuffix("others"))),
+                GenericArguments.onlyOne(GenericArguments.string(Text.of(this.nickName)))};
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User pl = this.getUserFromArgs(User.class, src, playerKey, args);
-        Text name = args.<String>getOne(nickName).map(TextSerializers.FORMATTING_CODE::deserialize).get();
+        User pl = this.getUserFromArgs(User.class, src, this.playerKey, args);
+        Text name = args.<String>getOne(this.nickName).map(TextSerializers.FORMATTING_CODE::deserialize).get();
 
         try {
-            nicknameService.setNick(pl, src, name, false);
+            this.nicknameService.setNick(pl, src, name, false);
         } catch (NicknameException e) {
             throw new ReturnMessageException(e.getTextMessage());
         }
 
         if (!src.equals(pl)) {
-            src.sendMessage(Text.builder().append(plugin.getMessageProvider().getTextMessageWithFormat("command.nick.success.other", pl.getName()))
+            src.sendMessage(Text.builder().append(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.success.other", pl.getName()))
                     .append(Text.of(" - ", TextColors.RESET, name)).build());
         }
 

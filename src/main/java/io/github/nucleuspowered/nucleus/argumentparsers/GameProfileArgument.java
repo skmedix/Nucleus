@@ -35,7 +35,7 @@ public class GameProfileArgument extends CommandElement {
     @Override
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
         String name = args.next();
-        if (!p.matcher(name).matches()) {
+        if (!this.p.matcher(name).matches()) {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.gameprofile.format"));
         }
 

@@ -27,19 +27,19 @@ public class GlobalSpawnConfig {
     private String spawnWorld = "world";
 
     public boolean isOnRespawn() {
-        return onRespawn;
+        return this.onRespawn;
     }
 
     public boolean isOnSpawnCommand() {
-        return onSpawnCommand;
+        return this.onSpawnCommand;
     }
 
     public boolean isOnLogin() {
-        return onLogin;
+        return this.onLogin;
     }
 
     public Optional<WorldProperties> getWorld() {
-        Optional<WorldProperties> ow = Sponge.getServer().getWorldProperties(spawnWorld);
+        Optional<WorldProperties> ow = Sponge.getServer().getWorldProperties(this.spawnWorld);
         if (!ow.isPresent()) {
             ow = Sponge.getServer().getWorldProperties(Sponge.getServer().getDefaultWorldName());
         }

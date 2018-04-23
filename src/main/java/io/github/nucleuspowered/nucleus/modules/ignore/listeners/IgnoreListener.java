@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class IgnoreListener extends ListenerBase {
+public class IgnoreListener implements ListenerBase {
 
     private final UserDataManager loader = Nucleus.getNucleus().getUserDataManager();
     private CommandPermissionHandler ignoreHandler = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(IgnoreCommand.class);
@@ -55,11 +55,11 @@ public class IgnoreListener extends ListenerBase {
     public void onMessage(NucleusMessageEvent event, @Root Player player) {
         if (event.getRecipient() instanceof User) {
             try {
-                event.setCancelled(loader.getUnchecked((User) event.getRecipient())
+                event.setCancelled(this.loader.getUnchecked((User) event.getRecipient())
                         .get(IgnoreUserDataModule.class)
                         .getIgnoreList().contains(player.getUniqueId()));
             } catch (Exception e) {
-                if (plugin.isDebugMode()) {
+                if (Nucleus.getNucleus().isDebugMode()) {
                     e.printStackTrace();
                 }
             }
@@ -69,11 +69,11 @@ public class IgnoreListener extends ListenerBase {
     @Listener(order = Order.FIRST)
     public void onMail(NucleusMailEvent event, @Root Player player) {
         try {
-            event.setCancelled(loader.getUnchecked(event.getRecipient())
+            event.setCancelled(this.loader.getUnchecked(event.getRecipient())
                     .get(IgnoreUserDataModule.class)
                     .getIgnoreList().contains(player.getUniqueId()));
         } catch (Exception e) {
-            if (plugin.isDebugMode()) {
+            if (Nucleus.getNucleus().isDebugMode()) {
                 e.printStackTrace();
             }
         }
@@ -87,7 +87,7 @@ public class IgnoreListener extends ListenerBase {
      * @return {@link Optional} if unchanged, otherwise a {@link Collection} of {@link MessageReceiver}s to remove
      */
     private Optional<Collection<MessageReceiver>> checkCancels(Collection<MessageReceiver> collection, Player player) {
-        if (ignoreHandler.testSuffix(player, "exempt.chat")) {
+        if (this.ignoreHandler.testSuffix(player, "exempt.chat")) {
             return Optional.empty();
         }
 
@@ -105,10 +105,10 @@ public class IgnoreListener extends ListenerBase {
                 }
 
                 // Don't remove if they are in the list.
-                return !loader.get((Player) x).map(y ->
+                return !this.loader.get((Player) x).map(y ->
                         y.get(IgnoreUserDataModule.class).getIgnoreList().contains(player.getUniqueId())).orElse(false);
             } catch (Exception e) {
-                if (plugin.isDebugMode()) {
+                if (Nucleus.getNucleus().isDebugMode()) {
                     e.printStackTrace();
                 }
 

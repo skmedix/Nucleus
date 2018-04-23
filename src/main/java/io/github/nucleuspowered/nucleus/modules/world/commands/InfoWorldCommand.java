@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -29,17 +30,17 @@ public class InfoWorldCommand extends AbstractCommand<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ALL)
+            new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL)
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
         final List<Text> listContent = Lists.newArrayList();
-        final boolean canSeeSeeds = permissions.testSuffix(src, "seed");
+        final boolean canSeeSeeds = this.permissions.testSuffix(src, "seed");
         ListWorldCommand.getWorldInfo(listContent, wp, canSeeSeeds);
         Util.getPaginationBuilder(src)
-            .contents(listContent).title(plugin.getMessageProvider().getTextMessageWithFormat("command.world.info.title", wp.getWorldName()))
+            .contents(listContent).title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.info.title", wp.getWorldName()))
             .sendTo(src);
 
         return CommandResult.success();

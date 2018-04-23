@@ -16,12 +16,10 @@ import io.github.nucleuspowered.nucleus.modules.vanish.service.VanishService;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.Getter;
-import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-public class VanishListener extends ListenerBase implements Reloadable {
+public class VanishListener implements Reloadable, ListenerBase {
 
     private VanishConfig vanishConfig = new VanishConfig();
     private VanishService service = getServiceUnchecked(VanishService.class);
@@ -45,7 +43,7 @@ public class VanishListener extends ListenerBase implements Reloadable {
             }
 
             this.service.vanishPlayer(player, true);
-            player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("vanish.login"));
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("vanish.login"));
         }
     }
 
@@ -53,14 +51,14 @@ public class VanishListener extends ListenerBase implements Reloadable {
     public void onQuit(ClientConnectionEvent.Disconnect event, @Getter("getTargetEntity") Player player) {
         if (player.get(Keys.VANISH).orElse(false)) {
             Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(VanishUserDataModule.class).setVanished(true);
-            if (vanishConfig.isSuppressMessagesOnVanish()) {
+            if (this.vanishConfig.isSuppressMessagesOnVanish()) {
                 event.setMessageCancelled(true);
             }
         }
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         this.vanishConfig = getServiceUnchecked(VanishConfigAdapter.class).getNodeOrDefault();
     }
 }

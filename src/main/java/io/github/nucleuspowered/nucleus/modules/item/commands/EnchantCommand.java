@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.item.commands;
 
 import com.google.common.collect.Maps;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.BoundedIntegerArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedCatalogTypeArgument;
@@ -51,39 +52,41 @@ public class EnchantCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new ImprovedCatalogTypeArgument(Text.of(enchantmentKey), EnchantmentType.class),
-            new BoundedIntegerArgument(Text.of(levelKey), 1, Short.MAX_VALUE),
+            new ImprovedCatalogTypeArgument(Text.of(this.enchantmentKey), EnchantmentType.class),
+            new BoundedIntegerArgument(Text.of(this.levelKey), 1, Short.MAX_VALUE),
             GenericArguments.flags()
-                    .permissionFlag(permissions.getPermissionWithSuffix("unsafe"), "u", "-unsafe")
+                    .permissionFlag(this.permissions.getPermissionWithSuffix("unsafe"), "u", "-unsafe")
                     .flag("o", "-overwrite")
                     .buildWith(GenericArguments.none())
         };
     }
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         // Check for item in hand
         if (!src.getItemInHand(HandTypes.MAIN_HAND).isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.enchant.noitem"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.enchant.noitem"));
             return CommandResult.empty();
         }
 
         // Get the arguments
         ItemStack itemInHand = src.getItemInHand(HandTypes.MAIN_HAND).get();
-        EnchantmentType enchantment = args.<EnchantmentType>getOne(enchantmentKey).get();
-        int level = args.<Integer>getOne(levelKey).get();
+        EnchantmentType enchantment = args.<EnchantmentType>getOne(this.enchantmentKey).get();
+        int level = args.<Integer>getOne(this.levelKey).get();
         boolean allowUnsafe = args.hasAny("u");
         boolean allowOverwrite = args.hasAny("o");
 
         // Can we apply the enchantment?
         if (!allowUnsafe) {
             if (!enchantment.canBeAppliedToStack(itemInHand)) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.enchant.nounsafe.enchant", itemInHand.getTranslation().get()));
+                src.sendMessage(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.enchant.nounsafe.enchant", itemInHand.getTranslation().get()));
                 return CommandResult.empty();
             }
 
             if (level > enchantment.getMaximumLevel()) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.enchant.nounsafe.level", itemInHand.getTranslation().get()));
+                src.sendMessage(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.enchant.nounsafe.level", itemInHand.getTranslation().get()));
                 return CommandResult.empty();
             }
         }
@@ -108,7 +111,7 @@ public class EnchantCommand extends AbstractCommand<Player> {
                 sb.append(Util.getTranslatableIfPresent(x.getType()));
             });
 
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.enchant.overwrite", sb.toString()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.enchant.overwrite", sb.toString()));
             return CommandResult.empty();
         }
 
@@ -124,11 +127,13 @@ public class EnchantCommand extends AbstractCommand<Player> {
         if (dtr.isSuccessful()) {
             // If successful, we need to put the item in the player's hand for it to actually take effect.
             src.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.enchant.success", Util.getTranslatableIfPresent(enchantment), String.valueOf(level)));
+            src.sendMessage(Nucleus.getNucleus()
+                    .getMessageProvider().getTextMessageWithFormat("command.enchant.success", Util.getTranslatableIfPresent(enchantment), String.valueOf(level)));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.enchant.error", Util.getTranslatableIfPresent(enchantment), String.valueOf(level)));
+        src.sendMessage(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.enchant.error", Util.getTranslatableIfPresent(enchantment), String.valueOf(level)));
         return CommandResult.empty();
     }
 }

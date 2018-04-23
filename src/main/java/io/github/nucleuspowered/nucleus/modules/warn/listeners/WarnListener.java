@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.warn.listeners;
 
 import com.google.common.collect.Maps;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
@@ -29,7 +30,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class WarnListener extends ListenerBase implements Reloadable {
+public class WarnListener implements Reloadable, ListenerBase {
 
     private final WarnHandler handler = getServiceUnchecked(WarnHandler.class);
     private final String showOnLogin = PermissionRegistry.PERMISSIONS_PREFIX + "warn.showonlogin";
@@ -44,20 +45,21 @@ public class WarnListener extends ListenerBase implements Reloadable {
     public void onPlayerLogin(final ClientConnectionEvent.Join event) {
         Sponge.getScheduler().createTaskBuilder().async().delay(500, TimeUnit.MILLISECONDS).execute(() -> {
             Player player = event.getTargetEntity();
-            List<WarnData> warnings = handler.getWarningsInternal(player, true, false);
+            List<WarnData> warnings = this.handler.getWarningsInternal(player, true, false);
             if (warnings != null && !warnings.isEmpty()) {
                 for (WarnData warning : warnings) {
                     warning.nextLoginToTimestamp();
 
                     if (warning.getEndTimestamp().isPresent() && warning.getEndTimestamp().get().isBefore(Instant.now())) {
-                        handler.removeWarning(player, warning);
+                        this.handler.removeWarning(player, warning);
                     } else {
                         if (this.isShowOnLogin) {
                             if (warning.getEndTimestamp().isPresent()) {
-                                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("warn.playernotify.time", warning.getReason(),
+                                player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warn.playernotify.time", warning.getReason(),
                                         Util.getTimeStringFromSeconds(Instant.now().until(warning.getEndTimestamp().get(), ChronoUnit.SECONDS))));
                             } else {
-                                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("warn.playernotify.standard", warning.getReason()));
+                                player.sendMessage(
+                                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warn.playernotify.standard", warning.getReason()));
                             }
                         }
                     }
@@ -67,25 +69,26 @@ public class WarnListener extends ListenerBase implements Reloadable {
                 if (this.isShowOnLogin) {
                     List<WarnData> lwd = warnings.stream().filter(x -> !x.isExpired()).collect(Collectors.toList());
                     if (!lwd.isEmpty()) {
-                        MutableMessageChannel messageChannel = new PermissionMessageChannel(showOnLogin).asMutable();
-                        messageChannel.send(plugin.getMessageProvider().getTextMessageWithFormat("warn.login.notify", player.getName(), String.valueOf(lwd.size())).toBuilder()
-                                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("warn.login.view", player.getName())))
+                        MutableMessageChannel messageChannel = new PermissionMessageChannel(this.showOnLogin).asMutable();
+                        messageChannel.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warn.login.notify", player.getName(), String.valueOf(lwd.size())).toBuilder()
+                                .onHover(TextActions.showText(
+                                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("warn.login.view", player.getName())))
                                 .onClick(TextActions.runCommand("/checkwarnings " + player.getName()))
                                 .build());
                     }
                 }
             }
-        }).submit(plugin);
+        }).submit(Nucleus.getNucleus());
     }
 
     @Override
     public Map<String, PermissionInformation> getPermissions() {
         Map<String, PermissionInformation> mp = Maps.newHashMap();
-        mp.put(showOnLogin, PermissionInformation.getWithTranslation("permission.warn.showonlogin", SuggestedLevel.MOD));
+        mp.put(this.showOnLogin, PermissionInformation.getWithTranslation("permission.warn.showonlogin", SuggestedLevel.MOD));
         return mp;
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.isShowOnLogin = getServiceUnchecked(WarnConfigAdapter.class).getNodeOrDefault().isShowOnLogin();
     }
 }

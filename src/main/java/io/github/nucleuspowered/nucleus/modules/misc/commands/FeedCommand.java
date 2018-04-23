@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.misc.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -23,7 +24,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class FeedCommand extends AbstractCommand.SimpleTargetOtherPlayer {
 
     @Override
-    protected CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) throws Exception {
+    protected CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) {
         // Get the food data and modify it.
         FoodData foodData = pl.getFoodData();
         Value<Integer> f = foodData.foodLevel().set(foodData.foodLevel().getDefault());
@@ -31,14 +32,14 @@ public class FeedCommand extends AbstractCommand.SimpleTargetOtherPlayer {
         foodData.set(f, d);
 
         if (pl.offer(foodData).isSuccessful()) {
-            pl.sendMessages(plugin.getMessageProvider().getTextMessageWithFormat("command.feed.success.self"));
+            pl.sendMessages(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.feed.success.self"));
             if (!pl.equals(src)) {
-                src.sendMessages(plugin.getMessageProvider().getTextMessageWithFormat("command.feed.success.other", pl.getName()));
+                src.sendMessages(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.feed.success.other", pl.getName()));
             }
 
             return CommandResult.success();
         } else {
-            src.sendMessages(plugin.getMessageProvider().getTextMessageWithFormat("command.feed.error"));
+            src.sendMessages(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.feed.error"));
             return CommandResult.empty();
         }
     }

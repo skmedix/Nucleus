@@ -29,23 +29,23 @@ public class SpawnConfig {
     private boolean redirectBedSpawn = true;
 
     public boolean isSpawnOnLogin() {
-        return spawnOnLogin;
+        return this.spawnOnLogin;
     }
 
     public boolean isSafeTeleport() {
-        return safeTeleport;
+        return this.safeTeleport;
     }
 
     public boolean isForceFirstSpawn() {
-        return forceFirstSpawn;
+        return this.forceFirstSpawn;
     }
 
     public GlobalSpawnConfig getGlobalSpawn() {
-        return globalSpawn;
+        return this.globalSpawn;
     }
 
     public boolean isPerWorldPerms() {
-        return perWorldPerms;
+        return this.perWorldPerms;
     }
 
     public boolean isRedirectBedSpawn() {

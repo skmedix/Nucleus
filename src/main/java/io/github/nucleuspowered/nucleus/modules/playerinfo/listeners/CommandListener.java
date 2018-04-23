@@ -15,7 +15,7 @@ import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 
-public class CommandListener extends ListenerBase implements ListenerBase.Conditional {
+public class CommandListener implements ListenerBase.Conditional {
 
     private boolean messageShown = false;
 
@@ -23,10 +23,10 @@ public class CommandListener extends ListenerBase implements ListenerBase.Condit
     public void onCommandPreProcess(SendCommandEvent event, @Root ConsoleSource source, @Getter("getCommand") String command) {
         if (command.equalsIgnoreCase("list")) {
             event.setCommand("minecraft:list");
-            if (!messageShown) {
-                messageShown = true;
-                Sponge.getScheduler().createSyncExecutor(plugin).submit(() ->
-                    source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("list.listener.multicraftcompat")));
+            if (!this.messageShown) {
+                this.messageShown = true;
+                Sponge.getScheduler().createSyncExecutor(Nucleus.getNucleus()).submit(() ->
+                    source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("list.listener.multicraftcompat")));
             }
         }
     }

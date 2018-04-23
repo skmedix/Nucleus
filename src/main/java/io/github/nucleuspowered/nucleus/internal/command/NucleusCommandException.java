@@ -37,11 +37,11 @@ public class NucleusCommandException extends CommandException {
     }
 
     public List<Tuple<String, CommandException>> getExceptions() {
-        return exceptions;
+        return this.exceptions;
     }
 
     @Nullable @Override public Text getText() {
-        if (exceptions.isEmpty()) {
+        if (this.exceptions.isEmpty()) {
             // Unable to get the error.
             return Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.exception.nomoreinfo");
         }
@@ -49,24 +49,24 @@ public class NucleusCommandException extends CommandException {
         MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
 
         // Is it only command permission exceptions?
-        if (exceptions.stream().allMatch(x -> CommandPermissionException.class.isInstance(x.getSecond()))) {
-            return exceptions.get(0).getSecond().getText();
+        if (this.exceptions.stream().allMatch(x -> CommandPermissionException.class.isInstance(x.getSecond()))) {
+            return this.exceptions.get(0).getSecond().getText();
         }
 
-        if (exceptions.stream().allMatch(x -> {
+        if (this.exceptions.stream().allMatch(x -> {
             CommandException e = x.getSecond();
             return e instanceof NucleusArgumentParseException && ((NucleusArgumentParseException) e).isEnd();
         })) {
-            if (exceptions.size() == 1) {
-                Tuple<String, CommandException> exceptionTuple = exceptions.get(0);
+            if (this.exceptions.size() == 1) {
+                Tuple<String, CommandException> exceptionTuple = this.exceptions.get(0);
                 return Text.of(mp.getTextMessageWithFormat("command.exception.fromcommand", exceptionTuple.getFirst()),
                         Text.NEW_LINE, TextColors.RED, exceptionTuple.getSecond().getText());
             } else {
-                return print(exceptions);
+                return print(this.exceptions);
             }
         }
 
-        List<Tuple<String, CommandException>> lce = exceptions.stream()
+        List<Tuple<String, CommandException>> lce = this.exceptions.stream()
                 .filter(x -> {
                     CommandException e = x.getSecond();
                     return !(e instanceof NucleusArgumentParseException) || !((NucleusArgumentParseException) e).isEnd();
@@ -74,7 +74,7 @@ public class NucleusCommandException extends CommandException {
                 .filter(x -> !CommandPermissionException.class.isInstance(x))
                 .collect(Collectors.toList());
         if (lce.size() == 1) {
-            Tuple<String, CommandException> exceptionTuple = exceptions.get(0);
+            Tuple<String, CommandException> exceptionTuple = this.exceptions.get(0);
             return Text.of(mp.getTextMessageWithFormat("command.exception.fromcommand", exceptionTuple.getFirst()),
                     Text.NEW_LINE, TextColors.RED, exceptionTuple.getSecond().getText());
         }

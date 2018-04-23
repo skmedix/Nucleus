@@ -44,9 +44,9 @@ public class DataProviders {
     public DataProvider<ConfigurationNode> getUserFileDataProviders(UUID uuid, boolean create) {
         // For now, just the Configurate one.
         try {
-            Path p = getFile(userJson, uuid);
+            Path p = getFile(this.userJson, uuid);
             if (create || doesUserFileExist(uuid)) {
-                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, plugin.getLogger());
+                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, this.plugin.getLogger());
             }
         } catch (Exception e) {
             // ignored
@@ -57,7 +57,7 @@ public class DataProviders {
 
     public boolean doesUserFileExist(UUID uuid) {
         try {
-            return Files.exists(getFile(userJson, uuid));
+            return Files.exists(getFile(this.userJson, uuid));
         } catch (Exception e) {
             return false;
         }
@@ -66,9 +66,9 @@ public class DataProviders {
     public DataProvider<ConfigurationNode> getWorldFileDataProvider(UUID uuid, boolean create) {
         // For now, just the Configurate one.
         try {
-            Path p = getFile(worldJson, uuid);
+            Path p = getFile(this.worldJson, uuid);
             if (create || doesWorldFileExist(uuid)) {
-                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, plugin.getLogger());
+                return new SimpleConfigurateDataProvider(path -> getGsonBuilder().setPath(path).build(), p, this.plugin.getLogger());
             }
         } catch (Exception e) {
             // ignored
@@ -79,7 +79,7 @@ public class DataProviders {
 
     public boolean doesWorldFileExist(UUID uuid) {
         try {
-            return Files.exists(getFile(worldJson, uuid));
+            return Files.exists(getFile(this.worldJson, uuid));
         } catch (Exception e) {
             return false;
         }
@@ -88,9 +88,9 @@ public class DataProviders {
     public DataProvider.FileChanging<KitConfigDataNode> getKitsDataProvider() {
         // For now, just the Configurate one.
         try {
-            Supplier<Path> p = () -> plugin.getDataPath().resolve("kits.json");
+            Supplier<Path> p = () -> this.plugin.getDataPath().resolve("kits.json");
             return new FileChangingConfigurateDataProvider<>(
-                    ttmk,
+                    this.ttmk,
                     path -> new LazyConfigurationLoader<>(() -> getGsonBuilder().setPath(path).build()),
                     p);
         } catch (Exception e) {
@@ -100,8 +100,8 @@ public class DataProviders {
 
     public DataProvider.FileChanging<UserCacheVersionNode> getUserCacheDataProvider() {
         try {
-            Supplier<Path> p = () -> plugin.getDataPath().resolve("nucleususercache.json");
-            return new FileChangingConfigurateDataProvider<>(ttucv,
+            Supplier<Path> p = () -> this.plugin.getDataPath().resolve("nucleususercache.json");
+            return new FileChangingConfigurateDataProvider<>(this.ttucv,
                     path -> new LazyConfigurationLoader<>(() -> getGsonBuilder().setPath(path).build()), p);
         } catch (Exception e) {
             return null;
@@ -112,11 +112,11 @@ public class DataProviders {
     public DataProvider.FileChanging<ConfigurationNode> getGeneralDataProvider() {
         // For now, just the Configurate one.
         try {
-            Supplier<Path> p = () -> plugin.getDataPath().resolve("general.json");
+            Supplier<Path> p = () -> this.plugin.getDataPath().resolve("general.json");
             return new FileChangingSimpleConfigurateDataProvider(
                     path -> new LazyConfigurationLoader<>(() -> getGsonBuilder().setPath(path).build()),
                     p,
-                    plugin.getLogger());
+                    this.plugin.getLogger());
         } catch (Exception e) {
             return null;
         }
@@ -125,10 +125,10 @@ public class DataProviders {
     public DataProvider<Map<String, ItemDataNode>> getItemDataProvider() {
         // For now, just the Configurate one.
         try {
-            Path p = plugin.getConfigDirPath().resolve("items.conf");
-            return new ConfigurateDataProvider<>(ttmsi, path -> new LazyConfigurationLoader<>(() -> getHoconBuilder().setPath(path).build()), HashMap::new, p,
+            Path p = this.plugin.getConfigDirPath().resolve("items.conf");
+            return new ConfigurateDataProvider<>(this.ttmsi, path -> new LazyConfigurationLoader<>(() -> getHoconBuilder().setPath(path).build()), HashMap::new, p,
 
-                    plugin.getLogger());
+                    this.plugin.getLogger());
         } catch (Exception e) {
             return null;
         }
@@ -137,8 +137,8 @@ public class DataProviders {
     public DataProvider.FileChanging<Map<String, String>> getNameBanDataProvider() {
         // For now, just the Configurate one.
         try {
-            Supplier<Path> p = () -> plugin.getDataPath().resolve("namebans.json");
-            return new FileChangingConfigurateDataProvider<>(ttss, path -> new LazyConfigurationLoader<>(
+            Supplier<Path> p = () -> this.plugin.getDataPath().resolve("namebans.json");
+            return new FileChangingConfigurateDataProvider<>(this.ttss, path -> new LazyConfigurationLoader<>(
                     () -> getGsonBuilder().setPath(path).build()),
                     HashMap::new,
                     p
@@ -151,7 +151,7 @@ public class DataProviders {
     private Path getFile(String template, UUID uuid) throws Exception {
         String u = uuid.toString();
         String f = u.substring(0, 2);
-        return getFile(plugin.getDataPath().resolve(String.format(template, File.separator, f, u)));
+        return getFile(this.plugin.getDataPath().resolve(String.format(template, File.separator, f, u)));
     }
 
     private Path getFile(Path file) throws Exception {
@@ -189,30 +189,30 @@ public class DataProviders {
         @Override
         public ConfigurationOptions getDefaultOptions() {
             init();
-            return lazyLoad.getDefaultOptions();
+            return this.lazyLoad.getDefaultOptions();
         }
 
         @Override
         public T load(ConfigurationOptions options) throws IOException {
             init();
-            return lazyLoad.load(options);
+            return this.lazyLoad.load(options);
         }
 
         @Override
         public void save(ConfigurationNode node) throws IOException {
             init();
-            lazyLoad.save(node);
+            this.lazyLoad.save(node);
         }
 
         @Override
         public T createEmptyNode(ConfigurationOptions options) {
             init();
-            return lazyLoad.createEmptyNode(options);
+            return this.lazyLoad.createEmptyNode(options);
         }
 
         private void init() {
-            if (lazyLoad == null) {
-                lazyLoad = supplier.get();
+            if (this.lazyLoad == null) {
+                this.lazyLoad = this.supplier.get();
             }
         }
     }

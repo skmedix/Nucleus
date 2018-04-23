@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
-public class FreezePlayerListener extends ListenerBase {
+public class FreezePlayerListener implements ListenerBase {
 
     private final Map<UUID, Instant> lastFreezeNotification = Maps.newHashMap();
 
@@ -42,9 +42,9 @@ public class FreezePlayerListener extends ListenerBase {
     private boolean checkForFrozen(Player player, String message) {
         if (Nucleus.getNucleus().getUserDataManager().getUnchecked(player).get(FreezePlayerUserDataModule.class).isFrozen()) {
             Instant now = Instant.now();
-            if (lastFreezeNotification.getOrDefault(player.getUniqueId(), now).isBefore(now)) {
-                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(message));
-                lastFreezeNotification.put(player.getUniqueId(), now.plus(2, ChronoUnit.SECONDS));
+            if (this.lastFreezeNotification.getOrDefault(player.getUniqueId(), now).isBefore(now)) {
+                player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(message));
+                this.lastFreezeNotification.put(player.getUniqueId(), now.plus(2, ChronoUnit.SECONDS));
             }
 
             return true;

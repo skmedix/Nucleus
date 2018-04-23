@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.misc.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -24,10 +25,10 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class SuicideCommand extends AbstractCommand<Player> {
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         GameMode gm = src.gameMode().getDirect().orElse(src.gameMode().getDefault());
         if (gm != GameModes.SURVIVAL && gm != GameModes.NOT_SET) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.suicide.wronggm"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.suicide.wronggm"));
             return CommandResult.empty();
         }
 

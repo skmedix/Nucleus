@@ -32,26 +32,26 @@ public class ChatTemplateConfig {
     private NucleusTextTemplateImpl suffix = NucleusTextTemplateImpl.Empty.INSTANCE;
 
     public NucleusTextTemplateImpl getPrefix() {
-        return prefix;
+        return this.prefix;
     }
 
     public NucleusTextTemplateImpl getSuffix() {
-        return suffix;
+        return this.suffix;
     }
 
     public String getChatcolour() {
-        return chatcolour;
+        return this.chatcolour;
     }
 
     public String getChatstyle() {
-        return chatstyle;
+        return this.chatstyle;
     }
 
     public String getNamecolour() {
-        return namecolour;
+        return this.namecolour;
     }
 
     public String getNamestyle() {
-        return namestyle;
+        return this.namestyle;
     }
 }

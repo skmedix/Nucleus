@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kick.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -40,8 +41,8 @@ public class KickAllCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.requiringPermission(GenericArguments.flags().flag("w", "f").buildWith(GenericArguments.none()),
-                        permissions.getPermissionWithSuffix("whitelist")),
-                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(reason))))};
+                        this.permissions.getPermissionWithSuffix("whitelist")),
+                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reason))))};
     }
 
     @Override
@@ -52,8 +53,8 @@ public class KickAllCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        String r = args.<String>getOne(reason).orElse(plugin.getMessageProvider().getMessageWithFormat("command.kick.defaultreason"));
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        String r = args.<String>getOne(this.reason).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.kick.defaultreason"));
         Boolean f = args.<Boolean>getOne("w").orElse(false);
 
         if (f) {
@@ -67,10 +68,10 @@ public class KickAllCommand extends AbstractCommand<CommandSource> {
                 .forEach(x -> x.kick(TextSerializers.FORMATTING_CODE.deserialize(r)));
 
         MessageChannel mc = MessageChannel.fixed(Sponge.getServer().getConsole(), src);
-        mc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.kickall.message"));
-        mc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.reason", r));
+        mc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kickall.message"));
+        mc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reason", r));
         if (f) {
-            mc.send(plugin.getMessageProvider().getTextMessageWithFormat("command.kickall.whitelist"));
+            mc.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kickall.whitelist"));
         }
 
         return CommandResult.success();

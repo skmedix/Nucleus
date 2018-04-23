@@ -60,7 +60,7 @@ public class PlayerMetadataService implements NucleusPlayerMetadataService {
         }
 
         @Override public Optional<String> getLastIP() {
-            return Optional.ofNullable(lastIP);
+            return Optional.ofNullable(this.lastIP);
         }
 
         @Override public Optional<Tuple<WorldProperties, Vector3d>> getLastLocation() {

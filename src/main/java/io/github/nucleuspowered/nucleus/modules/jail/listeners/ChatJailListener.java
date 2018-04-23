@@ -16,7 +16,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 
-public class ChatJailListener extends ListenerBase implements ListenerBase.Conditional {
+public class ChatJailListener implements ListenerBase.Conditional {
 
     private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
 
@@ -26,7 +26,7 @@ public class ChatJailListener extends ListenerBase implements ListenerBase.Condi
     }
 
     private void onChat(MessageChannelEvent.Chat event, Player player) {
-        if (handler.checkJail(player, false)) {
+        if (this.handler.checkJail(player, false)) {
             player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.muteonchat"));
             event.setCancelled(true);
         }

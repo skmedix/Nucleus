@@ -24,14 +24,14 @@ public class GeoIpConfig {
     private String countryUrl = "http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.mmdb.gz";
 
     public boolean isAcceptLicence() {
-        return acceptLicence;
+        return this.acceptLicence;
     }
 
     public boolean isAlertOnLogin() {
-        return alertOnLogin;
+        return this.alertOnLogin;
     }
 
     public String getCountryData() {
-        return countryUrl;
+        return this.countryUrl;
     }
 }

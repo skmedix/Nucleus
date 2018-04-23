@@ -24,10 +24,10 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class SetFirstSpawnCommand extends AbstractCommand<Player> {
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         Nucleus.getNucleus().getGeneralService().get(SpawnGeneralDataModule.class).setFirstSpawn(src.getLocation(), src.getRotation());
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.setfirstspawn.success"));
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.setfirstspawn.success2"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.setfirstspawn.success"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.setfirstspawn.success2"));
 
         return CommandResult.success();
     }

@@ -37,14 +37,14 @@ public abstract class DataModule<S extends ModularDataService<S>> {
 
     @SuppressWarnings("unchecked") protected DataModule() {
         synchronized (lock) {
-            data = fieldData.computeIfAbsent((Class<? extends DataModule<?>>) this.getClass(), this::init);
+            this.data = fieldData.computeIfAbsent((Class<? extends DataModule<?>>) this.getClass(), this::init);
         }
     }
 
     @GuardedBy("lockingObject")
     protected void loadFrom(ConfigurationNode node) {
         synchronized (this.lockingObject) {
-            for (FieldData d : data) {
+            for (FieldData d : this.data) {
                 try {
                     Optional<?> value = getValue(d.clazz, d.path, node);
                     if (value.isPresent()) {
@@ -82,7 +82,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
     @GuardedBy("lockingObject")
     protected void saveTo(ConfigurationNode node) {
         synchronized (this.lockingObject) {
-            for (FieldData d : data) {
+            for (FieldData d : this.data) {
                 try {
                     saveFieldData(d.clazz, d.field, d.path, node);
                 } catch (Exception e) {
@@ -135,7 +135,7 @@ public abstract class DataModule<S extends ModularDataService<S>> {
 
         @Nonnull
         protected T getService() {
-            return Preconditions.checkNotNull(modularDataService.get());
+            return Preconditions.checkNotNull(this.modularDataService.get());
         }
 
         public ReferenceService(T modularDataService) {

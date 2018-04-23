@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.mute.listeners;
 
 import com.google.common.collect.Sets;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.mute.config.MuteConfigAdapter;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MuteCommandListener extends ListenerBase implements ListenerBase.Conditional {
+public class MuteCommandListener implements ListenerBase.Conditional {
 
     private final List<String> blockedCommands = new ArrayList<>();
     private final MuteHandler handler = getServiceUnchecked(MuteHandler.class);
@@ -49,11 +50,11 @@ public class MuteCommandListener extends ListenerBase implements ListenerBase.Co
 
         // If the command is in the list, block it.
         if (this.blockedCommands.stream().map(String::toLowerCase).anyMatch(cmd::contains)) {
-            Optional<MuteData> omd = Util.testForEndTimestamp(handler.getPlayerMuteData(player), () -> handler.unmutePlayer(player));
+            Optional<MuteData> omd = Util.testForEndTimestamp(this.handler.getPlayerMuteData(player), () -> this.handler.unmutePlayer(player));
             omd.ifPresent(muteData -> {
                 this.handler.onMute(muteData, player);
                 MessageChannel.TO_CONSOLE.send(Text.builder().append(Text.of(player.getName() + " ("))
-                        .append(plugin.getMessageProvider().getTextMessageWithFormat("standard.muted"))
+                        .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.muted"))
                         .append(Text.of("): ")).append(Text.of("/" + event.getCommand() + " " + event.getArguments())).build());
                 event.setCancelled(true);
             });

@@ -29,25 +29,25 @@ public class FirstSpawnCommand extends AbstractCommand<Player> implements Reload
     private boolean isSafeTeleport = true;
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
 
         Optional<Transform<World>> olwr = Nucleus.getNucleus().getGeneralService().get(SpawnGeneralDataModule.class).getFirstSpawn();
         if (!olwr.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.firstspawn.notset"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.firstspawn.notset"));
             return CommandResult.empty();
         }
 
-        if (plugin.getTeleportHandler().teleportPlayer(src, olwr.get(), this.isSafeTeleport).isSuccess()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.firstspawn.success"));
+        if (Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, olwr.get(), this.isSafeTeleport).isSuccess()) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.firstspawn.success"));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.firstspawn.fail"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.firstspawn.fail"));
         return CommandResult.empty();
     }
 
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.isSafeTeleport = getServiceUnchecked(SpawnConfigAdapter.class).getNodeOrDefault().isSafeTeleport();
     }
 }

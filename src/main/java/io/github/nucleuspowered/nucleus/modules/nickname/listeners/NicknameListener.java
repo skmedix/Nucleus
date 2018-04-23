@@ -16,7 +16,7 @@ import org.spongepowered.api.text.Text;
 
 import java.util.Optional;
 
-public class NicknameListener extends ListenerBase {
+public class NicknameListener implements ListenerBase {
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event, @Root Player player) {

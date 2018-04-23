@@ -26,19 +26,19 @@ public abstract class EndTimestamp implements TimedEntry {
      * @return An {@link Instant}
      */
     public Optional<Instant> getEndTimestamp() {
-        if (endtimestamp == null) {
+        if (this.endtimestamp == null) {
             return Optional.empty();
         }
 
-        return Optional.of(Instant.ofEpochSecond(endtimestamp));
+        return Optional.of(Instant.ofEpochSecond(this.endtimestamp));
     }
 
     public Optional<Duration> getTimeFromNextLogin() {
-        if (timeFromNextLogin == null) {
+        if (this.timeFromNextLogin == null) {
             return Optional.empty();
         }
 
-        return Optional.of(Duration.of(timeFromNextLogin, ChronoUnit.SECONDS));
+        return Optional.of(Duration.of(this.timeFromNextLogin, ChronoUnit.SECONDS));
     }
 
     public void setEndtimestamp(Instant time) {
@@ -52,25 +52,25 @@ public abstract class EndTimestamp implements TimedEntry {
     }
 
     public void nextLoginToTimestamp() {
-        if (timeFromNextLogin != null && endtimestamp == null) {
-            endtimestamp = Instant.now().plus(timeFromNextLogin, ChronoUnit.SECONDS).getEpochSecond();
-            timeFromNextLogin = null;
+        if (this.timeFromNextLogin != null && this.endtimestamp == null) {
+            this.endtimestamp = Instant.now().plus(this.timeFromNextLogin, ChronoUnit.SECONDS).getEpochSecond();
+            this.timeFromNextLogin = null;
         }
     }
 
     @Override public Optional<Duration> getRemainingTime() {
-        if (endtimestamp == null && timeFromNextLogin == null) {
+        if (this.endtimestamp == null && this.timeFromNextLogin == null) {
             return Optional.empty();
         }
 
-        if (endtimestamp != null) {
-            return Optional.of(Duration.between(Instant.now(), Instant.ofEpochSecond(endtimestamp)));
+        if (this.endtimestamp != null) {
+            return Optional.of(Duration.between(Instant.now(), Instant.ofEpochSecond(this.endtimestamp)));
         }
 
-        return Optional.of(Duration.of(timeFromNextLogin, ChronoUnit.SECONDS));
+        return Optional.of(Duration.of(this.timeFromNextLogin, ChronoUnit.SECONDS));
     }
 
     @Override public boolean isCurrentlyTicking() {
-        return endtimestamp != null;
+        return this.endtimestamp != null;
     }
 }

@@ -4,12 +4,12 @@
  */
 package io.github.nucleuspowered.nucleus.modules.nickname;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.service.NucleusNicknameService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
-import org.spongepowered.api.Sponge;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
 @RegisterService(value = NicknameService.class, apiService = NucleusNicknameService.class)
@@ -20,7 +20,7 @@ public class NicknameModule extends ConfigurableModule<NicknameConfigAdapter> {
 
     @Override
     public void performPostTasks() {
-        this.plugin.getInternalServiceManager().getServiceUnchecked(NicknameService.class).register();
+        Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(NicknameService.class).register();
     }
 
     @Override

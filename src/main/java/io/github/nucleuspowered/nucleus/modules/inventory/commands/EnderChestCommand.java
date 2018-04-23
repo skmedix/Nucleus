@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.inventory.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.Since;
@@ -50,19 +51,20 @@ public class EnderChestCommand extends AbstractCommand<Player> {
         return new CommandElement[] {
                 GenericArguments.optional(
                     GenericArguments.requiringPermission(
-                        SelectorWrapperArgument.nicknameSelector(Text.of(player), NicknameArgument.UnderlyingType.PLAYER),
-                        permissions.getPermissionWithSuffix("others")
+                        SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.PLAYER),
+                            this.permissions.getPermissionWithSuffix("others")
                     ))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        Player target = args.<Player>getOne(player).orElse(src);
+        Player target = args.<Player>getOne(this.player).orElse(src);
 
         if (!target.getUniqueId().equals(src.getUniqueId())) {
-            if (permissions.testSuffix(target, "exempt.target")) {
-                throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.enderchest.targetexempt", target.getName()));
+            if (this.permissions.testSuffix(target, "exempt.target")) {
+                throw new ReturnMessageException(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.enderchest.targetexempt", target.getName()));
             }
 
             Container container = src.openInventory(target.getEnderChestInventory())

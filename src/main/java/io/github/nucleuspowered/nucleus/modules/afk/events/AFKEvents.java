@@ -12,8 +12,6 @@ import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
 import org.spongepowered.api.event.impl.AbstractEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -116,7 +114,7 @@ public abstract class AFKEvents extends AbstractEvent implements TargetPlayerEve
         }
 
         @Override public boolean isCancelled() {
-            return cancelled;
+            return this.cancelled;
         }
 
         @Override public void setCancelled(boolean cancel) {

@@ -22,7 +22,7 @@ public class ConfigMessageProvider extends ResourceMessageProvider {
 
     @Override
     public Optional<String> getMessageFromKey(String key) {
-        Optional<String> s = mc.getKey(key);
+        Optional<String> s = this.mc.getKey(key);
         if (s.isPresent()) {
             return s;
         }
@@ -31,10 +31,10 @@ public class ConfigMessageProvider extends ResourceMessageProvider {
     }
 
     public List<String> checkForMigration() {
-        return mc.walkThroughForMismatched();
+        return this.mc.walkThroughForMismatched();
     }
 
     public void reset(List<String> keys) throws IOException {
-        mc.fixMistmatched(keys);
+        this.mc.fixMistmatched(keys);
     }
 }

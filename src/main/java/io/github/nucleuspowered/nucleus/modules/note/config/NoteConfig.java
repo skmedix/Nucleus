@@ -14,6 +14,6 @@ public class NoteConfig {
     private boolean showOnLogin = true;
 
     public boolean isShowOnLogin() {
-        return showOnLogin;
+        return this.showOnLogin;
     }
 }

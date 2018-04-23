@@ -31,6 +31,7 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.entity.Hotbar;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.item.inventory.type.GridInventory;
 import org.spongepowered.api.text.Text;
@@ -51,7 +52,7 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
 
     private boolean isUseMinecraftCommand = false;
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.isUseMinecraftCommand = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ItemConfigAdapter.class)
                 .getNodeOrDefault().getSkullConfig().isUseMinecraftCommand();
     }
@@ -59,7 +60,7 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
-        m.put("others", new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.others", this.getAliases()[0]), SuggestedLevel.ADMIN));
+        m.put("others", new PermissionInformation(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.others", this.getAliases()[0]), SuggestedLevel.ADMIN));
         return m;
     }
 
@@ -68,25 +69,25 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
         return new CommandElement[] {
             GenericArguments.optionalWeak(
                 GenericArguments.requiringPermission(
-                    GenericArguments.onlyOne(GenericArguments.user(Text.of(player))), permissions.getPermissionWithSuffix("others"))),
-            GenericArguments.optional(new PositiveIntegerArgument(Text.of(amountKey)))
+                    GenericArguments.onlyOne(GenericArguments.user(Text.of(this.player))), this.permissions.getPermissionWithSuffix("others"))),
+            GenericArguments.optional(new PositiveIntegerArgument(Text.of(this.amountKey)))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player pl, CommandContext args) throws Exception {
-        User user = this.getUserFromArgs(User.class, pl, player, args);
-        int amount = args.<Integer>getOne(amountKey).orElse(1);
+        User user = this.getUserFromArgs(User.class, pl, this.player, args);
+        int amount = args.<Integer>getOne(this.amountKey).orElse(1);
 
         if (this.isUseMinecraftCommand) {
             CommandResult result = Sponge.getCommandManager().process(Sponge.getServer().getConsole(),
                 String.format("minecraft:give %s skull %d 3 {SkullOwner:%s}", pl.getName(), amount, user.getName()));
             if (result.getSuccessCount().orElse(0) > 0) {
-                pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.success.plural", String.valueOf(amount), user.getName()));
+                pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.success.plural", String.valueOf(amount), user.getName()));
                 return result;
             }
 
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.error", user.getName()));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.error", user.getName()));
         }
 
         int fullStacks = amount / 64;
@@ -120,7 +121,10 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
             int accepted = 0;
             int failed = 0;
 
-            Inventory inventoryToOfferTo = pl.getInventory().query(Hotbar.class, GridInventory.class);
+            Inventory inventoryToOfferTo = pl.getInventory()
+                    .query(
+                            QueryOperationTypes.INVENTORY_TYPE.of(Hotbar.class),
+                            QueryOperationTypes.INVENTORY_TYPE.of(GridInventory.class));
             for (ItemStack itemStack : itemStackList) {
                 int stackSize = itemStack.getQuantity();
                 InventoryTransactionResult itr = inventoryToOfferTo.offer(itemStack);
@@ -132,22 +136,23 @@ public class SkullCommand extends AbstractCommand<Player> implements Reloadable 
             // What was accepted?
             if (accepted > 0) {
                 if (failed > 0) {
-                    pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.semifull", String.valueOf(failed)));
+                    pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.semifull", String.valueOf(failed)));
                 }
 
                 if (accepted == 1) {
-                    pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.success.single", user.getName()));
+                    pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.success.single", user.getName()));
                 } else {
-                    pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.success.plural", String.valueOf(accepted), user.getName()));
+                    pl.sendMessage(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.success.plural", String.valueOf(accepted), user.getName()));
                 }
 
                 return CommandResult.success();
             }
 
-            pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.full", user.getName()));
+            pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.full", user.getName()));
             return CommandResult.empty();
         } else {
-            pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.skull.error", user.getName()));
+            pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.skull.error", user.getName()));
             return CommandResult.empty();
         }
     }

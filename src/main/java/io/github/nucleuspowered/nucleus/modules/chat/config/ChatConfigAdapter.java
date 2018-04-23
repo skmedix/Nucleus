@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.chat.config;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 import java.util.List;
 

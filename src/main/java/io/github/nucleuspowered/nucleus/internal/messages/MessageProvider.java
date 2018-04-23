@@ -82,6 +82,6 @@ public abstract class MessageProvider {
             count++;
         }
 
-        return TextTemplate.of((Object[])objects.toArray(new Object[objects.size()]));
+        return TextTemplate.of((Object[])objects.toArray(new Object[0]));
     }
 }

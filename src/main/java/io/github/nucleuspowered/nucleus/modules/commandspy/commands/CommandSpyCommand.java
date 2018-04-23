@@ -38,17 +38,17 @@ public class CommandSpyCommand extends AbstractCommand<Player> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.bool(Text.of(truefalse)))
+            GenericArguments.optional(GenericArguments.bool(Text.of(this.truefalse)))
         };
     }
 
-    @Override public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    @Override public CommandResult executeCommand(Player src, CommandContext args) {
         ModularUserService service = Nucleus.getNucleus().getUserDataManager().getUnchecked(src);
         CommandSpyUserDataModule c = service.get(CommandSpyUserDataModule.class);
-        boolean to = args.<Boolean>getOne(truefalse).orElseGet(() -> !c.isCommandSpy());
+        boolean to = args.<Boolean>getOne(this.truefalse).orElseGet(() -> !c.isCommandSpy());
         c.setCommandSpy(to);
 
-        MessageProvider mp = plugin.getMessageProvider();
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
         src.sendMessage(mp.getTextMessageWithFormat("command.commandspy.success", mp.getMessageWithFormat(to ? "standard.enabled" : "standard.disabled")));
         return CommandResult.success();
     }

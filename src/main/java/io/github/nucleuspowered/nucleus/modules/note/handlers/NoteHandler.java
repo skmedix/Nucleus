@@ -25,10 +25,10 @@ import java.util.Optional;
 public class NoteHandler implements NucleusNoteService {
 
     private final Nucleus nucleus = Nucleus.getNucleus();
-    private final UserDataManager userDataManager = nucleus.getUserDataManager();
+    private final UserDataManager userDataManager = this.nucleus.getUserDataManager();
 
     public List<NoteData> getNotesInternal(User user) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         return userService.map(modularUserService -> modularUserService.get(NoteUserDataModule.class).getNotes()).orElseGet(Lists::newArrayList);
     }
 
@@ -44,7 +44,7 @@ public class NoteHandler implements NucleusNoteService {
         Preconditions.checkNotNull(user);
         Preconditions.checkNotNull(note);
 
-        Optional<ModularUserService> optUserService = userDataManager.get(user);
+        Optional<ModularUserService> optUserService = this.userDataManager.get(user);
         if (!optUserService.isPresent()) {
             return false;
         }
@@ -55,7 +55,7 @@ public class NoteHandler implements NucleusNoteService {
 
     @Override
     public boolean removeNote(User user, Note note) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         if (userService.isPresent()) {
             userService.get().get(NoteUserDataModule.class).removeNote(note);
             return true;
@@ -66,7 +66,7 @@ public class NoteHandler implements NucleusNoteService {
 
     @Override
     public boolean clearNotes(User user) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         if (userService.isPresent()) {
             userService.get().get(NoteUserDataModule.class).clearNotes();
             return true;

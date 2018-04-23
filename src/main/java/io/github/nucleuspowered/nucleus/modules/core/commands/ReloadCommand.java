@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -22,12 +23,12 @@ public class ReloadCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        if (plugin.reload()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.reload.one"));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.reload.two"));
+        if (Nucleus.getNucleus().reload()) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reload.one"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reload.two"));
             return CommandResult.success();
         }
 
-        throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.reload.errorone"));
+        throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reload.errorone"));
     }
 }

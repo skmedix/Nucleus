@@ -25,306 +25,306 @@ public class LoggerWrapper implements Logger {
 
     @Override
     public String getName() {
-        return wrappedLogger.getName();
+        return this.wrappedLogger.getName();
     }
 
     @Override
     public boolean isTraceEnabled() {
-        return wrappedLogger.isTraceEnabled();
+        return this.wrappedLogger.isTraceEnabled();
     }
 
     @Override
     public void trace(String msg) {
-        wrappedLogger.trace(msg);
+        this.wrappedLogger.trace(msg);
     }
 
     @Override
     public void trace(String format, Object arg) {
-        wrappedLogger.trace(format, arg);
+        this.wrappedLogger.trace(format, arg);
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
-        wrappedLogger.trace(format, arg1, arg2);
+        this.wrappedLogger.trace(format, arg1, arg2);
     }
 
     @Override
     public void trace(String format, Object... arguments) {
-        wrappedLogger.trace(format, arguments);
+        this.wrappedLogger.trace(format, arguments);
     }
 
     @Override
     public void trace(String msg, Throwable t) {
-        wrappedLogger.trace(msg, t);
+        this.wrappedLogger.trace(msg, t);
     }
 
     @Override
     public boolean isTraceEnabled(Marker marker) {
-        return wrappedLogger.isTraceEnabled(marker);
+        return this.wrappedLogger.isTraceEnabled(marker);
     }
 
     @Override
     public void trace(Marker marker, String msg) {
-        wrappedLogger.trace(marker, msg);
+        this.wrappedLogger.trace(marker, msg);
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg) {
-        wrappedLogger.trace(marker, format, arg);
+        this.wrappedLogger.trace(marker, format, arg);
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg1, Object arg2) {
-        wrappedLogger.trace(marker, format, arg1, arg2);
+        this.wrappedLogger.trace(marker, format, arg1, arg2);
     }
 
     @Override
     public void trace(Marker marker, String format, Object... argArray) {
-        wrappedLogger.trace(marker, format, argArray);
+        this.wrappedLogger.trace(marker, format, argArray);
     }
 
     @Override
     public void trace(Marker marker, String msg, Throwable t) {
-        wrappedLogger.trace(marker, msg, t);
+        this.wrappedLogger.trace(marker, msg, t);
     }
 
     @Override
     public boolean isDebugEnabled() {
-        return wrappedLogger.isDebugEnabled();
+        return this.wrappedLogger.isDebugEnabled();
     }
 
     @Override
     public void debug(String msg) {
-        wrappedLogger.debug(msg);
+        this.wrappedLogger.debug(msg);
     }
 
     @Override
     public void debug(String format, Object arg) {
-        wrappedLogger.debug(format, arg);
+        this.wrappedLogger.debug(format, arg);
     }
 
     @Override
     public void debug(String format, Object arg1, Object arg2) {
-        wrappedLogger.debug(format, arg1, arg2);
+        this.wrappedLogger.debug(format, arg1, arg2);
     }
 
     @Override
     public void debug(String format, Object... arguments) {
-        wrappedLogger.debug(format, arguments);
+        this.wrappedLogger.debug(format, arguments);
     }
 
     @Override
     public void debug(String msg, Throwable t) {
-        wrappedLogger.debug(msg, t);
+        this.wrappedLogger.debug(msg, t);
     }
 
     @Override
     public boolean isDebugEnabled(Marker marker) {
-        return wrappedLogger.isDebugEnabled(marker);
+        return this.wrappedLogger.isDebugEnabled(marker);
     }
 
     @Override
     public void debug(Marker marker, String msg) {
-        wrappedLogger.debug(marker, msg);
+        this.wrappedLogger.debug(marker, msg);
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg) {
-        wrappedLogger.debug(marker, format, arg);
+        this.wrappedLogger.debug(marker, format, arg);
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg1, Object arg2) {
-        wrappedLogger.debug(marker, format, arg1, arg2);
+        this.wrappedLogger.debug(marker, format, arg1, arg2);
     }
 
     @Override
     public void debug(Marker marker, String format, Object... arguments) {
-        wrappedLogger.debug(marker, format, arguments);
+        this.wrappedLogger.debug(marker, format, arguments);
     }
 
     @Override
     public void debug(Marker marker, String msg, Throwable t) {
-        wrappedLogger.debug(marker, msg, t);
+        this.wrappedLogger.debug(marker, msg, t);
     }
 
     @Override
     public boolean isInfoEnabled() {
-        return wrappedLogger.isInfoEnabled();
+        return this.wrappedLogger.isInfoEnabled();
     }
 
     @Override
     public void info(String msg) {
-        wrappedLogger.info(msg);
+        this.wrappedLogger.info(msg);
     }
 
     @Override
     public void info(String format, Object arg) {
-        wrappedLogger.info(format, arg);
+        this.wrappedLogger.info(format, arg);
     }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
-        wrappedLogger.info(format, arg1, arg2);
+        this.wrappedLogger.info(format, arg1, arg2);
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        wrappedLogger.info(format, arguments);
+        this.wrappedLogger.info(format, arguments);
     }
 
     @Override
     public void info(String msg, Throwable t) {
-        wrappedLogger.info(msg, t);
+        this.wrappedLogger.info(msg, t);
     }
 
     @Override
     public boolean isInfoEnabled(Marker marker) {
-        return wrappedLogger.isInfoEnabled();
+        return this.wrappedLogger.isInfoEnabled();
     }
 
     @Override
     public void info(Marker marker, String msg) {
-        wrappedLogger.info(marker, msg);
+        this.wrappedLogger.info(marker, msg);
     }
 
     @Override
     public void info(Marker marker, String format, Object arg) {
-        wrappedLogger.info(marker, format, arg);
+        this.wrappedLogger.info(marker, format, arg);
     }
 
     @Override
     public void info(Marker marker, String format, Object arg1, Object arg2) {
-        wrappedLogger.info(marker, format, arg1, arg2);
+        this.wrappedLogger.info(marker, format, arg1, arg2);
     }
 
     @Override
     public void info(Marker marker, String format, Object... arguments) {
-        wrappedLogger.info(marker, format, arguments);
+        this.wrappedLogger.info(marker, format, arguments);
     }
 
     @Override
     public void info(Marker marker, String msg, Throwable t) {
-        wrappedLogger.info(marker, msg, t);
+        this.wrappedLogger.info(marker, msg, t);
     }
 
     @Override
     public boolean isWarnEnabled() {
-        return wrappedLogger.isWarnEnabled();
+        return this.wrappedLogger.isWarnEnabled();
     }
 
     @Override
     public void warn(String msg) {
-        wrappedLogger.warn(msg);
+        this.wrappedLogger.warn(msg);
     }
 
     @Override
     public void warn(String format, Object arg) {
-        wrappedLogger.warn(format, arg);
+        this.wrappedLogger.warn(format, arg);
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        wrappedLogger.warn(format, arguments);
+        this.wrappedLogger.warn(format, arguments);
     }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
-        wrappedLogger.warn(format, arg1, arg2);
+        this.wrappedLogger.warn(format, arg1, arg2);
     }
 
     @Override
     public void warn(String msg, Throwable t) {
-        wrappedLogger.warn(msg, t);
+        this.wrappedLogger.warn(msg, t);
     }
 
     @Override
     public boolean isWarnEnabled(Marker marker) {
-        return wrappedLogger.isWarnEnabled(marker);
+        return this.wrappedLogger.isWarnEnabled(marker);
     }
 
     @Override
     public void warn(Marker marker, String msg) {
-        wrappedLogger.warn(marker, msg);
+        this.wrappedLogger.warn(marker, msg);
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg) {
-        wrappedLogger.warn(marker, format, arg);
+        this.wrappedLogger.warn(marker, format, arg);
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg1, Object arg2) {
-        wrappedLogger.warn(marker, format, arg1, arg2);
+        this.wrappedLogger.warn(marker, format, arg1, arg2);
     }
 
     @Override
     public void warn(Marker marker, String format, Object... arguments) {
-        wrappedLogger.warn(marker, format, arguments);
+        this.wrappedLogger.warn(marker, format, arguments);
     }
 
     @Override
     public void warn(Marker marker, String msg, Throwable t) {
-        wrappedLogger.warn(marker, msg, t);
+        this.wrappedLogger.warn(marker, msg, t);
     }
 
     @Override
     public boolean isErrorEnabled() {
-        return wrappedLogger.isErrorEnabled();
+        return this.wrappedLogger.isErrorEnabled();
     }
 
     @Override
     public void error(String msg) {
-        wrappedLogger.error(msg);
+        this.wrappedLogger.error(msg);
     }
 
     @Override
     public void error(String format, Object arg) {
-        wrappedLogger.error(format, arg);
+        this.wrappedLogger.error(format, arg);
     }
 
     @Override
     public void error(String format, Object arg1, Object arg2) {
-        wrappedLogger.error(format, arg1, arg2);
+        this.wrappedLogger.error(format, arg1, arg2);
     }
 
     @Override
     public void error(String format, Object... arguments) {
-        wrappedLogger.error(format, arguments);
+        this.wrappedLogger.error(format, arguments);
     }
 
     @Override
     public void error(String msg, Throwable t) {
-        wrappedLogger.error(msg, t);
+        this.wrappedLogger.error(msg, t);
     }
 
     @Override
     public boolean isErrorEnabled(Marker marker) {
-        return wrappedLogger.isErrorEnabled(marker);
+        return this.wrappedLogger.isErrorEnabled(marker);
     }
 
     @Override
     public void error(Marker marker, String msg) {
-        wrappedLogger.error(marker, msg);
+        this.wrappedLogger.error(marker, msg);
     }
 
     @Override
     public void error(Marker marker, String format, Object arg) {
-        wrappedLogger.error(marker, format, arg);
+        this.wrappedLogger.error(marker, format, arg);
     }
 
     @Override
     public void error(Marker marker, String format, Object arg1, Object arg2) {
-        wrappedLogger.error(marker, format, arg1, arg2);
+        this.wrappedLogger.error(marker, format, arg1, arg2);
     }
 
     @Override
     public void error(Marker marker, String format, Object... arguments) {
-        wrappedLogger.error(marker, format, arguments);
+        this.wrappedLogger.error(marker, format, arguments);
     }
 
     @Override
     public void error(Marker marker, String msg, Throwable t) {
-        wrappedLogger.error(marker, msg, t);
+        this.wrappedLogger.error(marker, msg, t);
     }
 }

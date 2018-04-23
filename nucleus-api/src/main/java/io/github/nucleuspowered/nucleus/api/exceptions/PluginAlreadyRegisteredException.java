@@ -21,6 +21,6 @@ public class PluginAlreadyRegisteredException extends Exception {
      * @return The {@link PluginContainer}
      */
     public PluginContainer getContainer() {
-        return container;
+        return this.container;
     }
 }

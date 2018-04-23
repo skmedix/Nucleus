@@ -15,7 +15,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
 
-public class DisableDeathMessagesListener extends ListenerBase implements ListenerBase.Conditional {
+public class DisableDeathMessagesListener implements ListenerBase.Conditional {
 
     @Listener(order = Order.BEFORE_POST)
     public void onDeath(DestructEntityEvent.Death event, @Getter("getTargetEntity") Living living) {

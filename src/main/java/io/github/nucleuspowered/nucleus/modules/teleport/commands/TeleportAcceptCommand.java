@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -26,13 +27,13 @@ public class TeleportAcceptCommand extends AbstractCommand<Player> {
     private final TeleportHandler teleportHandler = getServiceUnchecked(TeleportHandler.class);
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        if (teleportHandler.getAndExecute(src.getUniqueId())) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.tpaccept.success"));
+    public CommandResult executeCommand(Player src, CommandContext args) {
+        if (this.teleportHandler.getAndExecute(src.getUniqueId())) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpaccept.success"));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.tpaccept.nothing"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpaccept.nothing"));
         return CommandResult.empty();
     }
 }

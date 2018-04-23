@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 public class WarnHandler implements NucleusWarningService, Reloadable {
 
     private final Nucleus nucleus = Nucleus.getNucleus();
-    private final UserDataManager userDataManager = nucleus.getUserDataManager();
+    private final UserDataManager userDataManager = this.nucleus.getUserDataManager();
     private boolean expireWarnings = false;
 
     public List<WarnData> getWarningsInternal(User user) {
@@ -46,7 +46,7 @@ public class WarnHandler implements NucleusWarningService, Reloadable {
     }
 
     public List<WarnData> getWarningsInternal(User user, boolean includeActive, boolean includeExpired) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         if (userService.isPresent()) {
             List<WarnData> warnings = userService.get().get(WarnUserDataModule.class).getWarnings();
             if (!includeActive) {
@@ -64,7 +64,7 @@ public class WarnHandler implements NucleusWarningService, Reloadable {
         Preconditions.checkNotNull(user);
         Preconditions.checkNotNull(warning);
 
-        Optional<ModularUserService> optUserService = userDataManager.get(user);
+        Optional<ModularUserService> optUserService = this.userDataManager.get(user);
         if (!optUserService.isPresent()) {
             return false;
         }
@@ -87,7 +87,7 @@ public class WarnHandler implements NucleusWarningService, Reloadable {
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         this.expireWarnings = Nucleus.getNucleus().getConfigValue(WarnModule.ID, WarnConfigAdapter.class, WarnConfig::isExpireWarnings).orElse(false);
     }
 
@@ -96,7 +96,7 @@ public class WarnHandler implements NucleusWarningService, Reloadable {
     }
 
     public boolean removeWarning(User user, Warning warning, boolean permanent, Cause of) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         if (userService.isPresent()) {
             userService.get().get(WarnUserDataModule.class).removeWarning(warning);
             if (this.expireWarnings && !warning.isExpired() && !permanent) {
@@ -120,7 +120,7 @@ public class WarnHandler implements NucleusWarningService, Reloadable {
     }
 
     public boolean clearWarnings(User user, boolean clearActive, boolean clearExpired, Cause of) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         if (userService.isPresent()) {
             List<WarnData> warnings = userService.get().get(WarnUserDataModule.class).getWarnings();
 
@@ -149,7 +149,7 @@ public class WarnHandler implements NucleusWarningService, Reloadable {
     }
 
     public boolean updateWarnings(User user) {
-        Optional<ModularUserService> userService = userDataManager.get(user);
+        Optional<ModularUserService> userService = this.userDataManager.get(user);
         if (!userService.isPresent()) {
             return false;
         }

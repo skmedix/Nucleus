@@ -25,10 +25,11 @@ public abstract class CostCancellableTask implements CancellableTask {
 
     @Override
     public void onCancel() {
-        if (!hasRun) {
-            hasRun = true;
-            if (subject instanceof Player && cost > 0) {
-                Sponge.getScheduler().createSyncExecutor(plugin).execute(() -> plugin.getEconHelper().depositInPlayer((Player) subject, cost));
+        if (!this.hasRun) {
+            this.hasRun = true;
+            if (this.subject instanceof Player && this.cost > 0) {
+                Sponge.getScheduler().createSyncExecutor(this.plugin).execute(() -> this.plugin
+                        .getEconHelper().depositInPlayer((Player) this.subject, this.cost));
             }
         }
     }

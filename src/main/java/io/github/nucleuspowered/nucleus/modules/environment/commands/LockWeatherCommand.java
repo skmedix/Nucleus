@@ -39,35 +39,35 @@ public class LockWeatherCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.world(Text.of(worldKey)))),
-                GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.bool(Text.of(toggleKey))))
+                GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.world(Text.of(this.worldKey)))),
+                GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.bool(Text.of(this.toggleKey))))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Optional<WorldProperties> world = getWorldProperties(src, worldKey, args);
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        Optional<WorldProperties> world = getWorldProperties(src, this.worldKey, args);
         if (!world.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.specifyworld"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.specifyworld"));
             return CommandResult.empty();
         }
 
         WorldProperties wp = world.get();
-        Optional<ModularWorldService> ws = loader.getWorld(wp.getUniqueId());
+        Optional<ModularWorldService> ws = this.loader.getWorld(wp.getUniqueId());
         if (!ws.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.noworld", wp.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.noworld", wp.getWorldName()));
             return CommandResult.empty();
         }
 
         EnvironmentWorldDataModule environmentWorldDataModule = ws.get().get(EnvironmentWorldDataModule.class);
-        boolean toggle = args.<Boolean>getOne(toggleKey).orElse(!environmentWorldDataModule.isLockWeather());
+        boolean toggle = args.<Boolean>getOne(this.toggleKey).orElse(!environmentWorldDataModule.isLockWeather());
 
         environmentWorldDataModule.setLockWeather(toggle);
         ws.get().set(environmentWorldDataModule);
         if (toggle) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.lockweather.locked", wp.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.lockweather.locked", wp.getWorldName()));
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.lockweather.unlocked", wp.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.lockweather.unlocked", wp.getWorldName()));
         }
 
         return CommandResult.success();

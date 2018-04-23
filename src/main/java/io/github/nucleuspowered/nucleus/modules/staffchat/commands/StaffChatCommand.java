@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.staffchat.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -41,13 +42,13 @@ public class StaffChatCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(message)))
+            GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(this.message)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Optional<String> toSend = args.getOne(message);
+        Optional<String> toSend = args.getOne(this.message);
         if (toSend.isPresent()) {
             try (CauseStackManager.StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                 frame.addContext(EventContexts.SHOULD_FORMAT_CHANNEL, StaffChatMessageChannel.getInstance().formatMessages());
@@ -70,12 +71,12 @@ public class StaffChatCommand extends AbstractCommand<CommandSource> {
         }
 
         if (!(src instanceof Player)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.staffchat.consoletoggle"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.staffchat.consoletoggle"));
         }
 
         Player player = (Player)src;
 
-        StaffChatTransientModule s = plugin.getUserDataManager().get(player).map(y -> y.getTransient(StaffChatTransientModule.class))
+        StaffChatTransientModule s = Nucleus.getNucleus().getUserDataManager().get(player).map(y -> y.getTransient(StaffChatTransientModule.class))
                 .orElseGet(StaffChatTransientModule::new);
 
         boolean result = !(src.getMessageChannel() instanceof StaffChatMessageChannel);
@@ -86,7 +87,7 @@ public class StaffChatCommand extends AbstractCommand<CommandSource> {
             src.setMessageChannel(s.getPreviousMessageChannel().orElse(MessageChannel.TO_ALL));
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.staffchat." + (result ? "on" : "off")));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.staffchat." + (result ? "on" : "off")));
         return CommandResult.success();
     }
 

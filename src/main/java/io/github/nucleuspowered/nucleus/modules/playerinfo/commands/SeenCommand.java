@@ -84,14 +84,14 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.firstParsing(
-                GenericArguments.onlyOne(UUIDArgument.user(Text.of(uuid))),
-                GenericArguments.onlyOne(SelectorWrapperArgument.nicknameSelector(Text.of(playerKey), NicknameArgument.UnderlyingType.USER)))
+                GenericArguments.onlyOne(UUIDArgument.user(Text.of(this.uuid))),
+                GenericArguments.onlyOne(SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.USER)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = args.<User>getOne(uuid).isPresent() ? args.<User>getOne(uuid).get() : args.<User>getOne(playerKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        User user = args.<User>getOne(this.uuid).isPresent() ? args.<User>getOne(this.uuid).get() : args.<User>getOne(this.playerKey).get();
         if (user.isOnline()) {
             // Get the player in case the User is displaying the wrong name.
             user = user.getPlayer().get();
@@ -101,7 +101,7 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
         CoreUserDataModule coreUserDataModule = iqsu.get(CoreUserDataModule.class);
 
         List<Text> messages = new ArrayList<>();
-        final MessageProvider messageProvider = plugin.getMessageProvider();
+        final MessageProvider messageProvider = Nucleus.getNucleus().getMessageProvider();
 
         // Everyone gets the last online time.
         if (user.isOnline()) {
@@ -114,10 +114,11 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
                     messageProvider.getTextMessageWithFormat("command.seen.loggedoff", Util.getTimeToNow(x))));
         }
 
-        messages.add(messageProvider.getTextMessageWithFormat("command.seen.displayname", TextSerializers.FORMATTING_CODE.serialize(plugin.getNameUtil().getName(user))));
+        messages.add(messageProvider.getTextMessageWithFormat("command.seen.displayname", TextSerializers.FORMATTING_CODE.serialize(
+                Nucleus.getNucleus().getNameUtil().getName(user))));
 
-        if (permissions.testSuffix(src, EXTENDED_SUFFIX)) {
-            messages.add(notEmpty);
+        if (this.permissions.testSuffix(src, EXTENDED_SUFFIX)) {
+            messages.add(this.notEmpty);
             messages.add(messageProvider.getTextMessageWithFormat("command.seen.uuid", user.getUniqueId().toString()));
 
             if (user.isOnline()) {
@@ -173,7 +174,7 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
         }
 
         // Add the extra module information.
-        messages.addAll(seenHandler.buildInformation(src, user));
+        messages.addAll(this.seenHandler.buildInformation(src, user));
 
         PaginationService ps = Sponge.getServiceManager().provideUnchecked(PaginationService.class);
         ps.builder().contents(messages).padding(Text.of(TextColors.GREEN, "-"))
@@ -182,13 +183,14 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
     }
 
     private Text getLocationString(String key, Location<World> lw, CommandSource source) {
-        Text text = plugin.getMessageProvider().getTextMessageWithFormat(key,
-            plugin.getMessageProvider().getMessageWithFormat("command.seen.locationtemplate", lw.getExtent().getName(), lw.getBlockPosition().toString()));
+        Text text = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(key,
+                Nucleus.getNucleus()
+                        .getMessageProvider().getMessageWithFormat("command.seen.locationtemplate", lw.getExtent().getName(), lw.getBlockPosition().toString()));
         if (CommandBuilder.isCommandRegistered(TeleportPositionCommand.class)
-            && plugin.getPermissionRegistry().getPermissionsForNucleusCommand(TeleportPositionCommand.class).testBase(source)) {
+            && Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(TeleportPositionCommand.class).testBase(source)) {
 
             return text.toBuilder().onHover(TextActions.showText(
-                plugin.getMessageProvider().getTextMessageWithFormat("command.seen.teleportposition")
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.seen.teleportposition")
             )).onClick(TextActions.executeCallback(cs -> {
                 if (cs instanceof Player) {
                     NucleusTeleportHandler.setLocation((Player) cs, lw);

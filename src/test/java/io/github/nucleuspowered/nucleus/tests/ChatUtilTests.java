@@ -79,7 +79,7 @@ public class ChatUtilTests extends TestBase {
 
         @Test
         public void testRegexIsValid() throws IllegalAccessException, InstantiationException {
-            Matcher m = patternToTest.matcher(message);
+            Matcher m = patternToTest.matcher(this.message);
 
             // Do we match?
             boolean actual = m.find();
@@ -88,12 +88,12 @@ public class ChatUtilTests extends TestBase {
                 r = m.group();
             }
 
-            Assert.assertEquals(r, result, actual);
+            Assert.assertEquals(r, this.result, actual);
 
             // More tests for those that do match
-            if (result) {
-                Assert.assertEquals(url, m.group("url"));
-                Assert.assertEquals(codes, m.group("colour"));
+            if (this.result) {
+                Assert.assertEquals(this.url, m.group("url"));
+                Assert.assertEquals(this.codes, m.group("colour"));
             }
         }
     }

@@ -13,7 +13,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import org.spongepowered.api.command.CommandResult;
@@ -44,23 +43,24 @@ public class KitCommandCommand extends KitFallbackBase<CommandSource> {
         };
     }
 
-    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         // List all commands on a kit.
         Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
         List<String> commands = kit.getCommands();
 
         if (commands.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.nocommands", kit.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.command.nocommands", kit.getName()));
         } else {
             List<Text> cc = Lists.newArrayList();
             for (int i = 0; i < commands.size(); i++) {
-                Text t = plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.entry", String.valueOf(i + 1), commands.get(i));
-                if (src.hasPermission(removePermission)) {
+                Text t = Nucleus.getNucleus()
+                        .getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.entry", String.valueOf(i + 1), commands.get(i));
+                if (src.hasPermission(this.removePermission)) {
                     t = Text.of(
-                            Text.builder().append(removeIcon)
+                            Text.builder().append(this.removeIcon)
                                 .onClick(TextActions.runCommand("/nucleus:kit command remove " + kit.getName() + " " + commands.get(i)))
                                 .onHover(TextActions.showText(
-                                    plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.removehover"))).build()
+                                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.command.removehover"))).build()
                             , " ", t);
                 }
 
@@ -68,7 +68,7 @@ public class KitCommandCommand extends KitFallbackBase<CommandSource> {
             }
 
             Util.getPaginationBuilder(src)
-                .title(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.title", kit.getName()))
+                .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.title", kit.getName()))
                 .contents(cc)
                 .sendTo(src);
         }

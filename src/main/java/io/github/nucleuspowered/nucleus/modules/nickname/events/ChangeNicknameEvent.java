@@ -45,7 +45,7 @@ public class ChangeNicknameEvent extends AbstractEvent implements NucleusChangeN
 
     @Override
     public boolean isCancelled() {
-        return cancel;
+        return this.cancel;
     }
 
     @Override
@@ -55,11 +55,11 @@ public class ChangeNicknameEvent extends AbstractEvent implements NucleusChangeN
 
     @Override
     public Cause getCause() {
-        return cause;
+        return this.cause;
     }
 
     @Override
     public User getTargetUser() {
-        return target;
+        return this.target;
     }
 }

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -45,24 +46,24 @@ public class SocialSpyCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(arg))))
+            GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(this.arg))))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        if (handler.forcedSocialSpyState(src).asBoolean()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.socialspy.forced"));
+        if (this.handler.forcedSocialSpyState(src).asBoolean()) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.socialspy.forced"));
         }
 
-        boolean spy = args.<Boolean>getOne(arg).orElse(!handler.isSocialSpy(src));
-        if (handler.setSocialSpy(src, spy)) {
-            Text message = plugin.getMessageProvider().getTextMessageWithFormat(spy ? "command.socialspy.on" : "command.socialspy.off");
+        boolean spy = args.<Boolean>getOne(this.arg).orElse(!this.handler.isSocialSpy(src));
+        if (this.handler.setSocialSpy(src, spy)) {
+            Text message = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(spy ? "command.socialspy.on" : "command.socialspy.off");
             src.sendMessage(message);
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.socialspy.unable"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.socialspy.unable"));
         return CommandResult.empty();
     }
 }

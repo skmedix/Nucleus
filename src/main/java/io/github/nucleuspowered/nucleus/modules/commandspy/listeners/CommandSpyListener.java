@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CommandSpyListener extends ListenerBase implements Reloadable, ListenerBase.Conditional {
+public class CommandSpyListener implements Reloadable, ListenerBase.Conditional {
 
     private final String basePermission;
     private final String exemptTarget;
@@ -83,7 +83,7 @@ public class CommandSpyListener extends ListenerBase implements Reloadable, List
 
     @Override
     public void onReload() throws Exception {
-        this.config = this.plugin.getModuleContainer().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
+        this.config = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(CommandSpyModule.ID, CommandSpyConfigAdapter.class)
             .getNodeOrDefault();
         this.listIsEmpty = this.config.getCommands().isEmpty();
     }

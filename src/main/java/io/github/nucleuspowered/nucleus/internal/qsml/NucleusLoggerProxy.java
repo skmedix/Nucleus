@@ -17,16 +17,16 @@ public class NucleusLoggerProxy implements LoggerProxy {
 
     @Override
     public void info(String message) {
-        logger.info(message);
+        this.logger.info(message);
     }
 
     @Override
     public void warn(String message) {
-        logger.warn(message);
+        this.logger.warn(message);
     }
 
     @Override
     public void error(String message) {
-        logger.error(message);
+        this.logger.error(message);
     }
 }

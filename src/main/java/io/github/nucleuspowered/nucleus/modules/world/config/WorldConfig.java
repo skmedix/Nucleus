@@ -25,15 +25,15 @@ public class WorldConfig {
     private boolean enforceGamemodeOnWorldChange = false;
 
     public boolean isDisplayWarningGeneration() {
-        return worldGen.displayWarningGeneration;
+        return this.worldGen.displayWarningGeneration;
     }
 
     public boolean isDisplayAfterEachGen() {
-        return worldGen.displayEach;
+        return this.worldGen.displayEach;
     }
 
     public long getNotificationInterval() {
-        return Math.max(1, worldGen.timeToNotify);
+        return Math.max(1, this.worldGen.timeToNotify);
     }
 
     public boolean isEnforceGamemodeOnWorldChange() {
@@ -41,15 +41,15 @@ public class WorldConfig {
     }
 
     public Optional<Long> getWorldBorderDefault() {
-        if (worldBorderDefault < 1) {
+        if (this.worldBorderDefault < 1) {
             return Optional.empty();
         }
 
-        return Optional.of(worldBorderDefault);
+        return Optional.of(this.worldBorderDefault);
     }
 
     public boolean isSeparatePermissions() {
-        return separatePermissions;
+        return this.separatePermissions;
     }
 
     @ConfigSerializable

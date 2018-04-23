@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -71,7 +72,7 @@ public class TeleportAskHereCommand extends AbstractCommand<Player> {
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
         Player target = args.<Player>getOne(PLAYER_KEY).get();
         if (src.equals(target)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.teleport.self"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.teleport.self"));
             return CommandResult.empty();
         }
 
@@ -79,7 +80,7 @@ public class TeleportAskHereCommand extends AbstractCommand<Player> {
         RequestEvent.PlayerToCause event = new RequestEvent.PlayerToCause(CauseStackHelper.createCause(src), target);
         if (Sponge.getEventManager().post(event)) {
             throw new ReturnMessageException(
-                    event.getCancelMessage().orElseGet(() -> plugin.getMessageProvider().getTextMessageWithFormat("command.tpa.eventfailed")));
+                    event.getCancelMessage().orElseGet(() -> Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpa.eventfailed")));
         }
 
         TeleportHandler.TeleportBuilder tb = tpHandler.getBuilder().setFrom(target).setTo(src).setSafe(!args.<Boolean>getOne("f").orElse(false));
@@ -94,11 +95,11 @@ public class TeleportAskHereCommand extends AbstractCommand<Player> {
         }
 
         // The question needs to be asked of the target
-        tpHandler.addAskQuestion(target.getUniqueId(), new TeleportHandler.TeleportPrep(Instant.now().plus(30, ChronoUnit.SECONDS), src, cost, tb));
-        target.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.tpahere.question", src.getName()));
-        target.sendMessage(tpHandler.getAcceptDenyMessage());
+        this.tpHandler.addAskQuestion(target.getUniqueId(), new TeleportHandler.TeleportPrep(Instant.now().plus(30, ChronoUnit.SECONDS), src, cost, tb));
+        target.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpahere.question", src.getName()));
+        target.sendMessage(this.tpHandler.getAcceptDenyMessage());
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.tpask.sent", target.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tpask.sent", target.getName()));
         return CommandResult.success();
     }
 }

@@ -30,7 +30,7 @@ public class HomeOtherArgument extends HomeArgument {
 
     public HomeOtherArgument(@Nullable Text key, Nucleus plugin) {
         super(key, plugin);
-        nickArg = new NicknameArgument<>(key, NicknameArgument.UnderlyingType.USER);
+        this.nickArg = new NicknameArgument<>(key, NicknameArgument.UnderlyingType.USER);
         this.reg = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(HomeOtherCommand.class);
     }
 
@@ -46,8 +46,8 @@ public class HomeOtherArgument extends HomeArgument {
         }
 
         // We know it's an instance of a user.
-        User user = ((List<User>)nickArg.parseInternal(player.toLowerCase(), source, args)).get(0);
-        if (reg.testSuffix(user, HomeOtherCommand.OTHER_EXEMPT_PERM_SUFFIX, source, false)) {
+        User user = ((List<User>) this.nickArg.parseInternal(player.toLowerCase(), source, args)).get(0);
+        if (this.reg.testSuffix(user, HomeOtherCommand.OTHER_EXEMPT_PERM_SUFFIX, source, false)) {
             throw args.createError(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("args.homeother.exempt"));
         }
 
@@ -73,7 +73,7 @@ public class HomeOtherArgument extends HomeArgument {
                 }
             } else {
                 args.setState(saveState);
-                return nickArg.complete(src, args, context);
+                return this.nickArg.complete(src, args, context);
             }
 
         } catch (Exception e) {

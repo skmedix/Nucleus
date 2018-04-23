@@ -33,20 +33,21 @@ public class FreezePlayerCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
                 GenericArguments.optionalWeak(GenericArguments.requiringPermission(
                         GenericArguments.onlyOne(SelectorWrapperArgument.nicknameSelector(
-                                Text.of(player),
+                                Text.of(this.player),
                                 NicknameArgument.UnderlyingType.USER
-                        )), permissions.getPermissionWithSuffix("others"))),
-                GenericArguments.optional(GenericArguments.bool(Text.of(truefalsekey)))
+                        )), this.permissions.getPermissionWithSuffix("others"))),
+                GenericArguments.optional(GenericArguments.bool(Text.of(this.truefalsekey)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User pl = this.getUserFromArgs(User.class, src, player, args);
+        User pl = this.getUserFromArgs(User.class, src, this.player, args);
         FreezePlayerUserDataModule nu = Nucleus.getNucleus().getUserDataManager().getUnchecked(pl).get(FreezePlayerUserDataModule.class);
-        nu.setFrozen(args.<Boolean>getOne(truefalsekey).orElseGet(() -> !nu.isFrozen()));
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(
-            nu.isFrozen() ? "command.freezeplayer.success.frozen" : "command.freezeplayer.success.unfrozen", plugin.getNameUtil().getSerialisedName(pl)));
+        nu.setFrozen(args.<Boolean>getOne(this.truefalsekey).orElseGet(() -> !nu.isFrozen()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(
+            nu.isFrozen() ? "command.freezeplayer.success.frozen" : "command.freezeplayer.success.unfrozen",
+                Nucleus.getNucleus().getNameUtil().getSerialisedName(pl)));
         return CommandResult.success();
     }
 }

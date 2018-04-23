@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpCategoryArgument;
@@ -41,7 +42,7 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
     private static final String displayname = "displayname";
     private static final String description = "displayname";
 
-    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         return CommandResult.empty();
     }
 
@@ -53,19 +54,19 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
 
         private final WarpHandler handler = getServiceUnchecked(WarpHandler.class);
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
             // Get all the categories.
             Util.getPaginationBuilder(src).contents(
-                handler.getWarpsWithCategories().keySet().stream().filter(Objects::nonNull)
+                    this.handler.getWarpsWithCategories().keySet().stream().filter(Objects::nonNull)
                     .sorted(Comparator.comparing(WarpCategory::getId)).map(x -> {
                 List<Text> t = Lists.newArrayList();
-                t.add(plugin.getMessageProvider().getTextMessageWithTextFormat("command.warp.category.listitem.simple",
+                t.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.warp.category.listitem.simple",
                         Text.of(x.getId()), x.getDisplayName()));
                 x.getDescription().ifPresent(y ->
-                        t.add(plugin.getMessageProvider().getTextMessageWithTextFormat("command.warp.category.listitem.description", y)));
+                        t.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.warp.category.listitem.description", y)));
                 return t;
             }).flatMap(Collection::stream).collect(Collectors.toList()))
-            .title(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.category.listitem.title"))
+            .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.category.listitem.title"))
             .padding(Text.of("-", TextColors.GREEN))
             .sendTo(src);
 
@@ -83,16 +84,16 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                    new WarpCategoryArgument(Text.of(key), handler),
+                    new WarpCategoryArgument(Text.of(key), this.handler),
                     GenericArguments.onlyOne(GenericArguments.string(Text.of(displayname)))
             };
         }
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
             WarpCategory category = args.<WarpCategory>getOne(key).get();
             String displayName = args.<String>getOne(displayname).get();
-            handler.setWarpCategoryDisplayName(category.getId(), TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(displayname).get()));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.category.displayname.set", category.getId(),
+            this.handler.setWarpCategoryDisplayName(category.getId(), TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(displayname).get()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.category.displayname.set", category.getId(),
                     displayName));
             return CommandResult.success();
         }
@@ -108,14 +109,14 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                    new WarpCategoryArgument(Text.of(key), handler)
+                    new WarpCategoryArgument(Text.of(key), this.handler)
             };
         }
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
             WarpCategory category = args.<WarpCategory>getOne(key).get();
-            handler.setWarpCategoryDisplayName(category.getId(), null);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.category.displayname.removed", category.getId()));
+            this.handler.setWarpCategoryDisplayName(category.getId(), null);
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.category.displayname.removed", category.getId()));
             return CommandResult.success();
         }
     }
@@ -130,16 +131,16 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                    new WarpCategoryArgument(Text.of(key), handler),
+                    new WarpCategoryArgument(Text.of(key), this.handler),
                     GenericArguments.onlyOne(GenericArguments.string(Text.of(description)))
             };
         }
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
             WarpCategory category = args.<WarpCategory>getOne(key).get();
             String d = args.<String>getOne(description).get();
-            handler.setWarpCategoryDescription(category.getId(), TextSerializers.FORMATTING_CODE.deserialize(d));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.category.description.set", category.getId(), d));
+            this.handler.setWarpCategoryDescription(category.getId(), TextSerializers.FORMATTING_CODE.deserialize(d));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.category.description.set", category.getId(), d));
             return CommandResult.success();
         }
     }
@@ -154,14 +155,14 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                    new WarpCategoryArgument(Text.of(key), handler)
+                    new WarpCategoryArgument(Text.of(key), this.handler)
             };
         }
 
-        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
             WarpCategory category = args.<WarpCategory>getOne(key).get();
-            handler.setWarpCategoryDescription(category.getId(), null);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.category.description.removed", category.getId()));
+            this.handler.setWarpCategoryDescription(category.getId(), null);
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.category.description.removed", category.getId()));
             return CommandResult.success();
         }
     }

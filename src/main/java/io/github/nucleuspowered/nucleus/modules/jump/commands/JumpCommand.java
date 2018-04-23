@@ -76,7 +76,7 @@ public class JumpCommand extends AbstractCommand<Player> implements Reloadable {
         }
 
         if (Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, finalLocation, NucleusTeleportHandler.StandardTeleportMode.SAFE_TELEPORT).isSuccess()) {
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.jump.success"));
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jump.success"));
             return CommandResult.success();
         }
 
@@ -87,7 +87,7 @@ public class JumpCommand extends AbstractCommand<Player> implements Reloadable {
         return bool != null ? bool : false;
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.maxJump = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JumpConfigAdapter.class).getNodeOrDefault().getMaxJump();
     }
 }

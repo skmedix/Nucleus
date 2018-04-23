@@ -20,7 +20,7 @@ public class SpawnWorldDataModule extends DataModule<ModularWorldService> {
     private Vector3d spawnRotation;
 
     public Optional<Vector3d> getSpawnRotation() {
-        return Optional.ofNullable(spawnRotation);
+        return Optional.ofNullable(this.spawnRotation);
     }
 
     public void setSpawnRotation(@Nullable Vector3d spawnRotation) {

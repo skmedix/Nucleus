@@ -35,7 +35,7 @@ public class RequiredArgumentsArgument extends CommandElement {
         this.max = maximumRequired;
     }
 
-    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) {
         return null;
     }
 

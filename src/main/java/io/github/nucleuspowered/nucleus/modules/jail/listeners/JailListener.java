@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-public class JailListener extends ListenerBase implements Reloadable {
+public class JailListener implements Reloadable, ListenerBase {
 
     private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
     private final String notify;
@@ -64,11 +64,11 @@ public class JailListener extends ListenerBase implements Reloadable {
 
         // Jailing the subject if we need to.
         if (userDataModule.jailOnNextLogin() && userDataModule.getJailData().isPresent()) {
-            Optional<NamedLocation> owl = handler.getWarpLocation(user);
+            Optional<NamedLocation> owl = this.handler.getWarpLocation(user);
             if (!owl.isPresent()) {
-                new PermissionMessageChannel(notify)
+                new PermissionMessageChannel(this.notify)
                     .send(Text.of(TextColors.RED, "WARNING: No jail is defined. Jailed players are going free!"));
-                handler.unjailPlayer(user);
+                this.handler.unjailPlayer(user);
                 return;
             }
 
@@ -95,23 +95,23 @@ public class JailListener extends ListenerBase implements Reloadable {
         JailUserDataModule qs = oqs.get().get(JailUserDataModule.class);
 
         // Jailing the subject if we need to.
-        Optional<JailData> data = handler.getPlayerJailDataInternal(user);
+        Optional<JailData> data = this.handler.getPlayerJailDataInternal(user);
         if (qs.jailOnNextLogin() && data.isPresent()) {
             // It exists.
-            NamedLocation owl = handler.getWarpLocation(user).get();
+            NamedLocation owl = this.handler.getWarpLocation(user).get();
             JailData jd = data.get();
             Optional<Duration> timeLeft = jd.getRemainingTime();
             Text message;
-            message = timeLeft.map(duration -> plugin.getMessageProvider()
-                .getTextMessageWithFormat("command.jail.jailed", owl.getName(), plugin.getNameUtil().getNameFromUUID(jd.getJailerInternal()),
-                    plugin.getMessageProvider().getMessageWithFormat("standard.for"), Util.getTimeStringFromSeconds(duration.getSeconds())))
-                .orElseGet(() -> plugin.getMessageProvider()
-                    .getTextMessageWithFormat("command.jail.jailed", owl.getName(), plugin.getNameUtil().getNameFromUUID(jd.getJailerInternal()), "",
+            message = timeLeft.map(duration -> Nucleus.getNucleus().getMessageProvider()
+                .getTextMessageWithFormat("command.jail.jailed", owl.getName(), Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()),
+                        Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.for"), Util.getTimeStringFromSeconds(duration.getSeconds())))
+                .orElseGet(() -> Nucleus.getNucleus().getMessageProvider()
+                    .getTextMessageWithFormat("command.jail.jailed", owl.getName(), Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()), "",
                         ""));
 
             oqs.get().get(FlyUserDataModule.class).setFlying(false);
             user.sendMessage(message);
-            user.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", jd.getReason()));
+            user.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", jd.getReason()));
         }
 
         qs.setJailOnNextLogin(false);
@@ -123,35 +123,36 @@ public class JailListener extends ListenerBase implements Reloadable {
                 JailData md = omd.get();
                 md.nextLoginToTimestamp();
 
-                omd = Util.testForEndTimestamp(qs.getJailData(), () -> handler.unjailPlayer(user));
+                omd = Util.testForEndTimestamp(qs.getJailData(), () -> this.handler.unjailPlayer(user));
                 if (omd.isPresent()) {
                     md = omd.get();
-                    handler.onJail(md, event.getTargetEntity());
+                    this.handler.onJail(md, event.getTargetEntity());
                 }
             }
-        }).submit(plugin);
+        }).submit(Nucleus.getNucleus());
     }
 
     @Listener
     public void onRequestSent(NucleusTeleportEvent.Request event, @Root Player cause, @Getter("getTargetEntity") Player player) {
-        if (handler.isPlayerJailed(cause)) {
+        if (this.handler.isPlayerJailed(cause)) {
             event.setCancelled(true);
-            event.setCancelMessage(plugin.getMessageProvider().getTextMessageWithFormat("jail.teleportcause.isjailed"));
-        } else if (handler.isPlayerJailed(player)) {
+            event.setCancelMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.teleportcause.isjailed"));
+        } else if (this.handler.isPlayerJailed(player)) {
             event.setCancelled(true);
-            event.setCancelMessage(plugin.getMessageProvider().getTextMessageWithFormat("jail.teleporttarget.isjailed", player.getName()));
+            event.setCancelMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.teleporttarget.isjailed", player.getName()));
         }
     }
 
     @Listener
     public void onAboutToTeleport(NucleusTeleportEvent.AboutToTeleport event, @Root CommandSource cause, @Getter("getTargetEntity") Player player) {
-        if (handler.isPlayerJailed(player)) {
-            if (!cause.hasPermission(teleport)) {
+        if (this.handler.isPlayerJailed(player)) {
+            if (!cause.hasPermission(this.teleport)) {
                 event.setCancelled(true);
-                event.setCancelMessage(plugin.getMessageProvider().getTextMessageWithFormat("jail.abouttoteleporttarget.isjailed", player.getName()));
-            } else if (!player.hasPermission(teleportto)) {
+                event.setCancelMessage(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.abouttoteleporttarget.isjailed", player.getName()));
+            } else if (!player.hasPermission(this.teleportto)) {
                 event.setCancelled(true);
-                event.setCancelMessage(plugin.getMessageProvider().getTextMessageWithFormat("jail.abouttoteleportcause.targetisjailed",
+                event.setCancelMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.abouttoteleportcause.targetisjailed",
                         player.getName()));
             }
         }
@@ -160,40 +161,40 @@ public class JailListener extends ListenerBase implements Reloadable {
     @Listener
     public void onCommand(SendCommandEvent event, @Root Player player) {
         // Only if the command is not in the control list.
-        if (handler.checkJail(player, false) && allowedCommands.stream().noneMatch(x -> event.getCommand().equalsIgnoreCase(x))) {
+        if (this.handler.checkJail(player, false) && this.allowedCommands.stream().noneMatch(x -> event.getCommand().equalsIgnoreCase(x))) {
             event.setCancelled(true);
 
             // This is the easiest way to send the messages.
-            handler.checkJail(player, true);
+            this.handler.checkJail(player, true);
         }
     }
 
     @Listener
     public void onBlockChange(ChangeBlockEvent event, @Root Player player) {
-        event.setCancelled(handler.checkJail(player, true));
+        event.setCancelled(this.handler.checkJail(player, true));
     }
 
     @Listener
     public void onInteract(InteractEvent event, @Root Player player) {
-        event.setCancelled(handler.checkJail(player, true));
+        event.setCancelled(this.handler.checkJail(player, true));
     }
 
     @Listener
     public void onSpawn(RespawnPlayerEvent event) {
-        if (handler.checkJail(event.getTargetEntity(), false)) {
-            event.setToTransform(event.getToTransform().setLocation(handler.getWarpLocation(event.getTargetEntity()).get().getLocation().get()));
+        if (this.handler.checkJail(event.getTargetEntity(), false)) {
+            event.setToTransform(event.getToTransform().setLocation(this.handler.getWarpLocation(event.getTargetEntity()).get().getLocation().get()));
         }
     }
 
     @Listener
     public void onSendToSpawn(NucleusSendToSpawnEvent event, @Getter("getTargetUser") User user) {
-        if (handler.checkJail(user, false)) {
+        if (this.handler.checkJail(user, false)) {
             event.setCancelled(true);
-            event.setCancelReason(plugin.getMessageProvider().getMessageWithFormat("jail.isjailed"));
+            event.setCancelReason(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("jail.isjailed"));
         }
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.allowedCommands = Nucleus.getNucleus().getInternalServiceManager()
                 .getServiceUnchecked(JailConfigAdapter.class).getNodeOrDefault().getAllowedCommands();
     }

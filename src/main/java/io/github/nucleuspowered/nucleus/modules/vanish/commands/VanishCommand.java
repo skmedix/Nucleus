@@ -44,8 +44,8 @@ public class VanishCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.optionalWeak(GenericArguments.requiringPermission(GenericArguments.user(Text.of(player)), permissions.getOthers())),
-                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(b))))
+                GenericArguments.optionalWeak(GenericArguments.requiringPermission(GenericArguments.user(Text.of(this.player)), this.permissions.getOthers())),
+                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(this.b))))
         };
     }
 
@@ -60,21 +60,22 @@ public class VanishCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User ou = getUserFromArgs(User.class, src, player, args);
+        User ou = getUserFromArgs(User.class, src, this.player, args);
         if (ou.getPlayer().isPresent()) {
             return onPlayer(src, args, ou.getPlayer().get());
         }
 
-        if (!permissions.testSuffix(ou, "persist")) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.vanish.noperm", ou.getName()));
+        if (!this.permissions.testSuffix(ou, "persist")) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.vanish.noperm", ou.getName()));
         }
 
         VanishUserDataModule uss = Nucleus.getNucleus().getUserDataManager().getUnchecked(ou).get(VanishUserDataModule.class);
-        uss.setVanished(args.<Boolean>getOne(b).orElse(!uss.isVanished()));
+        uss.setVanished(args.<Boolean>getOne(this.b).orElse(!uss.isVanished()));
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.vanish.successuser",
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.vanish.successuser",
             ou.getName(),
-            uss.isVanished() ? plugin.getMessageProvider().getMessageWithFormat("command.vanish.vanished") : plugin.getMessageProvider().getMessageWithFormat("command.vanish.visible")));
+            uss.isVanished() ? Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.vanish.vanished") :
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.vanish.visible")));
 
         return CommandResult.success();
     }
@@ -85,22 +86,22 @@ public class VanishCommand extends AbstractCommand<CommandSource> {
         }
 
         // If we don't specify whether to vanish, toggle
-        boolean toVanish = args.<Boolean>getOne(b).orElse(!playerToVanish.get(Keys.VANISH).orElse(false));
+        boolean toVanish = args.<Boolean>getOne(this.b).orElse(!playerToVanish.get(Keys.VANISH).orElse(false));
         if (toVanish) {
             getServiceUnchecked(VanishService.class).vanishPlayer(playerToVanish);
         } else {
             getServiceUnchecked(VanishService.class).unvanishPlayer(playerToVanish);
         }
 
-        playerToVanish.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.vanish.success",
-            toVanish ? plugin.getMessageProvider().getMessageWithFormat("command.vanish.vanished") :
-                plugin.getMessageProvider().getMessageWithFormat("command.vanish.visible")));
+        playerToVanish.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.vanish.success",
+            toVanish ? Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.vanish.vanished") :
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.vanish.visible")));
 
         if (!(src instanceof Player) || !(((Player) src).getUniqueId().equals(playerToVanish.getUniqueId()))) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.vanish.successplayer",
-                TextSerializers.FORMATTING_CODE.serialize(plugin.getNameUtil().getName(playerToVanish)),
-                toVanish ? plugin.getMessageProvider().getMessageWithFormat("command.vanish.vanished") :
-                    plugin.getMessageProvider().getMessageWithFormat("command.vanish.visible")));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.vanish.successplayer",
+                TextSerializers.FORMATTING_CODE.serialize(Nucleus.getNucleus().getNameUtil().getName(playerToVanish)),
+                toVanish ? Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.vanish.vanished") :
+                        Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.vanish.visible")));
         }
 
         return CommandResult.success();

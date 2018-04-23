@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedCatalogTypeArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
@@ -35,18 +36,18 @@ public class SetDifficultyWorldCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(new ImprovedCatalogTypeArgument(Text.of(difficulty), CatalogTypes.DIFFICULTY)),
-                GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(world), NucleusWorldPropertiesArgument.Type.ALL)))
+                GenericArguments.onlyOne(new ImprovedCatalogTypeArgument(Text.of(this.difficulty), CatalogTypes.DIFFICULTY)),
+                GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.world), NucleusWorldPropertiesArgument.Type.ALL)))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        Difficulty difficultyInput = args.<Difficulty>getOne(difficulty).get();
+        Difficulty difficultyInput = args.<Difficulty>getOne(this.difficulty).get();
         WorldProperties worldProperties = getWorldFromUserOrArgs(src, this.world, args);
 
         worldProperties.setDifficulty(difficultyInput);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.setdifficulty.success",
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setdifficulty.success",
                 worldProperties.getWorldName(),
                 Util.getTranslatableIfPresent(difficultyInput)));
 

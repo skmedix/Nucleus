@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -32,21 +33,24 @@ public class BlockZapCommand extends AbstractCommand<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(GenericArguments.location(Text.of(locationKey)))
+            GenericArguments.onlyOne(GenericArguments.location(Text.of(this.locationKey)))
         };
     }
 
     @Override public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Location<World> location = args.<Location<World>>getOne(locationKey).get();
+        Location<World> location = args.<Location<World>>getOne(this.locationKey).get();
         if (location.getBlockType() == BlockTypes.AIR) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.blockzap.alreadyair", location.getPosition().toString(), location.getExtent().getName()));
+            throw new ReturnMessageException(Nucleus.getNucleus()
+                    .getMessageProvider().getTextMessageWithFormat("command.blockzap.alreadyair", location.getPosition().toString(), location.getExtent().getName()));
         }
 
         if (CauseStackHelper.createFrameWithCausesWithReturn(c -> location.setBlock(BlockTypes.AIR.getDefaultState(), BlockChangeFlags.ALL), src)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.blockzap.success", location.getPosition().toString(), location.getExtent().getName()));
+            src.sendMessage(Nucleus.getNucleus()
+                    .getMessageProvider().getTextMessageWithFormat("command.blockzap.success", location.getPosition().toString(), location.getExtent().getName()));
             return CommandResult.success();
         }
 
-        throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.blockzap.fail", location.getPosition().toString(), location.getExtent().getName()));
+        throw new ReturnMessageException(Nucleus.getNucleus()
+                .getMessageProvider().getTextMessageWithFormat("command.blockzap.fail", location.getPosition().toString(), location.getExtent().getName()));
     }
 }

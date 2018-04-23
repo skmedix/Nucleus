@@ -66,11 +66,11 @@ public class LocationNode {
     }
 
     public Vector3d getPosition() {
-        return new Vector3d(x, y, z);
+        return new Vector3d(this.x, this.y, this.z);
     }
 
     public UUID getWorld() {
-        return world;
+        return this.world;
     }
 
     public Tuple<WorldProperties, Vector3d> getLocationIfNotLoaded() throws NoSuchWorldException {
@@ -85,16 +85,16 @@ public class LocationNode {
      * @throws NoSuchWorldException The world does not exist.
      */
     public Location<World> getLocation() throws NoSuchWorldException {
-        Optional<World> ow = Sponge.getServer().getWorld(world);
+        Optional<World> ow = Sponge.getServer().getWorld(this.world);
 
         if (ow.isPresent()) {
-            return new Location<>(ow.get(), x, y, z);
+            return new Location<>(ow.get(), this.x, this.y, this.z);
         }
 
         throw new NoSuchWorldException();
     }
 
     public Vector3d getRotation() {
-        return new Vector3d(rotx, roty, rotz);
+        return new Vector3d(this.rotx, this.roty, this.rotz);
     }
 }

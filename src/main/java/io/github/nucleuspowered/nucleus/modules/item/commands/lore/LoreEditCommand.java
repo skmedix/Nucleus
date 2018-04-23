@@ -17,6 +17,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class LoreEditCommand extends LoreModifyBaseCommand {
     @Override
     protected CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        return setLore(src, args.<String>getOne(loreKey).get(), args.<Integer>getOne(loreLine).get(), true);
+        return setLore(src, args.<String>getOne(this.loreKey).get(), args.<Integer>getOne(this.loreLine).get(), true);
     }
 }

@@ -36,8 +36,11 @@ public class BoundedIntegerArgument extends CommandElement {
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
         try {
             int value = Integer.parseInt(args.next());
-            if (value > max || value < min) {
-                throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.boundedinteger.outofbounds", String.valueOf(min), String.valueOf(max)));
+            if (value > this.max || value < this.min) {
+                throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.boundedinteger.outofbounds", String.valueOf(
+
+                        this.min), String.valueOf(
+                        this.max)));
             }
 
             return value;
@@ -53,6 +56,6 @@ public class BoundedIntegerArgument extends CommandElement {
 
     @Override
     public Text getUsage(CommandSource src) {
-        return Text.of(this.getKey(), String.format("(%s to %s)", min, max));
+        return Text.of(this.getKey(), String.format("(%s to %s)", this.min, this.max));
     }
 }

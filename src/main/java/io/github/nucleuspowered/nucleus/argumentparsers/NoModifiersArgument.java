@@ -43,19 +43,19 @@ public class NoModifiersArgument<T> extends WrappedElement {
         this.test = test == null ? (c, o) -> true : test;
 
         if (isNoCooldown) {
-            argsToPut.add(NO_COOLDOWN_ARGUMENT);
+            this.argsToPut.add(NO_COOLDOWN_ARGUMENT);
         }
 
         if (isNoCost) {
-            argsToPut.add(NO_COST_ARGUMENT);
+            this.argsToPut.add(NO_COST_ARGUMENT);
         }
 
         if (isNoWarmup) {
-            argsToPut.add(NO_WARMUP_ARGUMENT);
+            this.argsToPut.add(NO_WARMUP_ARGUMENT);
         }
     }
 
-    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) {
         return null;
     }
 
@@ -63,8 +63,8 @@ public class NoModifiersArgument<T> extends WrappedElement {
         getWrappedElement().parse(source, args, context);
 
         // We'll get here if there are no exceptions thrown.
-        if (getKey() != null && context.hasAny(getKey()) && context.<T>getOne(getKey()).map(x -> test.test(source, x)).orElse(false)) {
-            argsToPut.forEach(x -> context.putArg(x, true));
+        if (getKey() != null && context.hasAny(getKey()) && context.<T>getOne(getKey()).map(x -> this.test.test(source, x)).orElse(false)) {
+            this.argsToPut.forEach(x -> context.putArg(x, true));
         }
     }
 

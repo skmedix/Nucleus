@@ -23,18 +23,18 @@ public class ChatLoggingConfig {
     private boolean logMail = false;
 
     public boolean isEnableLog() {
-        return enableLog;
+        return this.enableLog;
     }
 
     public boolean isLogChat() {
-        return logChat;
+        return this.logChat;
     }
 
     public boolean isLogMessages() {
-        return logMessages;
+        return this.logMessages;
     }
 
     public boolean isLogMail() {
-        return logMail;
+        return this.logMail;
     }
 }

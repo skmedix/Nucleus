@@ -48,7 +48,7 @@ public class AFKCommandInterceptor implements ICommandInterceptor, Reloadable {
                         .filter(Objects::nonNull)
                         .filter(this.handler::isAFK)
                         .forEach(x -> {
-                            Text messageToSend = this.message == null ? null : message.getForCommandSource(x);
+                            Text messageToSend = this.message == null ? null : this.message.getForCommandSource(x);
                             AFKEvents.Notify event = new AFKEvents.Notify(x, messageToSend, cause);
                             Sponge.getEventManager().post(event);
                             event.getMessage().ifPresent(source::sendMessage);
@@ -58,7 +58,7 @@ public class AFKCommandInterceptor implements ICommandInterceptor, Reloadable {
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         AFKConfig config = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKConfigAdapter.class).getNodeOrDefault();
         if (config.isAlertSenderOnAfk()) {
             NucleusTextTemplate textTemplate = config.getMessages().getOnCommand();

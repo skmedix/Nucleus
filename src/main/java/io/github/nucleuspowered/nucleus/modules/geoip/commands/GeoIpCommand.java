@@ -46,17 +46,17 @@ public class GeoIpCommand extends AbstractCommand<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new NicknameArgument<>(Text.of(playerKey), NicknameArgument.UnderlyingType.PLAYER)
+            new NicknameArgument<>(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER)
         };
     }
 
     @Override public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player player = args.<Player>getOne(playerKey).get();
-        Optional<Country> country = databaseHandler.getDetails(player.getConnection().getAddress().getAddress()).get();
+        Player player = args.<Player>getOne(this.playerKey).get();
+        Optional<Country> country = this.databaseHandler.getDetails(player.getConnection().getAddress().getAddress()).get();
         if (country.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("geoip.playerfrom", player.getName(), country.get().getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("geoip.playerfrom", player.getName(), country.get().getName()));
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("geoip.noinfo", player.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("geoip.noinfo", player.getName()));
         }
 
         return CommandResult.success();

@@ -4,7 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.modules.vanish.config;
 
-import io.github.nucleuspowered.neutrino.annotations.RequiresProperty;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -19,10 +18,10 @@ public class VanishConfig {
     private boolean alterTabList = false;
 
     public boolean isSuppressMessagesOnVanish() {
-        return suppressMessagesOnVanish;
+        return this.suppressMessagesOnVanish;
     }
 
     public boolean isAlterTabList() {
-        return alterTabList;
+        return this.alterTabList;
     }
 }

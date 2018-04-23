@@ -20,7 +20,7 @@ public class MuteUserDataModule extends DataModule<ModularUserService> {
     private MuteData muteData;
 
     public Optional<MuteData> getMuteData() {
-        return Optional.ofNullable(muteData);
+        return Optional.ofNullable(this.muteData);
     }
 
     public void setMuteData(@Nullable MuteData mData) {

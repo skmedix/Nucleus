@@ -31,30 +31,31 @@ public final class Tokens implements NucleusMessageTokenService.TokenParser {
     private final Map<String, Translator> translatorMap = Maps.newHashMap();
 
     private Tokens() {
-        translatorMap.put("name", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToName(getFromVariableIfExists(p, v, m))));
-        translatorMap.put("player", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
-        translatorMap.put("playername", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
+        this.translatorMap
+                .put("name", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToName(getFromVariableIfExists(p, v, m))));
+        this.translatorMap.put("player", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
+        this.translatorMap.put("playername", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
 
-        translatorMap.put("prefix", (p, v, m) -> getTextFromOption(getFromVariableIfExists(p, v, m), "prefix"));
-        translatorMap.put("suffix", (p, v, m) -> getTextFromOption(getFromVariableIfExists(p, v, m), "suffix"));
+        this.translatorMap.put("prefix", (p, v, m) -> getTextFromOption(getFromVariableIfExists(p, v, m), "prefix"));
+        this.translatorMap.put("suffix", (p, v, m) -> getTextFromOption(getFromVariableIfExists(p, v, m), "suffix"));
 
-        translatorMap.put("playerdisplayname", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
-        translatorMap.put("displayname", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
+        this.translatorMap.put("playerdisplayname", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
+        this.translatorMap.put("displayname", (p, v, m) -> Optional.of(Nucleus.getNucleus().getTextParsingUtils().addCommandToDisplayName(getFromVariableIfExists(p, v, m))));
 
-        translatorMap.put("maxplayers", (p, v, m) -> Optional.of(Text.of(Sponge.getServer().getMaxPlayers())));
-        translatorMap.put("onlineplayers", (p, v, m) -> Optional.of(Text.of(Sponge.getServer().getOnlinePlayers().size())));
-        translatorMap.put("currentworld", (p, v, m) -> Optional.of(Text.of(getWorld(getFromVariableIfExists(p, v, m)).getName())));
-        translatorMap.put("time", (p, v, m) -> Optional.of(Text.of(String.valueOf(Util
+        this.translatorMap.put("maxplayers", (p, v, m) -> Optional.of(Text.of(Sponge.getServer().getMaxPlayers())));
+        this.translatorMap.put("onlineplayers", (p, v, m) -> Optional.of(Text.of(Sponge.getServer().getOnlinePlayers().size())));
+        this.translatorMap.put("currentworld", (p, v, m) -> Optional.of(Text.of(getWorld(getFromVariableIfExists(p, v, m)).getName())));
+        this.translatorMap.put("time", (p, v, m) -> Optional.of(Text.of(String.valueOf(Util
                 .getTimeFromTicks(getWorld(getFromVariableIfExists(p, v, m)).getProperties().getWorldTime())))));
 
-        translatorMap.put("uniquevisitor", (p, v, m) -> Optional.of(Text.of(Nucleus.getNucleus()
+        this.translatorMap.put("uniquevisitor", (p, v, m) -> Optional.of(Text.of(Nucleus.getNucleus()
                 .getGeneralService().getTransient(UniqueUserCountTransientModule.class).getUniqueUserCount())));
 
-        translatorMap.put("ipaddress", (p, v, m) -> Optional.of(Text.of(p instanceof RemoteSource ?
+        this.translatorMap.put("ipaddress", (p, v, m) -> Optional.of(Text.of(p instanceof RemoteSource ?
             ((RemoteSource)p).getConnection().getAddress().getAddress().toString() :
             "localhost")));
 
-        translatorMap.put("subject", (p, v, m) -> Optional.of(Text.of((p instanceof ConsoleSource ? "-" : p.getName()))));
+        this.translatorMap.put("subject", (p, v, m) -> Optional.of(Text.of((p instanceof ConsoleSource ? "-" : p.getName()))));
     }
 
     @Nonnull @Override public Optional<Text> parse(String tokenInput, CommandSource source, Map<String, Object> variables) {
@@ -65,11 +66,11 @@ public final class Tokens implements NucleusMessageTokenService.TokenParser {
             var = split[1];
         }
 
-        return translatorMap.getOrDefault(split[0].toLowerCase(), (p, v, m) -> Optional.empty()).get(source, var, variables);
+        return this.translatorMap.getOrDefault(split[0].toLowerCase(), (p, v, m) -> Optional.empty()).get(source, var, variables);
     }
 
     public Set<String> getTokenNames() {
-        return Sets.newHashSet(translatorMap.keySet());
+        return Sets.newHashSet(this.translatorMap.keySet());
     }
 
     public boolean register(String name, Translator translator, boolean primary) throws IllegalArgumentException {

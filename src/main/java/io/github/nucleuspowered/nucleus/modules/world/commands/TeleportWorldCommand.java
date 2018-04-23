@@ -21,7 +21,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -62,7 +61,8 @@ public class TeleportWorldCommand extends AbstractCommand<CommandSource> {
         Player player = getUserFromArgs(Player.class, src, playerKey, args, "command.world.player");
         WorldProperties worldProperties = args.<WorldProperties>getOne(world).get();
         if (!worldProperties.isEnabled()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.teleport.notenabled", worldProperties.getWorldName()));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.teleport.notenabled",
+                    worldProperties.getWorldName()));
         }
 
         World world = Sponge.getServer().loadWorld(worldProperties.getUniqueId())
@@ -80,11 +80,11 @@ public class TeleportWorldCommand extends AbstractCommand<CommandSource> {
         Nucleus.getNucleus().getWorldDataManager().getWorld(worldProperties.getUniqueId())
                 .ifPresent(x -> x.get(SpawnWorldDataModule.class).getSpawnRotation().ifPresent(y -> new Transform<World>(world, pos, y)));
         if (src instanceof Player && ((Player) src).getUniqueId().equals(player.getUniqueId())) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.teleport.success", worldProperties.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.teleport.success", worldProperties.getWorldName()));
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.teleport.successplayer",
-                plugin.getNameUtil().getSerialisedName(player), worldProperties.getWorldName()));
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.teleport.success", worldProperties.getWorldName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.teleport.successplayer",
+                    Nucleus.getNucleus().getNameUtil().getSerialisedName(player), worldProperties.getWorldName()));
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.teleport.success", worldProperties.getWorldName()));
         }
 
         return CommandResult.success();

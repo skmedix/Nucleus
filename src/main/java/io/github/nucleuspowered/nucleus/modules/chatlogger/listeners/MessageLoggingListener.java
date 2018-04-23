@@ -15,9 +15,9 @@ public class MessageLoggingListener extends AbstractLoggerListener {
 
     @Listener(order = Order.LAST)
     public void onCommand(NucleusMessageEvent event) {
-        String message = plugin.getMessageProvider().getMessageWithFormat("chatlog.message",
+        String message = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("chatlog.message",
             event.getSender().getName(), event.getRecipient().getName(), event.getMessage());
-        handler.queueEntry(message);
+        this.handler.queueEntry(message);
     }
 
     @Override public boolean shouldEnable() {

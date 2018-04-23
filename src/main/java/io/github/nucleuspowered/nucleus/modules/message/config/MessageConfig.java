@@ -70,39 +70,39 @@ public class MessageConfig {
     }
 
     public boolean isSocialSpyAllowForced() {
-        return socialSpy.allowForced;
+        return this.socialSpy.allowForced;
     }
 
     public boolean isSocialSpyLevels() {
-        return socialSpy.socialSpyLevels;
+        return this.socialSpy.socialSpyLevels;
     }
 
     public boolean isSocialSpySameLevel() {
-        return socialSpy.socialSpySameLevel;
+        return this.socialSpy.socialSpySameLevel;
     }
 
     public int getCustomTargetLevel() {
-        return socialSpy.level.customTargets;
+        return this.socialSpy.level.customTargets;
     }
 
     public int getServerLevel() {
-        return socialSpy.level.server;
+        return this.socialSpy.level.server;
     }
 
     public boolean isShowMessagesInSocialSpyWhileMuted() {
-        return socialSpy.showMessagesInSocialSpyWhileMuted;
+        return this.socialSpy.showMessagesInSocialSpyWhileMuted;
     }
 
     public String getMutedTag() {
-        return socialSpy.mutedTag;
+        return this.socialSpy.mutedTag;
     }
 
     public String getBlockedTag() {
-        return socialSpy.blocked;
+        return this.socialSpy.blocked;
     }
 
     public Targets spyOn() {
-        return socialSpy.targets;
+        return this.socialSpy.targets;
     }
 
     @ConfigSerializable
@@ -159,15 +159,15 @@ public class MessageConfig {
         private boolean custom = true;
 
         public boolean isPlayer() {
-            return player;
+            return this.player;
         }
 
         public boolean isServer() {
-            return server;
+            return this.server;
         }
 
         public boolean isCustom() {
-            return custom;
+            return this.custom;
         }
     }
 }

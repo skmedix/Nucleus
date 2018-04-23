@@ -20,7 +20,7 @@ import java.util.Map;
 
 @SkipOnError
 @RequireExistenceOf(value = "org.spongepowered.api.event.entity.DestructEntityEvent$Death#setKeepInventory", showError = false)
-public class KeepInventoryListener extends ListenerBase {
+public class KeepInventoryListener implements ListenerBase {
 
     @Override
     public Map<String, PermissionInformation> getPermissions() {

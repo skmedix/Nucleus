@@ -36,7 +36,7 @@ public class FlyCommand extends AbstractCommand.SimpleTargetOtherPlayer {
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
-        m.put("others", new PermissionInformation(plugin.getMessageProvider().getMessageWithFormat("permission.others", this.getAliases()[0]), SuggestedLevel.ADMIN));
+        m.put("others", new PermissionInformation(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("permission.others", this.getAliases()[0]), SuggestedLevel.ADMIN));
         return m;
     }
 
@@ -46,21 +46,22 @@ public class FlyCommand extends AbstractCommand.SimpleTargetOtherPlayer {
         };
     }
 
-    @Override protected CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) throws Exception {
+    @Override protected CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) {
         FlyUserDataModule uc = Nucleus.getNucleus().getUserDataManager().getUnchecked(pl).get(FlyUserDataModule.class);
         boolean fly = args.<Boolean>getOne(toggle).orElse(!pl.get(Keys.CAN_FLY).orElse(false));
 
         if (!setFlying(pl, fly)) {
-            src.sendMessages(plugin.getMessageProvider().getTextMessageWithFormat("command.fly.error"));
+            src.sendMessages(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.fly.error"));
             return CommandResult.empty();
         }
 
         uc.setFlying(fly);
         if (pl != src) {
-            src.sendMessages(plugin.getMessageProvider().getTextMessageWithFormat(fly ? "command.fly.player.on" : "command.fly.player.off", pl.getName()));
+            src.sendMessages(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(fly ? "command.fly.player.on" : "command.fly.player.off", pl.getName()));
         }
 
-        pl.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat(fly ? "command.fly.on" : "command.fly.off"));
+        pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(fly ? "command.fly.on" : "command.fly.off"));
         return CommandResult.success();
     }
 

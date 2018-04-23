@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -32,17 +33,17 @@ public class KitAddCommandCommand extends KitFallbackBase<CommandSource> {
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
             new KitArgument(Text.of(KIT_PARAMETER), false),
-            GenericArguments.remainingRawJoinedStrings(Text.of(command))
+            GenericArguments.remainingRawJoinedStrings(Text.of(this.command))
         };
     }
 
-    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
-        String c = args.<String>getOne(command).get().replace(" {player} ", " {{player}} ");
+        String c = args.<String>getOne(this.command).get().replace(" {player} ", " {{player}} ");
         kitInfo.addCommand(c);
         KIT_HANDLER.saveKit(kitInfo);
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.add.command", c, kitInfo.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.command.add.command", c, kitInfo.getName()));
         return CommandResult.success();
     }
 }

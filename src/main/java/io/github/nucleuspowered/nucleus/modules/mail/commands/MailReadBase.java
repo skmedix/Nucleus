@@ -42,9 +42,9 @@ public class MailReadBase implements InternalServiceManagerTrait {
     public CommandResult executeCommand(CommandSource src, final User target, Collection<NucleusMailService.MailFilter> lmf) {
         List<MailData> lmd;
         if (!lmf.isEmpty()) {
-            lmd = handler.getMailInternal(target, lmf.toArray(new NucleusMailService.MailFilter[lmf.size()]));
+            lmd = this.handler.getMailInternal(target, lmf.toArray(new NucleusMailService.MailFilter[0]));
         } else {
-            lmd = handler.getMailInternal(target);
+            lmd = this.handler.getMailInternal(target);
         }
 
         if (lmd.isEmpty()) {
@@ -104,7 +104,7 @@ public class MailReadBase implements InternalServiceManagerTrait {
                             src.sendMessage(tb.append(Text.builder(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.delete")).color(TextColors.RED)
                                 .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.mail.delete.label")))
                                 .onClick(TextActions.executeCallback(s -> {
-                                    if (handler.removeMail(user, md)) {
+                                    if (this.handler.removeMail(user, md)) {
                                         src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.mail.delete.success"));
                                     } else {
                                         src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.mail.delete.fail"));

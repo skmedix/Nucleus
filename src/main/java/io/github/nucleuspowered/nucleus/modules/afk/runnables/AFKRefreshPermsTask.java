@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit;
 
 @SuppressWarnings("ALL")
 @NonnullByDefault
-public class AFKRefreshPermsTask extends TaskBase {
+public class AFKRefreshPermsTask implements TaskBase {
 
     private final AFKHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKHandler.class);
 
@@ -28,6 +28,6 @@ public class AFKRefreshPermsTask extends TaskBase {
     }
 
     @Override public void accept(Task task) {
-        handler.invalidateAfkCache();
+        this.handler.invalidateAfkCache();
     }
 }

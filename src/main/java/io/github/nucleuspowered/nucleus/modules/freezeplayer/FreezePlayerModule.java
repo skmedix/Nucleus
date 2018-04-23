@@ -12,7 +12,6 @@ import io.github.nucleuspowered.nucleus.internal.qsml.module.StandardModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
 import io.github.nucleuspowered.nucleus.modules.freezeplayer.commands.FreezePlayerCommand;
 import io.github.nucleuspowered.nucleus.modules.freezeplayer.datamodules.FreezePlayerUserDataModule;
-import io.github.nucleuspowered.nucleus.modules.mute.handler.MuteHandler;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -28,12 +27,12 @@ public class FreezePlayerModule extends StandardModule {
 
     @Override public void performEnableTasks() {
         createSeenModule(FreezePlayerCommand.class, (c, u) -> {
-            Optional<ModularUserService> us = plugin.getUserDataManager().get(u);
+            Optional<ModularUserService> us = Nucleus.getNucleus().getUserDataManager().get(u);
             if (us.isPresent() && us.get().get(FreezePlayerUserDataModule.class).isFrozen()) {
-                return Lists.newArrayList(plugin.getMessageProvider().getTextMessageWithFormat("seen.frozen"));
+                return Lists.newArrayList(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.frozen"));
             }
 
-            return Lists.newArrayList(plugin.getMessageProvider().getTextMessageWithFormat("seen.notfrozen"));
+            return Lists.newArrayList(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.notfrozen"));
         });
     }
 

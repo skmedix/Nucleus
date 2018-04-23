@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.note.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -52,14 +53,14 @@ public class NoteCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(playerKey))),
-                GenericArguments.onlyOne(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(noteKey))))};
+        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey))),
+                GenericArguments.onlyOne(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.noteKey))))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = args.<User>getOne(playerKey).get();
-        String note = args.<String>getOne(noteKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        User user = args.<User>getOne(this.playerKey).get();
+        String note = args.<String>getOne(this.noteKey).get();
 
         UUID noter = Util.consoleFakeUUID;
         if (src instanceof Player) {
@@ -68,16 +69,17 @@ public class NoteCommand extends AbstractCommand<CommandSource> {
 
         NoteData noteData = new NoteData(Instant.now(), noter, note);
 
-        if (noteHandler.addNote(user, noteData)) {
+        if (this.noteHandler.addNote(user, noteData)) {
             MutableMessageChannel messageChannel = new PermissionMessageChannel(notifyPermission).asMutable();
             messageChannel.addMember(src);
 
-            messageChannel.send(plugin.getMessageProvider().getTextMessageWithFormat("command.note.success", src.getName(), noteData.getNote(), user.getName()));
+            messageChannel.send(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.note.success", src.getName(), noteData.getNote(), user.getName()));
 
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warn.fail", user.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warn.fail", user.getName()));
         return CommandResult.empty();
     }
 }

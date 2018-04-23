@@ -81,7 +81,7 @@ public class UserDataManager extends DataManager<UUID, ConfigurationNode, Modula
 
     public void forceUnloadAndDelete(UUID uuid) {
         ModularUserService service = get(uuid).orElse(null);
-        this.invalidate(uuid, false);
+        this.invalidate(uuid);
         if (service != null) {
             service.delete();
         }

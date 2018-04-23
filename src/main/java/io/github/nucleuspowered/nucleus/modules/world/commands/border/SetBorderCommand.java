@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -43,41 +44,41 @@ public class SetBorderCommand extends AbstractCommand<CommandSource> {
             GenericArguments.firstParsing(
                 // Console + player
                 GenericArguments.seq(
-                    GenericArguments.optionalWeak(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ALL))),
-                    GenericArguments.onlyOne(GenericArguments.integer(Text.of(xKey))),
-                    GenericArguments.onlyOne(GenericArguments.integer(Text.of(zKey))),
-                    GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(diameter))),
-                    GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(delayKey)))))
+                    GenericArguments.optionalWeak(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL))),
+                    GenericArguments.onlyOne(GenericArguments.integer(Text.of(this.xKey))),
+                    GenericArguments.onlyOne(GenericArguments.integer(Text.of(this.zKey))),
+                    GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(this.diameter))),
+                    GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(this.delayKey)))))
                 ),
 
                 // Player only
                 GenericArguments.seq(
-                    GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(diameter))),
-                    GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(delayKey))))))
+                    GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(this.diameter))),
+                    GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(this.delayKey))))))
             )
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
         int x;
         int z;
-        int dia = args.<Integer>getOne(diameter).get();
-        int delay = args.<Integer>getOne(delayKey).orElse(0);
+        int dia = args.<Integer>getOne(this.diameter).get();
+        int delay = args.<Integer>getOne(this.delayKey).orElse(0);
 
         if (src instanceof Locatable) {
             Location<World> lw = ((Locatable) src).getLocation();
-            if (args.hasAny(zKey)) {
-                x = args.<Integer>getOne(xKey).get();
-                z = args.<Integer>getOne(zKey).get();
+            if (args.hasAny(this.zKey)) {
+                x = args.<Integer>getOne(this.xKey).get();
+                z = args.<Integer>getOne(this.zKey).get();
             } else {
                 x = lw.getBlockX();
                 z = lw.getBlockZ();
             }
         } else {
-            x = args.<Integer>getOne(xKey).get();
-            z = args.<Integer>getOne(zKey).get();
+            x = args.<Integer>getOne(this.xKey).get();
+            z = args.<Integer>getOne(this.zKey).get();
         }
 
         // Now, if we have an x and a z key, get the centre from that.
@@ -90,7 +91,7 @@ public class SetBorderCommand extends AbstractCommand<CommandSource> {
         if (delay == 0) {
             world.ifPresent(w -> w.getWorldBorder().setDiameter(dia));
             wp.setWorldBorderDiameter(dia);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.setborder.set",
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setborder.set",
                     wp.getWorldName(),
                     String.valueOf(x),
                     String.valueOf(z),
@@ -99,7 +100,7 @@ public class SetBorderCommand extends AbstractCommand<CommandSource> {
             world.ifPresent(w -> w.getWorldBorder().setDiameter(dia, delay * 1000L));
             wp.setWorldBorderTimeRemaining(delay * 1000L);
             wp.setWorldBorderTargetDiameter(dia);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.setborder.setdelay",
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setborder.setdelay",
                     wp.getWorldName(),
                     String.valueOf(x),
                     String.valueOf(z),

@@ -17,26 +17,26 @@ public class InfoConfig {
     private InfoFileConfig infoFileConfig = new InfoFileConfig();
 
     public boolean isShowMotdOnJoin() {
-        return motdConfig.isShowMotdOnJoin();
+        return this.motdConfig.isShowMotdOnJoin();
     }
 
     public String getMotdTitle() {
-        return motdConfig.getMotdTitle();
+        return this.motdConfig.getMotdTitle();
     }
 
     public boolean isMotdUsePagination() {
-        return motdConfig.isUsePagination();
+        return this.motdConfig.isUsePagination();
     }
 
     public boolean isUseDefaultFile() {
-        return infoFileConfig.isUseDefaultFile();
+        return this.infoFileConfig.isUseDefaultFile();
     }
 
     public String getDefaultInfoSection() {
-        return infoFileConfig.getDefaultInfoSection();
+        return this.infoFileConfig.getDefaultInfoSection();
     }
 
     public float getMotdDelay() {
-        return Math.max(0f, motdConfig.getDelay());
+        return Math.max(0f, this.motdConfig.getDelay());
     }
 }

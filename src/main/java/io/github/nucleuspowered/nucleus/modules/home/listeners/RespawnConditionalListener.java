@@ -16,11 +16,11 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.filter.Getter;
 
-public class RespawnConditionalListener extends ListenerBase implements ListenerBase.Conditional {
+public class RespawnConditionalListener implements ListenerBase.Conditional {
 
     @Listener
     public void onRespawn(final RespawnPlayerEvent event, @Getter("getTargetEntity") final Player player) {
-        plugin.getUserDataManager().getUnchecked(player)
+        Nucleus.getNucleus().getUserDataManager().getUnchecked(player)
             .get(HomeUserDataModule.class)
             .getHome(NucleusHomeService.DEFAULT_HOME_NAME)
             .ifPresent(x -> x.getTransform().ifPresent(event::setToTransform));

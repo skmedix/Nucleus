@@ -53,11 +53,11 @@ public class RTPConfig {
     private String defaultWorld = "";
 
     public int getNoOfAttempts() {
-        return noOfAttempts;
+        return this.noOfAttempts;
     }
 
     private Optional<PerWorldRTPConfig> get(String worldName) {
-        return Optional.ofNullable(perWorldRTPConfigList.get(worldName.toLowerCase()));
+        return Optional.ofNullable(this.perWorldRTPConfigList.get(worldName.toLowerCase()));
     }
 
     public int getMinRadius(String worldName) {
@@ -65,11 +65,11 @@ public class RTPConfig {
     }
 
     public int getRadius(String worldName) {
-        return get(worldName).map(x -> x.radius).orElse(radius);
+        return get(worldName).map(x -> x.radius).orElse(this.radius);
     }
 
     public boolean isMustSeeSky(String worldName) {
-        return get(worldName).map(x -> x.mustSeeSky).orElse(mustSeeSky);
+        return get(worldName).map(x -> x.mustSeeSky).orElse(this.mustSeeSky);
     }
 
     public int getMinY(String worldName) {
@@ -79,11 +79,11 @@ public class RTPConfig {
 
     public int getMaxY(String worldName) {
         return get(worldName).map(x -> GenericMath.clamp(x.maxY, Math.max(0, x.minY), 255))
-                .orElseGet(() -> GenericMath.clamp(maxY, Math.max(0, minY), 255));
+                .orElseGet(() -> GenericMath.clamp(this.maxY, Math.max(0, this.minY), 255));
     }
 
     public boolean isPerWorldPermissions() {
-        return perWorldPermissions;
+        return this.perWorldPermissions;
     }
 
     public boolean isAroundPlayer(String worldName) {

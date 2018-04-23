@@ -43,7 +43,7 @@ public class NucleusWorldPropertiesArgument extends CommandElement {
             return owp.get();
         }
 
-        throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(type.key, next));
+        throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(this.type.key, next));
     }
 
     @Override public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
@@ -57,7 +57,7 @@ public class NucleusWorldPropertiesArgument extends CommandElement {
     }
 
     private Stream<WorldProperties> getChoices() {
-        return Sponge.getServer().getAllWorldProperties().stream().filter(type.predicate);
+        return Sponge.getServer().getAllWorldProperties().stream().filter(this.type.predicate);
     }
 
     public enum Type {

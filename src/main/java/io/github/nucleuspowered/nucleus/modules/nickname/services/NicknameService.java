@@ -58,12 +58,13 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
         String colPerm = permissions.getPermissionWithSuffix("colour.");
         String colPerm2 = permissions.getPermissionWithSuffix("color.");
 
-        NameUtil.getColours().forEach((key, value) -> replacements.put(new String[]{colPerm + value.getName(), colPerm2 + value.getName()},
+        NameUtil.getColours().forEach((key, value) -> this.replacements.put(new String[]{colPerm + value.getName(), colPerm2 + value.getName()},
                 Tuple.of(Pattern.compile("[&]+" + key.toString().toLowerCase(), Pattern.CASE_INSENSITIVE).matcher(""),
                         mp.getTextMessageWithFormat("command.nick.colour.nopermswith", value.getName()))));
 
         String stylePerm = permissions.getPermissionWithSuffix("style.");
-        NameUtil.getStyleKeys().entrySet().stream().filter(x -> x.getKey() != 'k').forEach((k) -> replacements.put(new String[] { stylePerm + k.getValue().toLowerCase() },
+        NameUtil.getStyleKeys().entrySet().stream().filter(x -> x.getKey() != 'k').forEach((k) -> this.replacements
+                .put(new String[] { stylePerm + k.getValue().toLowerCase() },
                 Tuple.of(Pattern.compile("[&]+" + k.getKey().toString().toLowerCase(), Pattern.CASE_INSENSITIVE).matcher(""),
                         mp.getTextMessageWithFormat("command.nick.style.nopermswith", k.getValue().toLowerCase()))));
 
@@ -153,16 +154,16 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
                 stripPermissionless(os.get(), nickname);
             }
 
-            if (!pattern.matcher(plain).matches()) {
+            if (!this.pattern.matcher(plain).matches()) {
                 throw new NicknameException(
-                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.nopattern", pattern.pattern()),
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.nopattern", this.pattern.pattern()),
                         NicknameException.Type.INVALID_PATTERN);
             }
 
             int strippedNameLength = plain.length();
 
             // Do a regex remove to check minimum length requirements.
-            if (strippedNameLength < Math.max(min, 1)) {
+            if (strippedNameLength < Math.max(this.min, 1)) {
                 throw new NicknameException(
                         Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.tooshort"),
                         NicknameException.Type.TOO_SHORT
@@ -170,7 +171,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
             }
 
             // Do a regex remove to check maximum length requirements. Will be at least the minimum length
-            if (strippedNameLength > Math.max(max, min)) {
+            if (strippedNameLength > Math.max(this.max, this.min)) {
                 throw new NicknameException(
                         Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.toolong"),
                         NicknameException.Type.TOO_SHORT
@@ -205,15 +206,15 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
     @Override
     public void onReload() {
         NicknameConfig nc = Nucleus.getNucleus().getConfigAdapter(NicknameModule.ID, NicknameConfigAdapter.class).get().getNodeOrDefault();
-        pattern = nc.getPattern();
-        min = nc.getMinNicknameLength();
-        max = nc.getMaxNicknameLength();
+        this.pattern = nc.getPattern();
+        this.min = nc.getMinNicknameLength();
+        this.max = nc.getMaxNicknameLength();
     }
 
     private void stripPermissionless(Subject source, Text message) throws NicknameException {
         String m = TextSerializers.FORMATTING_CODE.serialize(message);
         if (m.contains("&")) {
-            for (Map.Entry<String[], Tuple<Matcher, Text>> r : replacements.entrySet()) {
+            for (Map.Entry<String[], Tuple<Matcher, Text>> r : this.replacements.entrySet()) {
                 // If we don't have the required permission...
                 if (r.getValue().getFirst().reset(m).find() && Arrays.stream(r.getKey()).noneMatch(source::hasPermission)) {
                     // throw

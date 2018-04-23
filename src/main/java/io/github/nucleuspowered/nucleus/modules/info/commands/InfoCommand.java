@@ -55,7 +55,7 @@ public class InfoCommand extends AbstractCommand<CommandSource> implements Reloa
 
     private final String key = "section";
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.infoConfig = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(InfoConfigAdapter.class).getNodeOrDefault();
     }
 
@@ -68,27 +68,27 @@ public class InfoCommand extends AbstractCommand<CommandSource> implements Reloa
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.flags().permissionFlag(permissions.getPermissionWithSuffix("list"), "l", "-list").buildWith(
-                GenericArguments.optional(new InfoArgument(Text.of(key), infoHandler)))
+            GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("list"), "l", "-list").buildWith(
+                GenericArguments.optional(new InfoArgument(Text.of(this.key), this.infoHandler)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Optional<InfoArgument.Result> oir = args.getOne(key);
-        if (infoConfig.isUseDefaultFile() && !oir.isPresent() && !args.hasAny("l")) {
+        Optional<InfoArgument.Result> oir = args.getOne(this.key);
+        if (this.infoConfig.isUseDefaultFile() && !oir.isPresent() && !args.hasAny("l")) {
             // Do we have a default?
-            String def = infoConfig.getDefaultInfoSection();
-            Optional<TextFileController> list = infoHandler.getSection(def);
+            String def = this.infoConfig.getDefaultInfoSection();
+            Optional<TextFileController> list = this.infoHandler.getSection(def);
             if (list.isPresent()) {
-                oir = Optional.of(new InfoArgument.Result(infoHandler.getInfoSections().stream().filter(def::equalsIgnoreCase).findFirst().get(), list.get()));
+                oir = Optional.of(new InfoArgument.Result(this.infoHandler.getInfoSections().stream().filter(def::equalsIgnoreCase).findFirst().get(), list.get()));
             }
         }
 
         if (oir.isPresent()) {
             TextFileController controller = oir.get().text;
             Text def = TextSerializers.FORMATTING_CODE.deserialize(oir.get().name);
-            Text title = plugin.getMessageProvider().getTextMessageWithTextFormat("command.info.title.section",
+            Text title = Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.info.title.section",
                     controller.getTitle(src).orElseGet(() -> Text.of(def)));
 
             controller.sendToPlayer(src, title);
@@ -96,9 +96,9 @@ public class InfoCommand extends AbstractCommand<CommandSource> implements Reloa
         }
 
         // Create a list of pages to load.
-        Set<String> sections = infoHandler.getInfoSections();
+        Set<String> sections = this.infoHandler.getInfoSections();
         if (sections.isEmpty()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.info.none"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.info.none"));
         }
 
         // Create the text.
@@ -106,11 +106,11 @@ public class InfoCommand extends AbstractCommand<CommandSource> implements Reloa
         sections.forEach(x -> {
             Text.Builder tb = Text.builder().append(Text.builder(x)
                     .color(TextColors.GREEN).style(TextStyles.ITALIC)
-                    .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.info.hover", x)))
+                    .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.info.hover", x)))
                     .onClick(TextActions.runCommand("/info " + x)).build());
 
             // If there is a title, then add it.
-            infoHandler.getSection(x).get().getTitle(src).ifPresent(sub ->
+            this.infoHandler.getSection(x).get().getTitle(src).ifPresent(sub ->
                 tb.append(Text.of(TextColors.GOLD, " - ")).append(sub)
             );
 
@@ -118,8 +118,8 @@ public class InfoCommand extends AbstractCommand<CommandSource> implements Reloa
         });
 
         Util.getPaginationBuilder(src).contents()
-                .header(plugin.getMessageProvider().getTextMessageWithFormat("command.info.header.default"))
-                .title(plugin.getMessageProvider().getTextMessageWithFormat("command.info.title.default"))
+                .header(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.info.header.default"))
+                .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.info.title.default"))
                 .contents(s.stream().sorted(Comparator.comparing(Text::toPlain)).collect(Collectors.toList()))
                 .padding(Text.of(TextColors.GOLD, "-")).sendTo(src);
         return CommandResult.success();

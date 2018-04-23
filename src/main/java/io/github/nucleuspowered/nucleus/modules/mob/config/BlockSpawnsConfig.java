@@ -25,10 +25,10 @@ public class BlockSpawnsConfig {
     private List<String> idsToBlock = Lists.newArrayList();
 
     public boolean isBlockVanillaMobs() {
-        return blockVanillaMobs;
+        return this.blockVanillaMobs;
     }
 
     public List<String> getIdsToBlock() {
-        return idsToBlock;
+        return this.idsToBlock;
     }
 }

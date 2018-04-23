@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -37,13 +38,13 @@ public class BorderCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
+            GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
         List<Text> worldBorderInfo = Lists.newArrayList();
 
         Vector3d centre = wp.getWorldBorderCenter();
@@ -51,15 +52,17 @@ public class BorderCommand extends AbstractCommand<CommandSource> {
         int targetDiameter = (int)wp.getWorldBorderTargetDiameter();
 
         // Border centre
-        worldBorderInfo.add(plugin.getMessageProvider().getTextMessageWithFormat("command.world.border.centre", String.valueOf(centre.getFloorX()), String.valueOf(centre.getFloorZ())));
-        worldBorderInfo.add(plugin.getMessageProvider().getTextMessageWithFormat("command.world.border.currentdiameter", String.valueOf(wp.getWorldBorderDiameter())));
+        worldBorderInfo.add(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.border.centre", String.valueOf(centre.getFloorX()), String.valueOf(centre.getFloorZ())));
+        worldBorderInfo.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.border.currentdiameter", String.valueOf(wp.getWorldBorderDiameter())));
 
         if (currentDiameter != targetDiameter) {
-            worldBorderInfo.add(plugin.getMessageProvider().getTextMessageWithFormat("command.world.border.targetdiameter", String.valueOf(targetDiameter), String.valueOf(wp.getWorldBorderTimeRemaining() / 1000)));
+            worldBorderInfo.add(Nucleus.getNucleus()
+                    .getMessageProvider().getTextMessageWithFormat("command.world.border.targetdiameter", String.valueOf(targetDiameter), String.valueOf(wp.getWorldBorderTimeRemaining() / 1000)));
         }
 
         PaginationList.Builder pb = Sponge.getServiceManager().provideUnchecked(PaginationService.class).builder().contents(worldBorderInfo)
-                .title(plugin.getMessageProvider().getTextMessageWithFormat("command.world.border.title", wp.getWorldName())).padding(Text.of(TextColors.GREEN, "="));
+                .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.border.title", wp.getWorldName())).padding(Text.of(TextColors.GREEN, "="));
         if (src instanceof ConsoleSource) {
             pb.linesPerPage(-1);
         }

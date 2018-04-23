@@ -22,29 +22,29 @@ public class BackHandler implements NucleusBackService {
 
     @Override
     public Optional<Transform<World>> getLastLocation(User user) {
-        Optional<ModularUserService> oi = loader.getUser(user);
+        Optional<ModularUserService> oi = this.loader.getUser(user);
         return oi.flatMap(modularUserService -> modularUserService.getTransient(BackUserTransientModule.class).getLastLocation());
 
     }
 
     @Override
     public void setLastLocation(User user, Transform<World> location) {
-        loader.getUser(user).ifPresent(x -> x.getTransient(BackUserTransientModule.class).setLastLocation(location));
+        this.loader.getUser(user).ifPresent(x -> x.getTransient(BackUserTransientModule.class).setLastLocation(location));
     }
 
     @Override
     public void removeLastLocation(User user) {
-        loader.getUser(user).ifPresent(x -> x.getTransient(BackUserTransientModule.class).setLastLocation(null));
+        this.loader.getUser(user).ifPresent(x -> x.getTransient(BackUserTransientModule.class).setLastLocation(null));
     }
 
     @Override
     public boolean isLoggingLastLocation(User user) {
-        Optional<ModularUserService> oi = loader.getUser(user);
+        Optional<ModularUserService> oi = this.loader.getUser(user);
         return oi.isPresent() && oi.get().getTransient(BackUserTransientModule.class).isLogLastLocation();
     }
 
     @Override
     public void setLoggingLastLocation(User user, boolean log) {
-        loader.getUser(user).ifPresent(x -> x.getTransient(BackUserTransientModule.class).setLogLastLocation(log));
+        this.loader.getUser(user).ifPresent(x -> x.getTransient(BackUserTransientModule.class).setLogLastLocation(log));
     }
 }

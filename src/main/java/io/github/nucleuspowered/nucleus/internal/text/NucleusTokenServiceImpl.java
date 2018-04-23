@@ -53,19 +53,19 @@ public class NucleusTokenServiceImpl implements NucleusMessageTokenService {
         Preconditions.checkNotNull(pluginContainer);
         Preconditions.checkNotNull(textFunction);
 
-        if (tokenStore.containsKey(pluginContainer.getId())) {
+        if (this.tokenStore.containsKey(pluginContainer.getId())) {
             throw new PluginAlreadyRegisteredException(pluginContainer);
         }
 
-        tokenStore.put(pluginContainer.getId(), textFunction);
+        this.tokenStore.put(pluginContainer.getId(), textFunction);
     }
 
     @Override public boolean unregister(PluginContainer pluginContainer) {
         Preconditions.checkNotNull(pluginContainer, "pluginContainer");
         Preconditions.checkState(!pluginContainer.getId().equalsIgnoreCase(PluginInfo.ID), "Cannot remove Nucleus tokens");
-        TokenParser parser = tokenStore.remove(pluginContainer.getId());
+        TokenParser parser = this.tokenStore.remove(pluginContainer.getId());
         if (parser != null) {
-            primaryTokenStore.entrySet().removeIf(x -> x.getValue().getFirst().equals(parser));
+            this.primaryTokenStore.entrySet().removeIf(x -> x.getValue().getFirst().equals(parser));
             return true;
         }
 
@@ -74,9 +74,9 @@ public class NucleusTokenServiceImpl implements NucleusMessageTokenService {
 
     @Override public boolean registerPrimaryToken(String primaryIdentifier, PluginContainer registeringPlugin, String identiferToMapTo) {
         Preconditions.checkArgument(!primaryIdentifier.matches("^.*[\\s|{}:].*$"), "Token cannot contain spaces or \":|{}\"");
-        if (tokenStore.containsKey(registeringPlugin.getId()) && !primaryTokenStore.containsKey(primaryIdentifier.toLowerCase())) {
+        if (this.tokenStore.containsKey(registeringPlugin.getId()) && !this.primaryTokenStore.containsKey(primaryIdentifier.toLowerCase())) {
             // Register!
-            primaryTokenStore.put(primaryIdentifier.toLowerCase(), Tuple.of(tokenStore.get(registeringPlugin.getId()),
+            this.primaryTokenStore.put(primaryIdentifier.toLowerCase(), Tuple.of(this.tokenStore.get(registeringPlugin.getId()),
                     identiferToMapTo.toLowerCase()));
             return true;
         }
@@ -86,15 +86,15 @@ public class NucleusTokenServiceImpl implements NucleusMessageTokenService {
 
     @Override public Optional<TokenParser> getTokenParser(String plugin) {
         Preconditions.checkNotNull(plugin, "pluginContainer");
-        return Optional.ofNullable(tokenStore.get(plugin.toLowerCase()));
+        return Optional.ofNullable(this.tokenStore.get(plugin.toLowerCase()));
     }
 
     @Override public Optional<Tuple<TokenParser, String>> getPrimaryTokenParserAndIdentifier(String primaryToken) {
-        return Optional.ofNullable(primaryTokenStore.get(primaryToken.toLowerCase()));
+        return Optional.ofNullable(this.primaryTokenStore.get(primaryToken.toLowerCase()));
     }
 
     @Override public List<String> getPrimaryTokens() {
-        return ImmutableList.copyOf(primaryTokenStore.keySet());
+        return ImmutableList.copyOf(this.primaryTokenStore.keySet());
     }
 
     @Override public Optional<Text> parseToken(String token, CommandSource source, @Nullable Map<String, Object> variables) {
@@ -132,7 +132,7 @@ public class NucleusTokenServiceImpl implements NucleusMessageTokenService {
                 // Plugin identifiers are of the form pl:<pluginid>:<identifier>
                 String[] tokSplit = token.split(":", 3);
                 if (tokSplit.length < 3) {
-                    return EMPTY;
+                    return this.EMPTY;
                 }
 
                 toReturn = applyToken(tokSplit[1], tokSplit[2], source, variables);
@@ -153,11 +153,11 @@ public class NucleusTokenServiceImpl implements NucleusMessageTokenService {
 
             return toReturn;
         } catch (Exception e) {
-            if (plugin.isDebugMode()) {
+            if (this.plugin.isDebugMode()) {
                 e.printStackTrace();
             }
 
-            return EMPTY;
+            return this.EMPTY;
         }
     }
 
@@ -170,6 +170,6 @@ public class NucleusTokenServiceImpl implements NucleusMessageTokenService {
     }
 
     public Tokens getNucleusTokenParser() {
-        return ((Tokens)tokenStore.get("nucleus"));
+        return ((Tokens) this.tokenStore.get("nucleus"));
     }
 }

@@ -35,7 +35,7 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         }
 
         @Override public Optional<Instant> getLastRedeemedTime() {
-            return Optional.ofNullable(lastTime);
+            return Optional.ofNullable(this.lastTime);
         }
 
         @Override public String getName() {
@@ -47,11 +47,11 @@ public abstract class KitEvent extends AbstractEvent implements NucleusKitEvent 
         }
 
         @Override public Player getTargetEntity() {
-            return targetPlayer;
+            return this.targetPlayer;
         }
 
         @Override public Cause getCause() {
-            return cause;
+            return this.cause;
         }
     }
 

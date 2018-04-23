@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
@@ -51,18 +52,18 @@ public class DeleteWarpCommand extends AbstractCommand<CommandSource> {
         DeleteWarpEvent event = new DeleteWarpEvent(CauseStackHelper.createCause(src), warp);
         if (Sponge.getEventManager().post(event)) {
             throw new ReturnMessageException(event.getCancelMessage().orElseGet(() ->
-                plugin.getMessageProvider().getTextMessageWithFormat("nucleus.eventcancelled")
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.eventcancelled")
             ));
         }
 
         if (qs.removeWarp(warp.getName())) {
             // Worked. Tell them.
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.del", warp.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.del", warp.getName()));
             return CommandResult.success();
         }
 
         // Didn't work. Tell them.
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.delerror"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.delerror"));
         return CommandResult.empty();
     }
 

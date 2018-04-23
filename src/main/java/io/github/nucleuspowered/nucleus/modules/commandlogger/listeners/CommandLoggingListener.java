@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class CommandLoggingListener extends ListenerBase implements Reloadable {
+public class CommandLoggingListener implements Reloadable, ListenerBase {
 
     private final CommandLoggerHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CommandLoggerHandler.class);
     private CommandLoggerConfig c = new CommandLoggerConfig();
@@ -38,13 +38,13 @@ public class CommandLoggingListener extends ListenerBase implements Reloadable {
         // Check source.
         boolean accept;
         if (source instanceof Player) {
-            accept = c.getLoggerTarget().isLogPlayer();
+            accept = this.c.getLoggerTarget().isLogPlayer();
         } else if (source instanceof CommandBlockSource) {
-            accept = c.getLoggerTarget().isLogCommandBlock();
+            accept = this.c.getLoggerTarget().isLogCommandBlock();
         } else if (source instanceof ConsoleSource) {
-            accept = c.getLoggerTarget().isLogConsole();
+            accept = this.c.getLoggerTarget().isLogConsole();
         } else {
-            accept = c.getLoggerTarget().isLogOther();
+            accept = this.c.getLoggerTarget().isLogOther();
         }
 
         if (!accept) {
@@ -61,22 +61,22 @@ public class CommandLoggingListener extends ListenerBase implements Reloadable {
             .orElseGet(() -> Sets.newHashSet(command));
 
         // If whitelist, and we have the command, or if not blacklist, and we do not have the command.
-        if (c.isWhitelist() == c.getCommandsToFilter().stream().map(String::toLowerCase).anyMatch(commands::contains)) {
-            String message = plugin.getMessageProvider().getMessageWithFormat("commandlog.message", source.getName(), event.getCommand(), event.getArguments());
-            plugin.getLogger().info(message);
-            handler.queueEntry(message);
+        if (this.c.isWhitelist() == this.c.getCommandsToFilter().stream().map(String::toLowerCase).anyMatch(commands::contains)) {
+            String message = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("commandlog.message", source.getName(), event.getCommand(), event.getArguments());
+            Nucleus.getNucleus().getLogger().info(message);
+            this.handler.queueEntry(message);
         }
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         this.c = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CommandLoggerConfigAdapter.class).getNodeOrDefault();
     }
 
     @Listener
     public void onShutdown(GameStoppedServerEvent event) {
         try {
-            handler.onServerShutdown();
+            this.handler.onServerShutdown();
         } catch (IOException e) {
             e.printStackTrace();
         }

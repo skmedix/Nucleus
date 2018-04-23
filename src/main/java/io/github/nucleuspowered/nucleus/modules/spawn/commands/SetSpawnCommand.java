@@ -25,7 +25,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class SetSpawnCommand extends AbstractCommand<Player> {
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         // Minecraft does not set the rotation of the player at the spawn point, so we'll do it for them!
         ModularWorldService worldService = Nucleus.getNucleus().getWorldDataManager().getWorld(src.getWorld().getUniqueId()).get();
         SpawnWorldDataModule m = worldService.get(SpawnWorldDataModule.class);
@@ -33,7 +33,7 @@ public class SetSpawnCommand extends AbstractCommand<Player> {
         worldService.set(m);
 
         src.getWorld().getProperties().setSpawnPosition(src.getLocation().getBlockPosition());
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.setspawn.success", src.getWorld().getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.setspawn.success", src.getWorld().getName()));
         return CommandResult.success();
     }
 }

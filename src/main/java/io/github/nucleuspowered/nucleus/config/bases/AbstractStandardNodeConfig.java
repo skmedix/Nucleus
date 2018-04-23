@@ -24,7 +24,7 @@ public abstract class AbstractStandardNodeConfig<T extends ConfigurationNode, L 
     }
 
     protected AbstractStandardNodeConfig(Path file, Map<TypeToken<?>, TypeSerializer<?>> serializerMap, boolean loadNow) throws Exception {
-        loader = getLoader(file);
+        this.loader = getLoader(file);
         if (loadNow) {
             load();
         }
@@ -32,13 +32,13 @@ public abstract class AbstractStandardNodeConfig<T extends ConfigurationNode, L 
 
     @Override
     public void save() throws IOException {
-        loader.save(node);
+        this.loader.save(this.node);
     }
 
     @Override
     public void load() throws Exception {
-        node = loader.load();
-        node.mergeValuesFrom(getDefaults());
+        this.node = this.loader.load();
+        this.node.mergeValuesFrom(getDefaults());
         save();
     }
 

@@ -18,6 +18,6 @@ public class DeleteHomeEvent extends AbstractHomeEvent implements NucleusHomeEve
     }
 
     @Override public Home getHome() {
-        return home;
+        return this.home;
     }
 }

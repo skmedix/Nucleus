@@ -41,15 +41,15 @@ public class ChatConfig {
     private NucleusTextTemplateImpl mePrefix;
 
     public NucleusTextTemplateImpl getMePrefix() {
-        return mePrefix;
+        return this.mePrefix;
     }
 
     public boolean isCheckBody() {
-        return checkBody;
+        return this.checkBody;
     }
 
     public boolean isModifychat() {
-        return modifychat;
+        return this.modifychat;
     }
 
     public boolean isUseGroupTemplates() {
@@ -61,26 +61,26 @@ public class ChatConfig {
     }
 
     public ChatTemplateConfig getDefaultTemplate() {
-        return templates.getDefaultTemplate();
+        return this.templates.getDefaultTemplate();
     }
 
     public Map<String, WeightedChatTemplateConfig> getGroupTemplates() {
-        return ImmutableMap.copyOf(templates.getGroupTemplates());
+        return ImmutableMap.copyOf(this.templates.getGroupTemplates());
     }
 
     public boolean isModifyMainMessage() {
-        return modifyMainMessage;
+        return this.modifyMainMessage;
     }
 
     public boolean isOverwriteEarlyPrefixes() {
-        return overwriteEarlyPrefixes;
+        return this.overwriteEarlyPrefixes;
     }
 
     public boolean isOverwriteEarlySuffixes() {
-        return overwriteEarlySuffixes;
+        return this.overwriteEarlySuffixes;
     }
 
     public boolean isRemoveBlueUnderline() {
-        return removeBlueUnderline;
+        return this.removeBlueUnderline;
     }
 }

@@ -20,14 +20,14 @@ public class HomeConfig {
     private boolean preventHomeCountOverhang = true;
 
     public boolean isSafeTeleport() {
-        return safeTeleport;
+        return this.safeTeleport;
     }
 
     public boolean isRespawnAtHome() {
-        return respawnAtHome;
+        return this.respawnAtHome;
     }
 
     public boolean isPreventHomeCountOverhang() {
-        return preventHomeCountOverhang;
+        return this.preventHomeCountOverhang;
     }
 }

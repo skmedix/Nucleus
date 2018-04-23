@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.craftinggui;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import org.spongepowered.api.command.CommandResult;
@@ -21,9 +22,9 @@ public abstract class BasicCraftingCommand extends AbstractCommand<Player> {
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
         Inventory i = Inventory.builder().of(getArchetype())
-            .build(plugin);
+            .build(Nucleus.getNucleus());
         src.openInventory(i)
-                .orElseThrow(() -> new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.crafting.error")));
+                .orElseThrow(() -> new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.crafting.error")));
         return CommandResult.success();
     }
 }

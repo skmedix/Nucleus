@@ -43,27 +43,27 @@ public class NucleusOnLoginEvent extends AbstractEvent implements TargetUserEven
     }
 
     @Override public Cause getCause() {
-        return cause;
+        return this.cause;
     }
 
     @Override public User getTargetUser() {
-        return user;
+        return this.user;
     }
 
     public ModularUserService getUserService() {
-        return userService;
+        return this.userService;
     }
 
     public User getUser() {
-        return user;
+        return this.user;
     }
 
     public Transform<World> getFrom() {
-        return from;
+        return this.from;
     }
 
     public Optional<Transform<World>> getTo() {
-        return Optional.ofNullable(to);
+        return Optional.ofNullable(this.to);
     }
 
     public void setTo(@Nullable Transform<World> to) {

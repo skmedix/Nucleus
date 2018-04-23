@@ -145,7 +145,7 @@ public class TextParsingUtils {
             return new Tuples.NullableTuple<>(Lists.newArrayList(Text.EMPTY), null);
         }
 
-        Matcher m = enhancedUrlParser.matcher(message);
+        Matcher m = this.enhancedUrlParser.matcher(message);
         if (!m.find()) {
             return new Tuples.NullableTuple<>(Lists.newArrayList(oldLegacy(message)), null);
         }
@@ -156,7 +156,7 @@ public class TextParsingUtils {
         StyleTuple st = TextParsingUtils.EMPTY;
         do {
             // We found a URL. We split on the URL that we have.
-            String[] textArray = remaining.split(enhancedUrlParser.pattern(), 2);
+            String[] textArray = remaining.split(this.enhancedUrlParser.pattern(), 2);
             TextRepresentable first = Text.builder().color(st.colour).style(st.style)
                     .append(oldLegacy(textArray[0])).build();
 
@@ -253,12 +253,12 @@ public class TextParsingUtils {
 
             if (optionList.contains("s")) {
                 return TextActions.showText(
-                        plugin.getMessageProvider().getTextMessageWithFormat("chat.command.clicksuggest", cmd)
+                        this.plugin.getMessageProvider().getTextMessageWithFormat("chat.command.clicksuggest", cmd)
                 );
             }
         }
 
-        return TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("chat.command.click", cmd));
+        return TextActions.showText(this.plugin.getMessageProvider().getTextMessageWithFormat("chat.command.click", cmd));
     }
 
     private static Text getTextForUrl(String url, String msg, String whiteSpace, StyleTuple st, @Nullable String optionString) {
@@ -378,7 +378,7 @@ public class TextParsingUtils {
 
     private Text addCommandToNameInternal(Text.Builder name, User user) {
         initCoreConfigAdapter();
-        String cmd = cca.getNodeOrDefault().getCommandOnNameClick();
+        String cmd = this.cca.getNodeOrDefault().getCommandOnNameClick();
         if (cmd == null || cmd.isEmpty()) {
             return name.build();
         }
@@ -408,7 +408,7 @@ public class TextParsingUtils {
 
     private Text getName(CommandSource cs) {
         if (cs instanceof Player) {
-            return plugin.getNameUtil().getName((Player)cs);
+            return this.plugin.getNameUtil().getName((Player)cs);
         }
 
         return Text.of(cs.getName());
@@ -416,7 +416,7 @@ public class TextParsingUtils {
 
     private void initCoreConfigAdapter() {
         if (this.cca == null) {
-            this.cca = plugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get();
+            this.cca = this.plugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get();
         }
     }
 
@@ -436,11 +436,11 @@ public class TextParsingUtils {
 
         public Text getTextOf() {
             Text.Builder tb = Text.builder();
-            if (colour != TextColors.NONE) {
-                tb.color(colour);
+            if (this.colour != TextColors.NONE) {
+                tb.color(this.colour);
             }
 
-            tb.style(style);
+            tb.style(this.style);
             return tb.toText();
         }
     }

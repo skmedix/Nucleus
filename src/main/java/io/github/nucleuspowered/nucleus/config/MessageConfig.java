@@ -37,7 +37,7 @@ public class MessageConfig extends AbstractStandardNodeConfig<CommentedConfigura
     @Override
     protected CommentedConfigurationNode getDefaults() {
         CommentedConfigurationNode ccn = SimpleCommentedConfigurationNode.root();
-        fallback.getKeys().forEach(x -> ccn.getNode((Object[])x.split("\\.")).setValue(fallback.getMessageFromKey(x).get()));
+        this.fallback.getKeys().forEach(x -> ccn.getNode((Object[])x.split("\\.")).setValue(this.fallback.getMessageFromKey(x).get()));
 
         return ccn;
     }
@@ -50,14 +50,14 @@ public class MessageConfig extends AbstractStandardNodeConfig<CommentedConfigura
     public Optional<String> getKey(@Nonnull String key) {
         Preconditions.checkNotNull(key);
         Object[] obj = key.split("\\.");
-        return Optional.ofNullable(node.getNode(obj).getString());
+        return Optional.ofNullable(this.node.getNode(obj).getString());
     }
 
     public List<String> walkThroughForMismatched() {
         Matcher keyMatcher = keys.matcher("");
         final List<String> keysToFix = Lists.newArrayList();
-        fallback.getKeys().forEach(x -> {
-            String resKey = fallback.getMessageFromKey(x).get();
+        this.fallback.getKeys().forEach(x -> {
+            String resKey = this.fallback.getMessageFromKey(x).get();
             Optional<String> msgKey = getKey(x);
             if (msgKey.isPresent() && getTokens(resKey, keyMatcher) != getTokens(msgKey.get(), keyMatcher)) {
                 keysToFix.add(x);
@@ -70,11 +70,11 @@ public class MessageConfig extends AbstractStandardNodeConfig<CommentedConfigura
     public void fixMistmatched(List<String> toFix) throws IOException {
         Preconditions.checkNotNull(toFix);
         toFix.forEach(x -> {
-            String resKey = fallback.getMessageFromKey(x).get();
+            String resKey = this.fallback.getMessageFromKey(x).get();
             Optional<String> msgKey = getKey(x);
 
             Object[] nodeKey = x.split("\\.");
-            CommentedConfigurationNode cn = node.getNode(nodeKey).setValue(resKey);
+            CommentedConfigurationNode cn = this.node.getNode(nodeKey).setValue(resKey);
             msgKey.ifPresent(cn::setComment);
         });
 

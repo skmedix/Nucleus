@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
  * {@link NucleusMessageTokenService}, which
  * should be used if tokens need to be registered.
  */
-public class ChatListener extends ListenerBase implements Reloadable, ListenerBase.Conditional {
+public class ChatListener implements Reloadable, ListenerBase.Conditional {
 
     private static final Pattern prefixPattern = Pattern.compile("^\\s*<[a-zA-Z0-9_]+>\\s*$");
     private static final String prefix = PermissionRegistry.PERMISSIONS_PREFIX + "chat.";
@@ -136,22 +136,22 @@ public class ChatListener extends ListenerBase implements Reloadable, ListenerBa
         Text prefix = Text.EMPTY;
 
         // Avoid adding <name>.
-        if (!chatConfig.isOverwriteEarlyPrefixes() && !prefixPattern.matcher(eventFormatter.getHeader().toText().toPlain()).matches()) {
+        if (!this.chatConfig.isOverwriteEarlyPrefixes() && !prefixPattern.matcher(eventFormatter.getHeader().toText().toPlain()).matches()) {
             prefix = eventFormatter.getHeader().toText();
         }
 
-        Text footer = chatConfig.isOverwriteEarlySuffixes() ? Text.EMPTY : event.getFormatter().getFooter().toText();
+        Text footer = this.chatConfig.isOverwriteEarlySuffixes() ? Text.EMPTY : event.getFormatter().getFooter().toText();
 
         final ChatTemplateConfig ctc;
-        if (chatConfig.isUseGroupTemplates()) {
-            ctc = templateUtil.getTemplateNow(player);
+        if (this.chatConfig.isUseGroupTemplates()) {
+            ctc = this.templateUtil.getTemplateNow(player);
         } else {
-            ctc = chatConfig.getDefaultTemplate();
+            ctc = this.chatConfig.getDefaultTemplate();
         }
 
         event.setMessage(
             Text.join(prefix, ctc.getPrefix().getForCommandSource(player)),
-            chatConfig.isModifyMainMessage() ? useMessage(player, rawMessage, ctc) : rawMessage,
+                this.chatConfig.isModifyMainMessage() ? useMessage(player, rawMessage, ctc) : rawMessage,
             Text.join(footer, ctc.getSuffix().getForCommandSource(player)));
     }
 
@@ -161,7 +161,7 @@ public class ChatListener extends ListenerBase implements Reloadable, ListenerBa
 
     private Text useMessage(Player player, Text rawMessage, ChatTemplateConfig chatTemplateConfig) {
         String m = stripPermissionless(player, TextSerializers.FORMATTING_CODE.serialize(rawMessage));
-        if (chatConfig.isRemoveBlueUnderline()) {
+        if (this.chatConfig.isRemoveBlueUnderline()) {
             m = m.replaceAll("&9&n([A-Za-z0-9-.]+)", "$1");
         }
 
@@ -175,11 +175,11 @@ public class ChatListener extends ListenerBase implements Reloadable, ListenerBa
         String chatcol = Util.getOptionFromSubject(player, "chatcolour", "chatcolor").orElseGet(chatTemplateConfig::getChatcolour);
         String chatstyle = Util.getOptionFromSubject(player, "chatstyle").orElseGet(chatTemplateConfig::getChatstyle);
 
-        NameUtil nu = plugin.getNameUtil();
+        NameUtil nu = Nucleus.getNucleus().getNameUtil();
         return Text.of(nu.getColourFromString(chatcol), nu.getTextStyleFromString(chatstyle), result);
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.chatConfig = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatConfigAdapter.class).getNodeOrDefault();
     }
 

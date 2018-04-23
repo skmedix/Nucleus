@@ -50,7 +50,7 @@ public class WarpNode extends LocationNode {
     }
 
     public double getCost() {
-        return cost;
+        return this.cost;
     }
 
     public void setCost(double cost) {
@@ -62,7 +62,7 @@ public class WarpNode extends LocationNode {
     }
 
     public Optional<String> getCategory() {
-        return Optional.ofNullable(category);
+        return Optional.ofNullable(this.category);
     }
 
     public void setCategory(@Nullable String category) {
@@ -70,7 +70,7 @@ public class WarpNode extends LocationNode {
     }
 
     public Text getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(@Nullable Text description) {

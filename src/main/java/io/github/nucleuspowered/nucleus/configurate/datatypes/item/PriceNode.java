@@ -26,7 +26,7 @@ public class PriceNode {
     private double sell = -1;
 
     public double getBuy() {
-        return buy;
+        return this.buy;
     }
 
     public void setBuy(double buy) {
@@ -34,7 +34,7 @@ public class PriceNode {
     }
 
     public double getSell() {
-        return sell;
+        return this.sell;
     }
 
     public void setSell(double sell) {

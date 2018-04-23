@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.fun.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -57,10 +58,11 @@ public class HatCommand extends AbstractCommand.SimpleTargetOtherPlayer {
                 .getRejectedItems().forEach(x -> Util.dropItemOnFloorAtLocation(x, pl.getWorld(), pl.getLocation().getPosition())));
 
         if (!isSelf) {
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.hat.success", plugin.getNameUtil().getName(pl), itemName));
+            player.sendMessage(Nucleus.getNucleus()
+                    .getMessageProvider().getTextMessageWithTextFormat("command.hat.success", Nucleus.getNucleus().getNameUtil().getName(pl), itemName));
         }
 
-        pl.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.hat.successself", itemName));
+        pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.hat.successself", itemName));
         return CommandResult.success();
     }
 }

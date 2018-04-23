@@ -17,7 +17,7 @@ public class TokenDoc {
     private String description;
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public TokenDoc setName(String name) {

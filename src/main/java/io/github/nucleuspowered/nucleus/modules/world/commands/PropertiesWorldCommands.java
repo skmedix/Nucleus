@@ -59,11 +59,11 @@ public class PropertiesWorldCommands {
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
             WorldProperties worldProperties = getWorldPropertiesOrDefault(src, worldKey, args);
             boolean set = args.<Boolean>getOne(valueKey).get();
-            setter.accept(worldProperties, set);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.setproperty.success", name, worldProperties.getWorldName(), String.valueOf(set)));
+            this.setter.accept(worldProperties, set);
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setproperty.success", this.name, worldProperties.getWorldName(), String.valueOf(set)));
 
-            if (extraLogic != null) {
-                extraLogic.accept(src, worldProperties, set);
+            if (this.extraLogic != null) {
+                this.extraLogic.accept(src, worldProperties, set);
             }
 
             return CommandResult.success();

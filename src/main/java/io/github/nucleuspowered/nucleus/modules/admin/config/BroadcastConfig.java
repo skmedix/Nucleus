@@ -21,10 +21,10 @@ public class BroadcastConfig {
     private NucleusTextTemplateImpl suffix;
 
     public NucleusTextTemplateImpl getPrefix() {
-        return prefix;
+        return this.prefix;
     }
 
     public NucleusTextTemplateImpl getSuffix() {
-        return suffix;
+        return this.suffix;
     }
 }

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -40,10 +41,10 @@ public class KitRemoveCommand extends KitFallbackBase<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(final CommandSource player, CommandContext args) throws Exception {
+    public CommandResult executeCommand(final CommandSource player, CommandContext args) {
         Kit kitName = args.<Kit>getOne(KIT_PARAMETER).get();
         KIT_HANDLER.removeKit(kitName.getName());
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.remove.success", kitName.getName()));
+        player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.remove.success", kitName.getName()));
         return CommandResult.success();
     }
 }

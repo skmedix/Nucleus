@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -43,7 +44,7 @@ public class RenameWorldCommand extends AbstractCommand<CommandSource> {
         String oldName = worldProperties.getWorldName();
         String newName =  args.<String>getOne(this.newNameKey).get();
         if (Sponge.getServer().renameWorld(worldProperties, newName).isPresent()) {
-            src.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.world.rename.success", oldName, newName));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.rename.success", oldName, newName));
             return CommandResult.success();
         }
 

@@ -23,7 +23,7 @@ import uk.co.drnaylor.quickstart.exceptions.NoModuleException;
 
 import java.util.Optional;
 
-public class GeoIpListener extends ListenerBase implements ListenerBase.Conditional {
+public class GeoIpListener implements ListenerBase.Conditional {
 
     private boolean isPrinted = false;
     private CommandPermissionHandler commandPermissionHandler = null;
@@ -32,22 +32,23 @@ public class GeoIpListener extends ListenerBase implements ListenerBase.Conditio
 
     @Listener(order = Order.LAST)
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
-        if (commandPermissionHandler == null) {
-            commandPermissionHandler = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(GeoIpCommand.class);
+        if (this.commandPermissionHandler == null) {
+            this.commandPermissionHandler = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(GeoIpCommand.class);
         }
 
-        Sponge.getScheduler().createAsyncExecutor(plugin).execute(() -> {
+        Sponge.getScheduler().createAsyncExecutor(Nucleus.getNucleus()).execute(() -> {
             try {
-                Optional<Country> result = handler.getDetails(event.getTargetEntity().getConnection().getAddress().getAddress()).get();
+                Optional<Country> result = this.handler.getDetails(event.getTargetEntity().getConnection().getAddress().getAddress()).get();
                 if (result.isPresent()) {
-                    new PermissionMessageChannel(commandPermissionHandler.getPermissionWithSuffix("login"))
-                        .send(plugin.getMessageProvider().getTextMessageWithFormat("geoip.playerfrom", event.getTargetEntity().getName(), result.get().getName()));
+                    new PermissionMessageChannel(this.commandPermissionHandler.getPermissionWithSuffix("login"))
+                        .send(Nucleus.getNucleus()
+                                .getMessageProvider().getTextMessageWithFormat("geoip.playerfrom", event.getTargetEntity().getName(), result.get().getName()));
                 } else {
-                    new PermissionMessageChannel(commandPermissionHandler.getPermissionWithSuffix("login"))
-                        .send(plugin.getMessageProvider().getTextMessageWithFormat("geoip.noinfo", event.getTargetEntity().getName()));
+                    new PermissionMessageChannel(this.commandPermissionHandler.getPermissionWithSuffix("login"))
+                        .send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("geoip.noinfo", event.getTargetEntity().getName()));
                 }
             } catch (Exception e) {
-                if (plugin.isDebugMode()) {
+                if (Nucleus.getNucleus().isDebugMode()) {
                     e.printStackTrace();
                 }
             }
@@ -58,10 +59,10 @@ public class GeoIpListener extends ListenerBase implements ListenerBase.Conditio
         try {
             GeoIpConfig gic = Nucleus.getNucleus().getModuleContainer().getConfigAdapterForModule(GeoIpModule.ID, GeoIpConfigAdapter.class).getNodeOrDefault();
             if (gic.isAcceptLicence()) {
-                if (!isPrinted) {
+                if (!this.isPrinted) {
                     Nucleus.getNucleus().getLogger()
                         .info("GeoIP is enabled. Nucleus makes use of GeoLite2 data created by MaxMind, available from http://www.maxmind.com");
-                    isPrinted = true;
+                    this.isPrinted = true;
                 }
 
                 return gic.isAlertOnLogin();

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.inventory.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
@@ -37,23 +38,23 @@ public class ClearInventoryCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
             GenericArguments.optional(
                 GenericArguments.requiringPermission(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(player), NicknameArgument.UnderlyingType.USER),
-                    permissions.getPermissionWithSuffix("others")
+                    SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.USER),
+                        this.permissions.getPermissionWithSuffix("others")
                 ))
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource source, CommandContext args) throws Exception {
-        User user = this.getUserFromArgs(User.class, source, player, args);
+        User user = this.getUserFromArgs(User.class, source, this.player, args);
         if (user.getPlayer().isPresent()) {
             Player target = user.getPlayer().get();
             Util.getStandardInventory(target).clear();
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.clearinventory.success", target.getName()));
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearinventory.success", target.getName()));
             return CommandResult.success();
         } else {
             try {
                 Util.getStandardInventory(user).clear();
-                source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.clearinventory.success", user.getName()));
+                source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearinventory.success", user.getName()));
                 return CommandResult.success();
             } catch (UnsupportedOperationException e) {
                 throw ReturnMessageException.fromKey("command.clearinventory.offlinenotsupported");

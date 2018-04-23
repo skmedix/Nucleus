@@ -28,7 +28,7 @@ import org.spongepowered.api.world.World;
 import java.util.List;
 import java.util.Optional;
 
-public class BlockLivingSpawnListener extends ListenerBase implements Reloadable, ListenerBase.Conditional {
+public class BlockLivingSpawnListener implements Reloadable, ListenerBase.Conditional {
 
     private MobConfig config = new MobConfig();
 
@@ -57,7 +57,7 @@ public class BlockLivingSpawnListener extends ListenerBase implements Reloadable
     }
 
     private boolean isSpawnable(EntityType type, World world) {
-        Optional<BlockSpawnsConfig> bsco = config.getBlockSpawnsConfigForWorld(world);
+        Optional<BlockSpawnsConfig> bsco = this.config.getBlockSpawnsConfigForWorld(world);
         if (!bsco.isPresent()) {
             return true;
         }
@@ -66,7 +66,7 @@ public class BlockLivingSpawnListener extends ListenerBase implements Reloadable
         return !(bsco.get().isBlockVanillaMobs() && id.startsWith("minecraft:") || bsco.get().getIdsToBlock().contains(id));
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.config = getServiceUnchecked(MobConfigAdapter.class).getNodeOrDefault();
     }
 

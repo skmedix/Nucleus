@@ -33,21 +33,21 @@ public class ConfigurateDataProvider<T> extends AbstractConfigurateDataProvider<
 
     @Override protected T transformOnLoad(ConfigurationNode node) throws Exception {
         if (node.getOptions().acceptsType(Short.class)) {
-            return node.getValue(typeToken, defaultSupplier);
+            return node.getValue(this.typeToken, this.defaultSupplier);
         }
 
-        return fixNode(node, true).getValue(typeToken, defaultSupplier);
+        return fixNode(node, true).getValue(this.typeToken, this.defaultSupplier);
     }
 
     @Override protected ConfigurationNode transformOnSave(T info) throws Exception {
-        ConfigurationOptions configurateOptions = ConfigurateHelper.setOptions(loader.getDefaultOptions());
-        ConfigurationNode node = loader.createEmptyNode(configurateOptions);
+        ConfigurationOptions configurateOptions = ConfigurateHelper.setOptions(this.loader.getDefaultOptions());
+        ConfigurationNode node = this.loader.createEmptyNode(configurateOptions);
 
         if (node.getOptions().acceptsType(Short.class) && node.getOptions().acceptsType(Byte.class)) {
-            return node.setValue(typeToken, info);
+            return node.setValue(this.typeToken, info);
         }
 
-        return fixNode(node, false).setValue(typeToken, info);
+        return fixNode(node, false).setValue(this.typeToken, info);
     }
 
     private ConfigurationNode fixNode(ConfigurationNode node, boolean setNode) {

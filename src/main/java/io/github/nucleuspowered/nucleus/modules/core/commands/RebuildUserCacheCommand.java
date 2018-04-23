@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -22,13 +23,13 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @NonnullByDefault
 public class RebuildUserCacheCommand extends AbstractCommand<CommandSource> {
 
-    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.rebuild.start"));
-        if (plugin.getUserCacheService().fileWalk()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.rebuild.end"));
+    @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.rebuild.start"));
+        if (Nucleus.getNucleus().getUserCacheService().fileWalk()) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.rebuild.end"));
             return CommandResult.success();
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.rebuild.fail"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.rebuild.fail"));
             return CommandResult.empty();
         }
     }

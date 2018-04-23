@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.info;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.info.config.InfoConfigAdapter;
@@ -27,9 +28,9 @@ public class InfoModule extends ConfigurableModule<InfoConfigAdapter> {
     protected void performPreTasks() throws Exception {
         super.performPreTasks();
 
-        plugin.addTextFileController(
+        Nucleus.getNucleus().addTextFileController(
                 MOTD_KEY,
-                Sponge.getAssetManager().getAsset(plugin, "motd.txt").get(),
-                plugin.getConfigDirPath().resolve("motd.txt"));
+                Sponge.getAssetManager().getAsset(Nucleus.getNucleus(), "motd.txt").get(),
+                Nucleus.getNucleus().getConfigDirPath().resolve("motd.txt"));
     }
 }

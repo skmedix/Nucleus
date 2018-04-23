@@ -32,12 +32,12 @@ public class WarpCategoryArgument extends CommandElement {
 
     @Nullable @Override protected Object parseValue(@Nonnull CommandSource source, @Nonnull CommandArgs args) throws ArgumentParseException {
         String arg = args.next();
-        return handler.getWarpsWithCategories().keySet().stream().filter(Objects::nonNull).filter(x -> x.getId().equals(arg)).findFirst()
+        return this.handler.getWarpsWithCategories().keySet().stream().filter(Objects::nonNull).filter(x -> x.getId().equals(arg)).findFirst()
                 .orElseThrow(() -> args.createError(
                     Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.warpcategory.noexist", arg)));
     }
 
     @Nonnull @Override public List<String> complete(@Nonnull CommandSource src, @Nonnull CommandArgs args, @Nonnull CommandContext context) {
-        return handler.getWarpsWithCategories().keySet().stream().filter(Objects::nonNull).map(WarpCategory::getId).collect(Collectors.toList());
+        return this.handler.getWarpsWithCategories().keySet().stream().filter(Objects::nonNull).map(WarpCategory::getId).collect(Collectors.toList());
     }
 }

@@ -21,31 +21,31 @@ public class KitConfigDataNode {
     private final Object locking = new Object();
 
     public Map<String, KitDataNode> getKits() {
-        synchronized (locking) {
-            if (!kitFix) {
-                kitFix = true;
+        synchronized (this.locking) {
+            if (!this.kitFix) {
+                this.kitFix = true;
                 // We might have multiple kits with the same name, different case, due to an error in programming.
-                Map<String, Long> ksi = kits.entrySet().stream()
+                Map<String, Long> ksi = this.kits.entrySet().stream()
                     .map(x -> x.getKey().toLowerCase()).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
                 ksi.entrySet().removeIf(x -> x.getValue() < 2);
 
                 // If we have duplicates, add a number at the end and lower case them all.
                 if (!ksi.isEmpty()) {
                     for (String k : ksi.keySet()) {
-                        if (kits.containsKey(k)) {
+                        if (this.kits.containsKey(k)) {
                             int count = 1;
-                            Map<String, KitDataNode> msk = kits.entrySet().stream()
+                            Map<String, KitDataNode> msk = this.kits.entrySet().stream()
                                 .filter(x -> x.getKey().equalsIgnoreCase(k) && !x.getKey().equals(k))
                                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
                             for (Map.Entry<String, KitDataNode> stringKitDataNodeEntry : msk.entrySet()) {
-                                kits.remove(stringKitDataNodeEntry.getKey());
+                                this.kits.remove(stringKitDataNodeEntry.getKey());
                                 String kitName;
                                 do {
                                     kitName = stringKitDataNodeEntry.getKey().toLowerCase() + String.valueOf(count++);
-                                } while (kits.containsKey(kitName));
+                                } while (this.kits.containsKey(kitName));
 
-                                kits.put(kitName, stringKitDataNodeEntry.getValue());
+                                this.kits.put(kitName, stringKitDataNodeEntry.getValue());
                             }
                         }
                     }
@@ -53,7 +53,7 @@ public class KitConfigDataNode {
             }
         }
 
-        return kits;
+        return this.kits;
     }
 
 }

@@ -32,26 +32,26 @@ public class MuteConfig {
     private boolean requireUnmutePermission = false;
 
     public List<String> getBlockedCommands() {
-        return blockedCommands;
+        return this.blockedCommands;
     }
 
     public long getMaximumMuteLength() {
-        return maxMuteLength;
+        return this.maxMuteLength;
     }
 
     public boolean isShowMutedChat() {
-        return showMutedChat;
+        return this.showMutedChat;
     }
 
     public String getCancelledTag() {
-        return cancelledTag;
+        return this.cancelledTag;
     }
 
     public boolean isMuteOnlineOnly() {
-        return muteOnlineOnly;
+        return this.muteOnlineOnly;
     }
 
     public boolean isRequireUnmutePermission() {
-        return requireUnmutePermission;
+        return this.requireUnmutePermission;
     }
 }

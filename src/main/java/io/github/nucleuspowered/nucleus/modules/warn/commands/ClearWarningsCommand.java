@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warn.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -37,16 +38,16 @@ public class ClearWarningsCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {GenericArguments.flags().flag("-all", "a").flag("-remove", "r").flag("-expired", "e").buildWith(
-                        GenericArguments.onlyOne(GenericArguments.user(Text.of(playerKey))))};
+                        GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey))))};
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = args.<User>getOne(playerKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        User user = args.<User>getOne(this.playerKey).get();
 
-        List<WarnData> warnings = handler.getWarningsInternal(user);
+        List<WarnData> warnings = this.handler.getWarningsInternal(user);
         if (warnings.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkwarnings.none", user.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkwarnings.none", user.getName()));
             return CommandResult.success();
         }
 
@@ -56,25 +57,25 @@ public class ClearWarningsCommand extends AbstractCommand<CommandSource> {
         //If the flag --remove is used then remove all active warnings.
         boolean removeActive = false;
         boolean removeExpired = false;
-        Text message = plugin.getMessageProvider().getTextMessageWithFormat("command.clearwarnings.success", user.getName());
+        Text message = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearwarnings.success", user.getName());
         if (args.hasAny("all")) {
             removeActive = true;
             removeExpired = true;
-            message = plugin.getMessageProvider().getTextMessageWithFormat("command.clearwarnings.all", user.getName());
+            message = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearwarnings.all", user.getName());
         } else if (args.hasAny("remove")) {
             removeActive = true;
-            message = plugin.getMessageProvider().getTextMessageWithFormat("command.clearwarnings.remove", user.getName());
+            message = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearwarnings.remove", user.getName());
         } else if (args.hasAny("expired")) {
             removeExpired = true;
-            message = plugin.getMessageProvider().getTextMessageWithFormat("command.clearwarnings.expired", user.getName());
+            message = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearwarnings.expired", user.getName());
         }
 
-        if (handler.clearWarnings(user, removeActive, removeExpired, CauseStackHelper.createCause(src))) {
+        if (this.handler.clearWarnings(user, removeActive, removeExpired, CauseStackHelper.createCause(src))) {
             src.sendMessage(message);
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.clearwarnings.failure", user.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.clearwarnings.failure", user.getName()));
         return CommandResult.empty();
     }
 }

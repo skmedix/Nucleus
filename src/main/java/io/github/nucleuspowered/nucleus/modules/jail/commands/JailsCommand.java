@@ -43,10 +43,10 @@ public class JailsCommand extends AbstractCommand<CommandSource> {
     private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Map<String, NamedLocation> mjs = handler.getJails();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        Map<String, NamedLocation> mjs = this.handler.getJails();
         if (mjs.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.nojails"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.nojails"));
             return CommandResult.empty();
         }
 
@@ -55,24 +55,24 @@ public class JailsCommand extends AbstractCommand<CommandSource> {
                 .collect(Collectors.toList());
 
         Util.getPaginationBuilder(src)
-            .title(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.list.header")).padding(Text.of(TextColors.GREEN, "-"))
+            .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.list.header")).padding(Text.of(TextColors.GREEN, "-"))
             .contents(lt).sendTo(src);
         return CommandResult.success();
     }
 
     private Text createJail(@Nullable NamedLocation data, String name) {
         if (data == null || !data.getLocation().isPresent()) {
-            return Text.builder(name).color(TextColors.RED).onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat
+            return Text.builder(name).color(TextColors.RED).onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat
                     ("command.jails.unavailable"))).build();
         }
 
         Location<World> world = data.getLocation().get();
         Text.Builder inner = Text.builder(name).color(TextColors.GREEN).style(TextStyles.ITALIC)
                 .onClick(TextActions.runCommand("/jails tp " + name))
-                .onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.warpprompt", name)));
+                .onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.warpprompt", name)));
 
         return Text.builder().append(inner.build())
-                .append(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warploc",
+                .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warploc",
                         world.getExtent().getName(), world.getBlockPosition().toString()
                 )).build();
     }

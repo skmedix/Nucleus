@@ -4,16 +4,15 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
@@ -38,14 +37,14 @@ public class KitCostCommand extends KitFallbackBase<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false)),
-                GenericArguments.onlyOne(GenericArguments.doubleNum(Text.of(costKey)))
+                GenericArguments.onlyOne(GenericArguments.doubleNum(Text.of(this.costKey)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
-        double cost = args.<Double>getOne(costKey).get();
+        double cost = args.<Double>getOne(this.costKey).get();
 
         if (cost < 0) {
             cost = 0;
@@ -53,7 +52,7 @@ public class KitCostCommand extends KitFallbackBase<CommandSource> {
 
         kit.setCost(cost);
         KIT_HANDLER.saveKit(kit);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.cost.success", kit.getName(), String.valueOf(cost)));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.cost.success", kit.getName(), String.valueOf(cost)));
         return CommandResult.success();
     }
 }

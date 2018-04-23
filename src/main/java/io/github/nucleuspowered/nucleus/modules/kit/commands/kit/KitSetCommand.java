@@ -4,15 +4,14 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
@@ -40,11 +39,11 @@ public class KitSetCommand extends KitFallbackBase<Player> {
     }
 
     @Override
-    public CommandResult executeCommand(final Player player, CommandContext args) throws Exception {
+    public CommandResult executeCommand(final Player player, CommandContext args) {
         Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
         kitInfo.updateKitInventory(player);
         KIT_HANDLER.saveKit(kitInfo);
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.set.success", kitInfo.getName()));
+        player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.set.success", kitInfo.getName()));
         return CommandResult.success();
     }
 }

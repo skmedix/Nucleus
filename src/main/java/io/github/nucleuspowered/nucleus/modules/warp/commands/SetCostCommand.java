@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveDoubleArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
@@ -38,33 +39,33 @@ public class SetCostCommand extends AbstractCommand<CommandSource> implements Re
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new WarpArgument(Text.of(warpKey), false)),
-            GenericArguments.onlyOne(new PositiveDoubleArgument(Text.of(costKey)))
+            GenericArguments.onlyOne(new WarpArgument(Text.of(this.warpKey), false)),
+            GenericArguments.onlyOne(new PositiveDoubleArgument(Text.of(this.costKey)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Warp warpData = args.<Warp>getOne(warpKey).get();
-        double cost = args.<Double>getOne(costKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        Warp warpData = args.<Warp>getOne(this.warpKey).get();
+        double cost = args.<Double>getOne(this.costKey).get();
         if (cost < -1) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.costset.arg"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.costset.arg"));
             return CommandResult.empty();
         }
 
-        if (cost == -1 && warpHandler.setWarpCost(warpData.getName(), -1)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.costset.reset", warpData.getName(), String.valueOf(this.defaultCost)));
+        if (cost == -1 && this.warpHandler.setWarpCost(warpData.getName(), -1)) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.costset.reset", warpData.getName(), String.valueOf(this.defaultCost)));
             return CommandResult.success();
-        } else if (warpHandler.setWarpCost(warpData.getName(), cost)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.costset.success", warpData.getName(), String.valueOf(cost)));
+        } else if (this.warpHandler.setWarpCost(warpData.getName(), cost)) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.costset.success", warpData.getName(), String.valueOf(cost)));
             return CommandResult.success();
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.costset.failed", warpData.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.costset.failed", warpData.getName()));
         return CommandResult.empty();
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.defaultCost = getServiceUnchecked(WarpConfigAdapter.class).getNodeOrDefault().getDefaultWarpCost();
     }
 }

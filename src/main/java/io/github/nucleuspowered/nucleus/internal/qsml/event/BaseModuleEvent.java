@@ -34,16 +34,16 @@ public abstract class BaseModuleEvent extends AbstractEvent implements NucleusMo
 
     @Override
     public Map<String, ModuleEnableState> getModuleList() {
-        return state;
+        return this.state;
     }
 
     @Override
     public Cause getCause() {
-        return cause;
+        return this.cause;
     }
 
     Map<String, ModuleEnableState> getState() {
-        return plugin.getModuleContainer().getModulesWithLoadingState()
+        return this.plugin.getModuleContainer().getModulesWithLoadingState()
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> getFromLoadingStatus(v.getValue())));
     }
 

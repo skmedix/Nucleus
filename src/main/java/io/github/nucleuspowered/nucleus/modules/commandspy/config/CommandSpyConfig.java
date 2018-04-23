@@ -32,14 +32,14 @@ public class CommandSpyConfig {
     private List<String> commands = new ArrayList<>();
 
     public NucleusTextTemplateImpl getTemplate() {
-        return prefix;
+        return this.prefix;
     }
 
     public List<String> getCommands() {
-        return commands;
+        return this.commands;
     }
 
     public boolean isUseWhitelist() {
-        return useWhitelist;
+        return this.useWhitelist;
     }
 }

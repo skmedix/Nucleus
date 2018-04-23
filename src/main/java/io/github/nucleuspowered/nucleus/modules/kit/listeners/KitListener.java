@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
-public class KitListener extends ListenerBase implements Reloadable {
+public class KitListener implements Reloadable, ListenerBase {
 
     private final UserDataManager loader = Nucleus.getNucleus().getUserDataManager();
     private final KitHandler handler = getServiceUnchecked(KitHandler.class);
@@ -88,7 +88,7 @@ public class KitListener extends ListenerBase implements Reloadable {
 
                 if (event instanceof InteractInventoryEvent.Close) {
                     gds.save();
-                    player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.success", x.getFirst().getName()));
+                    player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.edit.success", x.getFirst().getName()));
                     handler.removeKitInventoryFromListener(inventory);
                 }
             } catch (Exception e) {
@@ -96,7 +96,7 @@ public class KitListener extends ListenerBase implements Reloadable {
                     e.printStackTrace();
                 }
 
-                player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.edit.error", x.getFirst().getName()));
+                player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.edit.error", x.getFirst().getName()));
             }
         });
 
@@ -133,7 +133,7 @@ public class KitListener extends ListenerBase implements Reloadable {
                 handler.saveKit(kitInfo);
             }));
 
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.kit.command.edit.success", kitInfo.getName()));
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.command.edit.success", kitInfo.getName()));
             handler.removeKitCommandInventoryFromListener(inventory);
         });
 

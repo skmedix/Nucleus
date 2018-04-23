@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.item.commands.lore;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -32,13 +33,13 @@ public class LoreDeleteCommand extends AbstractCommand<Player> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                new PositiveIntegerArgument(Text.of(loreLine), false)
+                new PositiveIntegerArgument(Text.of(this.loreLine), false)
         };
     }
 
     @Override
     protected CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        int line = args.<Integer>getOne(loreLine).get() - 1;
+        int line = args.<Integer>getOne(this.loreLine).get() - 1;
 
         ItemStack stack = src.getItemInHand(HandTypes.MAIN_HAND).orElseThrow(() -> ReturnMessageException.fromKey("command.lore.clear.noitem"));
         LoreData loreData = stack.getOrCreate(LoreData.class).get();
@@ -53,7 +54,7 @@ public class LoreDeleteCommand extends AbstractCommand<Player> {
         if (stack.offer(Keys.ITEM_LORE, loreList).isSuccessful()) {
             src.setItemInHand(HandTypes.MAIN_HAND, stack);
 
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.lore.set.success"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.lore.set.success"));
             return CommandResult.success();
         }
 

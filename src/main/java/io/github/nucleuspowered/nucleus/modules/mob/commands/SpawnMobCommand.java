@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mob.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedCatalogTypeArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -50,12 +51,12 @@ public class SpawnMobCommand extends AbstractCommand.SimpleTargetOtherPlayer imp
 
     @Override public CommandElement[] additionalArguments() {
         return new CommandElement[] {
-                new ImprovedCatalogTypeArgument(Text.of(mobTypeKey), CatalogTypes.ENTITY_TYPE),
-                GenericArguments.optional(new PositiveIntegerArgument(Text.of(amountKey)), 1)
+                new ImprovedCatalogTypeArgument(Text.of(this.mobTypeKey), CatalogTypes.ENTITY_TYPE),
+                GenericArguments.optional(new PositiveIntegerArgument(Text.of(this.amountKey)), 1)
         };
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.mobConfig = getServiceUnchecked(MobConfigAdapter.class).getNodeOrDefault();
     }
 
@@ -69,26 +70,29 @@ public class SpawnMobCommand extends AbstractCommand.SimpleTargetOtherPlayer imp
     @Override
     public CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) throws Exception {
         // Get the amount
-        int amount = args.<Integer>getOne(amountKey).get();
-        EntityType et = args.<EntityType>getOne(mobTypeKey).get();
+        int amount = args.<Integer>getOne(this.amountKey).get();
+        EntityType et = args.<EntityType>getOne(this.mobTypeKey).get();
 
         if (!Living.class.isAssignableFrom(et.getEntityClass())) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawnmob.livingonly", et.getTranslation().get()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnmob.livingonly", et.getTranslation().get()));
         }
 
         String id = et.getId().toLowerCase();
-        if (this.mobConfig.isPerMobPermission() && !permissions.testSuffix(src, "mob." + id.replace(":", "."))) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawnmob.mobnoperm", et.getTranslation().get()));
+        if (this.mobConfig.isPerMobPermission() && !this.permissions.testSuffix(src, "mob." + id.replace(":", "."))) {
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnmob.mobnoperm", et.getTranslation().get()));
         }
 
         Optional<BlockSpawnsConfig> config = this.mobConfig.getBlockSpawnsConfigForWorld(pl.getWorld());
         if (config.isPresent() && (config.get().isBlockVanillaMobs() && id.startsWith("minecraft:") || config.get().getIdsToBlock().contains(id))) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.spawnmob.blockedinconfig", et.getTranslation().get()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnmob.blockedinconfig", et.getTranslation().get()));
         }
 
         Location<World> loc = pl.getLocation();
         World w = loc.getExtent();
-        MessageProvider mp = plugin.getMessageProvider();
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
 
         // Count the number of entities spawned.
         int i = 0;

@@ -61,13 +61,13 @@ public class MessageCommand extends AbstractCommand<CommandSource> {
                     SelectorWrapperArgument.nicknameSelector(Text.of(TO), NicknameArgument.UnderlyingType.PLAYER_CONSOLE,
                             true, Player.class, (c, p) -> PlayerConsoleArgument.shouldShow(p, c))
             ),
-            GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(message)))
+            GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.message)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        boolean b = handler.sendMessage(src, args.<CommandSource>getOne(TO).get(), args.<String>getOne(message).get());
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        boolean b = this.handler.sendMessage(src, args.<CommandSource>getOne(TO).get(), args.<String>getOne(this.message).get());
         return b ? CommandResult.success() : CommandResult.empty();
     }
 }

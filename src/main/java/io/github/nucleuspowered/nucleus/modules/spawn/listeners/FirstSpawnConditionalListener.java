@@ -17,7 +17,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.scheduler.Task;
 
-public class FirstSpawnConditionalListener extends ListenerBase implements ListenerBase.Conditional {
+public class FirstSpawnConditionalListener implements ListenerBase.Conditional {
 
     @Listener(order = Order.LATE)
     public void onJoin(NucleusFirstJoinEvent event, @Getter("getTargetEntity") Player player) {
@@ -25,7 +25,7 @@ public class FirstSpawnConditionalListener extends ListenerBase implements Liste
         Task.builder().execute(() -> Nucleus.getNucleus().getGeneralService()
                 .get(SpawnGeneralDataModule.class).getFirstSpawn().ifPresent(player::setTransform))
                 .delayTicks(3)
-                .submit(plugin);
+                .submit(Nucleus.getNucleus());
     }
 
     @Override public boolean shouldEnable() {

@@ -45,17 +45,17 @@ public class CheckJailCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.firstParsing(
-                GenericArguments.user(Text.of(playerKey)),
-                    new UUIDArgument<>(Text.of(playerKey), u -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(u))
+                GenericArguments.user(Text.of(this.playerKey)),
+                    new UUIDArgument<>(Text.of(this.playerKey), u -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(u))
             )
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = args.<User>getOne(playerKey).get();
-        Optional<JailData> jail = handler.getPlayerJailDataInternal(user);
-        MessageProvider mp = this.plugin.getMessageProvider();
+        User user = args.<User>getOne(this.playerKey).get();
+        Optional<JailData> jail = this.handler.getPlayerJailDataInternal(user);
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
 
         if (!jail.isPresent()) {
             throw ReturnMessageException.fromKey("command.checkjail.nojail", user.getName());

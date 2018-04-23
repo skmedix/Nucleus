@@ -45,9 +45,9 @@ public class DeletePowertoolCommand extends AbstractCommand<Player> {
         Optional<List<String>> cmds = user.getPowertoolForItem(item);
         if (cmds.isPresent() && !cmds.get().isEmpty()) {
             user.clearPowertool(item);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.powertool.removed", Text.of(item)));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.powertool.removed", Text.of(item)));
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithTextFormat("command.powertool.nocmds", Text.of(item)));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.powertool.nocmds", Text.of(item)));
         }
 
         return CommandResult.success();

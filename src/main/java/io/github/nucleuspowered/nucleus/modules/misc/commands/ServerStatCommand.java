@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.misc.commands;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -53,19 +54,19 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
 
         Duration uptime = Duration.ofMillis(ManagementFactory.getRuntimeMXBean().getUptime());
 
         List<Text> messages = Lists.newArrayList();
 
-        messages.add(plugin.getMessageProvider().getTextMessageWithTextFormat("command.serverstat.tps", getTPS(Sponge.getServer().getTicksPerSecond())));
+        messages.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.serverstat.tps", getTPS(Sponge.getServer().getTicksPerSecond())));
 
-        Optional<Instant> oi = plugin.getGameStartedTime();
+        Optional<Instant> oi = Nucleus.getNucleus().getGameStartedTime();
         oi.ifPresent(instant -> {
             Duration duration = Duration.between(instant, Instant.now());
             double averageTPS = Math.min(20, ((double) Sponge.getServer().getRunningTimeTicks() / ((double) (duration.toMillis() + 50) / 1000.0d)));
-            messages.add(plugin.getMessageProvider().getTextMessageWithTextFormat("command.serverstat.averagetps", getTPS(averageTPS)));
+            messages.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.serverstat.averagetps", getTPS(averageTPS)));
             messages.add(createText("command.serverstat.uptime.main", "command.serverstat.uptime.hover",
                     Util.getTimeStringFromSeconds(duration.getSeconds())));
         });
@@ -91,21 +92,21 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
                 int numOfEntities = world.getEntities().size();
                 int loadedChunks = Iterables.size(world.getLoadedChunks());
                 messages.add(Util.SPACE);
-                messages.add(plugin.getMessageProvider().getTextMessageWithFormat("command.serverstat.world.title", world.getName()));
+                messages.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.serverstat.world.title", world.getName()));
 
                 // https://github.com/NucleusPowered/Nucleus/issues/888
                 GeneratorType genType = world.getDimension().getGeneratorType();
-                messages.add(plugin.getMessageProvider().getTextMessageWithFormat(
+                messages.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(
                         "command.serverstat.world.info",
                         world.getDimension().getType().getName(),
-                        genType == null ? this.plugin.getMessageProvider().getMessageWithFormat("standard.unknown") : genType.getName(),
+                        genType == null ? Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.unknown") : genType.getName(),
                         String.valueOf(numOfEntities),
                         String.valueOf(loadedChunks)));
             }
         }
 
         PaginationList.Builder plb = Util.getPaginationBuilder(src)
-                .title(plugin.getMessageProvider().getTextMessageWithFormat("command.serverstat.title")).padding(Text.of("="))
+                .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.serverstat.title")).padding(Text.of("="))
                 .contents(messages);
 
         plb.sendTo(src);
@@ -127,8 +128,8 @@ public class ServerStatCommand extends AbstractCommand<CommandSource> {
     }
 
     private Text createText(String mainKey, String hoverKey, String... subs) {
-        Text.Builder tb = plugin.getMessageProvider().getTextMessageWithFormat(mainKey, subs).toBuilder();
-        return tb.onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat(hoverKey))).build();
+        Text.Builder tb = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(mainKey, subs).toBuilder();
+        return tb.onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(hoverKey))).build();
     }
 
 }

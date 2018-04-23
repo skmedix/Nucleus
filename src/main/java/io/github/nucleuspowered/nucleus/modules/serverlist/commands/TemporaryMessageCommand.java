@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.serverlist.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.BoundedIntegerArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
@@ -39,17 +40,17 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
             GenericArguments.flags()
                 .flag("r", "-remove")
-                .valueFlag(new BoundedIntegerArgument(Text.of(line), 1, 2),"l", "-line")
-                .valueFlag(new TimespanArgument(Text.of(timespan)), "t", "-time")
+                .valueFlag(new BoundedIntegerArgument(Text.of(this.line), 1, 2),"l", "-line")
+                .valueFlag(new TimespanArgument(Text.of(this.timespan)), "t", "-time")
                 .buildWith(
-                    GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(message)))
+                    GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(this.message)))
                 )
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // Get the temporary message item.
-        ServerListGeneralDataModule mod = plugin.getGeneralService().get(ServerListGeneralDataModule.class);
+        ServerListGeneralDataModule mod = Nucleus.getNucleus().getGeneralService().get(ServerListGeneralDataModule.class);
 
         if (args.hasAny("r")) {
             if (mod.getMessage().isPresent()) {
@@ -57,7 +58,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
                 mod.remove();
 
                 // Send message.
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.serverlist.message.removed"));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.serverlist.message.removed"));
                 return CommandResult.success();
             }
 
@@ -65,7 +66,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
         }
 
         // Which line?
-        boolean linetwo = args.<Integer>getOne(line).map(x -> x == 2).orElse(false);
+        boolean linetwo = args.<Integer>getOne(this.line).map(x -> x == 2).orElse(false);
 
         Optional<String> onMessage = args.getOne(this.message);
 
@@ -85,10 +86,10 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
 
             if (newMessage.isPresent()) {
                 // Send message
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.serverlist.message.set"));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.serverlist.message.set"));
                 src.sendMessage(newMessage.get());
             } else {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.serverlist.message.empty"));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.serverlist.message.empty"));
             }
 
             return CommandResult.success();
@@ -97,7 +98,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
         String nMessage = onMessage.get();
 
         // If the expiry is null or before now, and there is no timespan, then it's an hour.
-        Instant endTime = args.<Long>getOne(timespan).map(x -> Instant.now().plus(x, ChronoUnit.SECONDS))
+        Instant endTime = args.<Long>getOne(this.timespan).map(x -> Instant.now().plus(x, ChronoUnit.SECONDS))
                 .orElseGet(() -> mod.getExpiry().map(x -> x.isBefore(Instant.now()) ? x.plusSeconds(3600) : x)
                 .orElseGet(() -> Instant.now().plusSeconds(3600)));
 
@@ -113,9 +114,9 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
 
         if (newMessage.isPresent()) {
             // Send message
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.serverlist.message.set"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.serverlist.message.set"));
             src.sendMessage(newMessage.get());
-            src.sendMessage(plugin.getMessageProvider()
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider()
                     .getTextMessageWithFormat("command.serverlist.message.expiry", Util.getTimeToNow(endTime)));
             return CommandResult.success();
         }

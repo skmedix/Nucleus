@@ -14,15 +14,15 @@ import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.function.Predicate;
 
-public abstract class AbstractAFKListener extends ListenerBase {
+abstract class AbstractAFKListener implements ListenerBase {
 
     private final AFKHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKHandler.class);
 
     final void update(Player player) {
-        handler.stageUserActivityUpdate(player);
+        this.handler.stageUserActivityUpdate(player);
     }
 
     final boolean getTriggerConfigEntry(Predicate<AFKConfig.Triggers> triggersPredicate) {
-        return this.plugin.getConfigValue(AFKModule.ID, AFKConfigAdapter.class, x -> triggersPredicate.test(x.getTriggers())).orElse(false);
+        return Nucleus.getNucleus().getConfigValue(AFKModule.ID, AFKConfigAdapter.class, x -> triggersPredicate.test(x.getTriggers())).orElse(false);
     }
 }

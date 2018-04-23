@@ -18,10 +18,10 @@ public class SafeTeleportConfig {
     private int height = TeleportHelper.DEFAULT_HEIGHT;
 
     public int getWidth() {
-        return Math.max(1, width);
+        return Math.max(1, this.width);
     }
 
     public int getHeight() {
-        return Math.max(1, height);
+        return Math.max(1, this.height);
     }
 }

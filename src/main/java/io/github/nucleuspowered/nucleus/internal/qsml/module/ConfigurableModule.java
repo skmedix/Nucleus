@@ -22,11 +22,11 @@ public abstract class ConfigurableModule<A extends NucleusConfigAdapter<?>> exte
     public abstract A createAdapter();
 
     protected final A getAdapter() {
-        if (adapter == null) {
-            adapter = createAdapter();
+        if (this.adapter == null) {
+            this.adapter = createAdapter();
         }
 
-        return adapter;
+        return this.adapter;
     }
 
     @Override
@@ -37,6 +37,6 @@ public abstract class ConfigurableModule<A extends NucleusConfigAdapter<?>> exte
 
     @Override
     void configTasks() {
-        plugin.getDocGenCache().ifPresent(x -> x.addConfigurableModule(this.getClass().getAnnotation(ModuleData.class).id(), this));
+        this.plugin.getDocGenCache().ifPresent(x -> x.addConfigurableModule(this.getClass().getAnnotation(ModuleData.class).id(), this));
     }
 }

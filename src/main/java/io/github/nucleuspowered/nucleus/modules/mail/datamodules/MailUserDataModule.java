@@ -20,24 +20,24 @@ public class MailUserDataModule extends DataModule<ModularUserService> {
     private List<MailData> mailDataList = Lists.newArrayList();
 
     public List<MailData> getMail() {
-        return ImmutableList.copyOf(mailDataList);
+        return ImmutableList.copyOf(this.mailDataList);
     }
 
     public void addMail(MailData mailData) {
-        if (mailDataList == null) {
-            mailDataList = Lists.newArrayList();
+        if (this.mailDataList == null) {
+            this.mailDataList = Lists.newArrayList();
         }
 
-        mailDataList.add(mailData);
+        this.mailDataList.add(mailData);
     }
 
     public boolean removeMail(MailMessage mailData) {
-        return mailDataList.removeIf(x -> x.equals(mailData));
+        return this.mailDataList.removeIf(x -> x.equals(mailData));
     }
 
     public boolean clearMail() {
-        if (!mailDataList.isEmpty()) {
-            mailDataList.clear();
+        if (!this.mailDataList.isEmpty()) {
+            this.mailDataList.clear();
             return true;
         } else {
             return false;

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.environment.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -29,14 +30,14 @@ public class TimeCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] { GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.world(Text.of(world)))) };
+        return new CommandElement[] { GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.world(Text.of(this.world)))) };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties pr = getWorldPropertiesOrDefault(src, world, args);
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        WorldProperties pr = getWorldPropertiesOrDefault(src, this.world, args);
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.time", pr.getWorldName(), String.valueOf(Util.getTimeFromTicks(pr.getWorldTime()))));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.time", pr.getWorldName(), String.valueOf(Util.getTimeFromTicks(pr.getWorldTime()))));
         return CommandResult.success();
     }
 }

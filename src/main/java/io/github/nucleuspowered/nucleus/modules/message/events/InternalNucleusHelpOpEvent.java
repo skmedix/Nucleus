@@ -23,12 +23,12 @@ public class InternalNucleusHelpOpEvent extends AbstractEvent implements Cancell
 
     @Override
     public Cause getCause() {
-        return cause;
+        return this.cause;
     }
 
     @Override
     public boolean isCancelled() {
-        return isCancelled;
+        return this.isCancelled;
     }
 
     @Override

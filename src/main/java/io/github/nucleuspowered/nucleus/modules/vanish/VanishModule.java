@@ -9,7 +9,6 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
-import io.github.nucleuspowered.nucleus.modules.jail.handlers.JailHandler;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.vanish.service.VanishService;
 import org.spongepowered.api.command.CommandSource;

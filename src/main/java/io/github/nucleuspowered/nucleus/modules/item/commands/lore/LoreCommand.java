@@ -19,7 +19,7 @@ public class LoreCommand extends AbstractCommand<Player> {
 
     // Not executed.
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         return CommandResult.empty();
     }
 }

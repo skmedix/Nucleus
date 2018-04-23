@@ -41,11 +41,11 @@ public class SeenHandler implements NucleusSeenService {
 
         String name = pl.name();
         List<SeenInformationProvider> providers;
-        if (pluginInformationProviders.containsKey(name)) {
-            providers = pluginInformationProviders.get(name);
+        if (this.pluginInformationProviders.containsKey(name)) {
+            providers = this.pluginInformationProviders.get(name);
         } else {
             providers = Lists.newArrayList();
-            pluginInformationProviders.put(name, providers);
+            this.pluginInformationProviders.put(name, providers);
         }
 
         providers.add(seenInformationProvider);
@@ -72,11 +72,11 @@ public class SeenHandler implements NucleusSeenService {
         Preconditions.checkArgument(plugin.getClass().getAnnotation(Plugin.class).equals(NucleusPlugin.class.getAnnotation(Plugin.class)));
 
         List<SeenInformationProvider> providers;
-        if (moduleInformationProviders.containsKey(module)) {
-            providers = moduleInformationProviders.get(module);
+        if (this.moduleInformationProviders.containsKey(module)) {
+            providers = this.moduleInformationProviders.get(module);
         } else {
             providers = Lists.newArrayList();
-            moduleInformationProviders.put(module, providers);
+            this.moduleInformationProviders.put(module, providers);
         }
 
         providers.add(seenInformationProvider);
@@ -91,7 +91,7 @@ public class SeenHandler implements NucleusSeenService {
     private List<Text> getModuleText(final CommandSource requester, final User user) {
         List<Text> information = Lists.newArrayList();
 
-        for (Map.Entry<String, List<SeenInformationProvider>> entry : moduleInformationProviders.entrySet()) {
+        for (Map.Entry<String, List<SeenInformationProvider>> entry : this.moduleInformationProviders.entrySet()) {
             entry.getValue().stream().filter(sip -> sip.hasPermission(requester, user)).forEach(sip -> {
                 Collection<Text> input = sip.getInformation(requester, user);
                 if (input != null && !input.isEmpty()) {
@@ -106,7 +106,7 @@ public class SeenHandler implements NucleusSeenService {
     private List<Text> getText(final CommandSource requester, final User user) {
         List<Text> information = Lists.newArrayList();
 
-        for (Map.Entry<String, List<SeenInformationProvider>> entry : pluginInformationProviders.entrySet()) {
+        for (Map.Entry<String, List<SeenInformationProvider>> entry : this.pluginInformationProviders.entrySet()) {
             entry.getValue().stream().filter(sip -> sip.hasPermission(requester, user)).forEach(sip -> {
                 Collection<Text> input = sip.getInformation(requester, user);
                 if (input != null && !input.isEmpty()) {

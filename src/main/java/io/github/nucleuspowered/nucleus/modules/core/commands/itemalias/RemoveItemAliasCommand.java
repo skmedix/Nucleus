@@ -36,19 +36,19 @@ public class RemoveItemAliasCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.onlyOne(
-                    GenericArguments.choices(Text.of(alias), itemDataService::getAliases, Function.identity()))
+                    GenericArguments.choices(Text.of(this.alias), this.itemDataService::getAliases, Function.identity()))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        String al = args.<String>getOne(alias).get();
-        String id = itemDataService.getIdFromAlias(al).get();
-        ItemDataNode node = itemDataService.getDataForItem(id);
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        String al = args.<String>getOne(this.alias).get();
+        String id = this.itemDataService.getIdFromAlias(al).get();
+        ItemDataNode node = this.itemDataService.getDataForItem(id);
         node.removeAlias(al);
-        itemDataService.setDataForItem(id, node);
+        this.itemDataService.setDataForItem(id, node);
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.removeitemalias.removed", al, id));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.removeitemalias.removed", al, id));
         return CommandResult.success();
     }
 }

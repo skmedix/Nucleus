@@ -38,14 +38,14 @@ import java.util.stream.Collectors;
 public class ListPowertoolCommand extends AbstractCommand<Player> {
 
     @Override
-    public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player src, CommandContext args) {
         PowertoolUserDataModule inu = Nucleus.getNucleus().getUserDataManager().getUnchecked(src).get(PowertoolUserDataModule.class);
 
         boolean toggle = inu.isPowertoolToggled();
         Map<String, List<String>> powertools = inu.getPowertools();
 
         if (powertools.isEmpty()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.powertool.list.none"));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.powertool.list.none"));
             return CommandResult.success();
         }
 
@@ -54,7 +54,7 @@ public class ListPowertoolCommand extends AbstractCommand<Player> {
                 .map(k -> from(inu, src, k.getKey(), k.getValue())).collect(Collectors.toList());
 
         // Paginate the tools.
-        Util.getPaginationBuilder(src).title(plugin.getMessageProvider()
+        Util.getPaginationBuilder(src).title(Nucleus.getNucleus().getMessageProvider()
                 .getTextMessageWithFormat("command.powertool.list.header", toggle ? "&aenabled" : "&cdisabled"))
                 .padding(Text.of(TextColors.YELLOW, "-")).contents(mesl).sendTo(src);
 
@@ -64,7 +64,7 @@ public class ListPowertoolCommand extends AbstractCommand<Player> {
     private Text from(final PowertoolUserDataModule inu, Player src, String powertool, List<String> commands) {
         Optional<ItemType> oit = Sponge.getRegistry().getType(ItemType.class, powertool);
 
-        MessageProvider mp = plugin.getMessageProvider();
+        MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
 
         // Create the click actions.
         ClickAction viewAction = TextActions.executeCallback(pl -> Util.getPaginationBuilder(src)

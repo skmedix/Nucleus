@@ -52,7 +52,7 @@ public class WarningArgument extends CommandElement {
             throw args.createError(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("args.warning.noindex", user.getName()));
         }
 
-        List<WarnData> warnData = handler.getWarningsInternal(user);
+        List<WarnData> warnData = this.handler.getWarningsInternal(user);
         int index;
         try {
             index = Integer.parseInt(optIndex.get()) - 1;

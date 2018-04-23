@@ -63,7 +63,7 @@ public class MeCommand extends AbstractCommand<CommandSource> implements Reloada
     public CommandResult executeCommand(@Nonnull CommandSource src, CommandContext args) throws Exception {
         String message = ChatListener.stripPermissionless(src, args.<String>getOne(messageKey).get());
         Text header = config.getMePrefix().getForCommandSource(src);
-        TextParsingUtils.StyleTuple t = plugin.getTextParsingUtils().getLastColourAndStyle(header, null);
+        TextParsingUtils.StyleTuple t = Nucleus.getNucleus().getTextParsingUtils().getLastColourAndStyle(header, null);
         Text originalMessage = TextSerializers.FORMATTING_CODE.deserialize(message);
         MessageEvent.MessageFormatter formatter = new MessageEvent.MessageFormatter(
             Text.builder().color(t.colour).style(t.style)
@@ -80,7 +80,7 @@ public class MeCommand extends AbstractCommand<CommandSource> implements Reloada
                 EventContext.builder().add(EventContexts.SHOULD_FORMAT_CHANNEL, false).build(), src);
 
         if (Sponge.getEventManager().post(event)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.me.cancel"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.me.cancel"));
         }
 
         event.getChannel().orElse(channel).send(src, Util.applyChatTemplate(event.getFormatter()), ChatTypes.CHAT);

@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
-public class MuteTask extends TaskBase {
+public class MuteTask implements TaskBase {
 
     private final MuteHandler muteHandler = getServiceUnchecked(MuteHandler.class);
 

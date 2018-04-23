@@ -29,7 +29,7 @@ public class MessageUserDataModule extends DataModule.ReferenceService<ModularUs
     }
 
     public boolean isMsgToggle() {
-        return msgToggle;
+        return this.msgToggle;
     }
 
     public void setMsgToggle(boolean msgToggle) {

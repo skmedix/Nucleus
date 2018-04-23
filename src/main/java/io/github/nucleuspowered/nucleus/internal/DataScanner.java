@@ -62,7 +62,7 @@ public final class DataScanner {
     private final Map<String, Key<? extends BaseValue<?>>> reportableKeys;
 
     private DataScanner() {
-        reportableKeys = new HashMap<>();
+        this.reportableKeys = new HashMap<>();
 
         // Start Key Scanning
 
@@ -71,8 +71,8 @@ public final class DataScanner {
         for (Field fi : f) {
             try {
                 Object o = fi.get(null);
-                if ((o != null) && (o instanceof Key)) {
-                    reportableKeys.put(createName(fi.getName()), (Key<? extends BaseValue<?>>) o);
+                if ((o instanceof Key)) {
+                    this.reportableKeys.put(createName(fi.getName()), (Key<? extends BaseValue<?>>) o);
                 }
             } catch (IllegalAccessException e) {
                 // Don't know, don't care.
@@ -106,7 +106,7 @@ public final class DataScanner {
     }
 
     private ImmutableMap<String, Key<? extends BaseValue<?>>> getKeys() {
-        return ImmutableMap.copyOf(reportableKeys);
+        return ImmutableMap.copyOf(this.reportableKeys);
     }
 
     public static Optional<Text> getText(CommandSource src, String translationKey, String key, Object x) {

@@ -35,17 +35,18 @@ public class JailTeleportCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(new JailArgument(Text.of(jailKey), handler))};
+        return new CommandElement[] {GenericArguments.onlyOne(new JailArgument(Text.of(this.jailKey), this.handler))};
     }
 
     @Override protected CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        NamedLocation location = args.<NamedLocation>getOne(jailKey).get();
+        NamedLocation location = args.<NamedLocation>getOne(this.jailKey).get();
         Transform<World> location1 = location.getTransform().orElseThrow(
-                () -> new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.tp.noworld", location.getName()))
+                () -> new ReturnMessageException(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.tp.noworld", location.getName()))
         );
 
         src.setTransform(location1);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.jails.tp.success", location.getName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jails.tp.success", location.getName()));
         return CommandResult.success();
     }
 }

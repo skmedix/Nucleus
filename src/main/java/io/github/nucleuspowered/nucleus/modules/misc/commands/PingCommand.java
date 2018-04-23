@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.misc.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -22,12 +23,12 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @EssentialsEquivalent(value = { "ping", "pong", "echo" }, isExact = false, notes = "Returns your latency, not your message.")
 public class PingCommand extends AbstractCommand.SimpleTargetOtherPlayer {
 
-    @Override protected CommandResult executeWithPlayer(CommandSource source, Player target, CommandContext args, boolean isSelf) throws Exception {
+    @Override protected CommandResult executeWithPlayer(CommandSource source, Player target, CommandContext args, boolean isSelf) {
         if (isSelf) {
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ping.current.self",
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ping.current.self",
                 String.valueOf(target.getConnection().getLatency())));
         } else {
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ping.current.other",
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ping.current.other",
                 target.getName(), String.valueOf(target.getConnection().getLatency())));
         }
 

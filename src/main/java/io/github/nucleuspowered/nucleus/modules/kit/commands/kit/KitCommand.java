@@ -85,7 +85,7 @@ public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
 
         EconHelper econHelper = Nucleus.getNucleus().getEconHelper();
         double cost = econHelper.economyServiceExists() ? kit.getCost() : 0;
-        if (permissions.testCostExempt(player)) {
+        if (this.permissions.testCostExempt(player)) {
             // If exempt - no cost.
             cost = 0;
         }
@@ -101,15 +101,15 @@ public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
             if (!redeemResult.rejected().isEmpty()) {
                 // If we drop them, tell the user
                 if (this.isDrop) {
-                    player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.itemsdropped"));
+                    player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.itemsdropped"));
                     redeemResult.rejected().forEach(x -> Util.dropItemOnFloorAtLocation(x, player.getLocation()));
                 } else {
-                    player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.fullinventory"));
+                    player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.fullinventory"));
                 }
             }
 
             if (kit.isDisplayMessageOnRedeem()) {
-                player.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.kit.spawned", kit.getName()));
+                player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.spawned", kit.getName()));
             }
 
             // Charge, if necessary
@@ -142,7 +142,7 @@ public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
     }
 
     @Override
-    public void onReload() throws Exception {
+    public void onReload() {
         KitConfigAdapter kca = getServiceUnchecked(KitConfigAdapter.class);
         this.isDrop = kca.getNodeOrDefault().isDropKitIfFull();
         this.mustGetAll = kca.getNodeOrDefault().isMustGetAll();

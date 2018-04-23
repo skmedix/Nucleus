@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.IfConditionElseArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
@@ -51,7 +52,7 @@ public class TeleportHereCommand extends AbstractCommand<Player> implements Relo
 
     private boolean isDefaultQuiet = false;
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.isDefaultQuiet = getServiceUnchecked(TeleportConfigAdapter.class).getNodeOrDefault().isDefaultQuiet();
     }
 
@@ -68,27 +69,27 @@ public class TeleportHereCommand extends AbstractCommand<Player> implements Relo
                 GenericArguments.flags().flag("q", "-quiet").buildWith(
                     GenericArguments.onlyOne(
                         IfConditionElseArgument.permission(this.permissions.getPermissionWithSuffix("offline"),
-                            SelectorWrapperArgument.nicknameSelector(Text.of(playerKey), NicknameArgument.UnderlyingType.USER),
-                            SelectorWrapperArgument.nicknameSelector(Text.of(playerKey), NicknameArgument.UnderlyingType.PLAYER))))
+                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.USER),
+                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER))))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
         boolean beQuiet = args.<Boolean>getOne("q").orElse(this.isDefaultQuiet);
-        User target = args.<User>getOne(playerKey).get();
+        User target = args.<User>getOne(this.playerKey).get();
         if (target.getPlayer().isPresent()) {
-            handler.getBuilder().setFrom(target.getPlayer().get()).setTo(src).setSilentSource(beQuiet).startTeleport();
+            this.handler.getBuilder().setFrom(target.getPlayer().get()).setTo(src).setSilentSource(beQuiet).startTeleport();
         } else {
-            permissions.checkSuffix(src, "offline", () -> ReturnMessageException.fromKey("command.tphere.noofflineperms"));
+            this.permissions.checkSuffix(src, "offline", () -> ReturnMessageException.fromKey("command.tphere.noofflineperms"));
 
             // Update the offline player's next location
-            ModularUserService mus = plugin.getUserDataManager().get(target)
+            ModularUserService mus = Nucleus.getNucleus().getUserDataManager().get(target)
                     .orElseThrow(() -> ReturnMessageException.fromKey("command.tphere.couldnotset", target.getName()));
             mus.get(CoreUserDataModule.class).sendToLocationOnLogin(src.getLocation());
             mus.save();
 
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.tphere.offlinesuccess", target.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tphere.offlinesuccess", target.getName()));
         }
 
         return CommandResult.success();

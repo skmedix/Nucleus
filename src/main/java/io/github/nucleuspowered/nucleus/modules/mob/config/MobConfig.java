@@ -32,18 +32,18 @@ public class MobConfig {
     private boolean perMobPermission = false;
 
     public int getMaxMobsToSpawn() {
-        return Math.max(1, maxMobsToSpawn);
+        return Math.max(1, this.maxMobsToSpawn);
     }
 
     public Map<String, BlockSpawnsConfig> getBlockSpawnsConfig() {
-        return ImmutableMap.copyOf(blockSpawnsConfig);
+        return ImmutableMap.copyOf(this.blockSpawnsConfig);
     }
 
     public Optional<BlockSpawnsConfig> getBlockSpawnsConfigForWorld(World world) {
-        return Optional.ofNullable(blockSpawnsConfig.get(world.getName()));
+        return Optional.ofNullable(this.blockSpawnsConfig.get(world.getName()));
     }
 
     public boolean isPerMobPermission() {
-        return perMobPermission;
+        return this.perMobPermission;
     }
 }

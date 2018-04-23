@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.misc.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.DataScanner;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -45,7 +46,7 @@ public class BlockInfoCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.flags().permissionFlag(permissions.getPermissionWithSuffix("extended"), "e", "-extended")
+        return new CommandElement[] {GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("extended"), "e", "-extended")
                 .buildWith(GenericArguments.none())};
     }
 
@@ -57,7 +58,7 @@ public class BlockInfoCommand extends AbstractCommand<Player> {
     }
 
     @Override
-    public CommandResult executeCommand(Player player, CommandContext args) throws Exception {
+    public CommandResult executeCommand(Player player, CommandContext args) {
         BlockRay<World> bl = BlockRay.from(player).distanceLimit(10).stopFilter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1)).build();
         Optional<BlockRayHit<World>> ob = bl.end();
 
@@ -70,8 +71,8 @@ public class BlockInfoCommand extends AbstractCommand<Player> {
             BlockType it = b.getType();
 
             List<Text> lt = new ArrayList<>();
-            lt.add(plugin.getMessageProvider().getTextMessageWithFormat("command.blockinfo.id", it.getId(), it.getTranslation().get()));
-            lt.add(plugin.getMessageProvider().getTextMessageWithFormat("command.iteminfo.extendedid", b.getId()));
+            lt.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.blockinfo.id", it.getId(), it.getTranslation().get()));
+            lt.add(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.iteminfo.extendedid", b.getId()));
 
             if (args.hasAny("e") || args.hasAny("extended")) {
                 Collection<Property<?, ?>> cp = b.getApplicableProperties();
@@ -91,14 +92,14 @@ public class BlockInfoCommand extends AbstractCommand<Player> {
             }
 
             Sponge.getServiceManager().provideUnchecked(PaginationService.class).builder().contents(lt).padding(Text.of(TextColors.GREEN, "-"))
-                    .title(plugin.getMessageProvider().getTextMessageWithFormat("command.blockinfo.list.header", String.valueOf(brh.getBlockX()),
+                    .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.blockinfo.list.header", String.valueOf(brh.getBlockX()),
                             String.valueOf(brh.getBlockY()), String.valueOf(brh.getBlockZ())))
                     .sendTo(player);
 
             return CommandResult.success();
         }
 
-        player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.blockinfo.none"));
+        player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.blockinfo.none"));
         return CommandResult.empty();
     }
 }

@@ -10,18 +10,15 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.service.NucleusJailService;
+import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
-import io.github.nucleuspowered.nucleus.modules.freezeplayer.datamodules.FreezePlayerUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.jail.commands.CheckJailCommand;
 import io.github.nucleuspowered.nucleus.modules.jail.config.JailConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.jail.data.JailData;
 import io.github.nucleuspowered.nucleus.modules.jail.handlers.JailHandler;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
@@ -31,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @ModuleData(id = JailModule.ID, name = "Jail")
+@RegisterService(value = JailHandler.class, apiService = NucleusJailService.class)
 public class JailModule extends ConfigurableModule<JailConfigAdapter> {
 
     public static final String ID = "jail";
@@ -38,23 +36,6 @@ public class JailModule extends ConfigurableModule<JailConfigAdapter> {
     @Override
     public JailConfigAdapter createAdapter() {
         return new JailConfigAdapter();
-    }
-
-    @Override
-    protected void performPreTasks() throws Exception {
-        try {
-            Nucleus nucleus = Nucleus.getNucleus();
-            JailHandler jh = new JailHandler(nucleus);
-            Sponge.getServiceManager().setProvider(nucleus, NucleusJailService.class, jh);
-            serviceManager.registerService(JailHandler.class, jh);
-
-            // Context
-            Sponge.getServiceManager().provide(PermissionService.class).ifPresent(x -> x.registerContextCalculator(jh));
-        } catch (Exception ex) {
-            Nucleus.getNucleus().getLogger().warn("Could not load the jail module for the reason below.");
-            ex.printStackTrace();
-            throw ex;
-        }
     }
 
     @Override

@@ -62,14 +62,14 @@ public class PermissionsTest extends TestBase {
 
         @Test
         public void testPermissionIsValid() throws IllegalAccessException, InstantiationException {
-            AbstractCommand c = clazz.newInstance();
+            AbstractCommand c = this.clazz.newInstance();
             getInjector().injectMembers(c);
             c.postInit();
             Subject s = Mockito.mock(Subject.class);
             Mockito.when(s.hasPermission(Matchers.any())).thenReturn(false);
-            Mockito.when(s.hasPermission(Matchers.eq(permission))).thenReturn(true);
+            Mockito.when(s.hasPermission(Matchers.eq(this.permission))).thenReturn(true);
             Mockito.validateMockitoUsage();
-            Assert.assertTrue("The permission " + permission + " was not available for " + clazz.getName(), c.getPermissionHandler().testBase(s));
+            Assert.assertTrue("The permission " + this.permission + " was not available for " + this.clazz.getName(), c.getPermissionHandler().testBase(s));
         }
 
     }
@@ -106,14 +106,14 @@ public class PermissionsTest extends TestBase {
 
         @Test
         public void testPermissionIsNotValid() throws IllegalAccessException, InstantiationException {
-            AbstractCommand c = clazz.newInstance();
+            AbstractCommand c = this.clazz.newInstance();
             getInjector().injectMembers(c);
             c.postInit();
             Subject s = Mockito.mock(Subject.class);
             Mockito.when(s.hasPermission(Matchers.any())).thenReturn(false);
-            Mockito.when(s.hasPermission(Matchers.eq(permission))).thenReturn(true);
+            Mockito.when(s.hasPermission(Matchers.eq(this.permission))).thenReturn(true);
             Mockito.validateMockitoUsage();
-            Assert.assertFalse("The permission " + permission + " was not available for " + clazz.getName(), c.getPermissionHandler().testBase(s));
+            Assert.assertFalse("The permission " + this.permission + " was not available for " + this.clazz.getName(), c.getPermissionHandler().testBase(s));
         }
     }
 

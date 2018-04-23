@@ -14,6 +14,6 @@ public class WeightedChatTemplateConfig extends ChatTemplateConfig {
     private int weight = 1;
 
     public int getWeight() {
-        return weight;
+        return this.weight;
     }
 }

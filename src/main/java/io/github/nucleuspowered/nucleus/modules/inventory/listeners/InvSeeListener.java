@@ -23,7 +23,7 @@ import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import java.util.Map;
 import java.util.UUID;
 
-public class InvSeeListener extends ListenerBase {
+public class InvSeeListener implements ListenerBase {
 
     private static Map<UUID, Inventory> preventModify = Maps.newHashMap();
 

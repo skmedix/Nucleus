@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -32,27 +33,30 @@ public class DisableWorldCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))
+            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties worldProperties = args.<WorldProperties>getOne(worldKey).get();
+        WorldProperties worldProperties = args.<WorldProperties>getOne(this.worldKey).get();
         if (!worldProperties.isEnabled()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.disable.alreadydisabled", worldProperties.getWorldName()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.disable.alreadydisabled", worldProperties.getWorldName()));
         }
 
         if (Sponge.getServer().getWorld(worldProperties.getUniqueId()).isPresent()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.disable.warnloaded", worldProperties.getWorldName()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.disable.warnloaded", worldProperties.getWorldName()));
         }
 
         worldProperties.setEnabled(false);
         if (worldProperties.isEnabled()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.world.disable.couldnotdisable", worldProperties.getWorldName()));
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.disable.couldnotdisable", worldProperties.getWorldName()));
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.disable.success", worldProperties.getWorldName()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.disable.success", worldProperties.getWorldName()));
         return CommandResult.success();
     }
 }

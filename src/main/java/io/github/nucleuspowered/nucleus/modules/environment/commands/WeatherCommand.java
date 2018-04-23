@@ -48,7 +48,7 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
 
     private long max = Long.MAX_VALUE;
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.max = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(EnvironmentConfigAdapter.class).getNodeOrDefault()
                 .getMaximumWeatherTimespan();
     }
@@ -64,16 +64,16 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
     public CommandElement[] getArguments() {
         return new CommandElement[]{
                 GenericArguments.optionalWeak(GenericArguments.onlyOne(
-                        new NucleusWorldPropertiesArgument(Text.of(world), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))),
-                GenericArguments.onlyOne(new WeatherArgument(Text.of(weather))), // More flexible with the arguments we can use.
-                GenericArguments.onlyOne(GenericArguments.optional(new TimespanArgument(Text.of(duration))))
+                        new NucleusWorldPropertiesArgument(Text.of(this.world), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))),
+                GenericArguments.onlyOne(new WeatherArgument(Text.of(this.weather))), // More flexible with the arguments we can use.
+                GenericArguments.onlyOne(GenericArguments.optional(new TimespanArgument(Text.of(this.duration))))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // We can predict the weather on multiple worlds now!
-        WorldProperties wp = this.getWorldFromUserOrArgs(src, world, args);
+        WorldProperties wp = this.getWorldFromUserOrArgs(src, this.world, args);
         World w = Sponge.getServer().getWorld(wp.getUniqueId())
             .orElseThrow(() -> ReturnMessageException.fromKey("args.worldproperties.notloaded", wp.getWorldName()));
 
@@ -85,24 +85,24 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
         }
 
         // Houston, we have a world! Now, what was the forecast?
-        Weather we = args.<Weather>getOne(weather).get();
+        Weather we = args.<Weather>getOne(this.weather).get();
 
         // Have we gotten an accurate forecast? Do we know how long this weather spell will go on for?
-        Optional<Long> oi = args.getOne(duration);
+        Optional<Long> oi = args.getOne(this.duration);
 
         // Even weather masters have their limits. Sometimes.
-        if (max > 0 && oi.orElse(Long.MAX_VALUE) > max && !permissions.testSuffix(src, "exempt.length")) {
-            throw ReturnMessageException.fromKey("command.weather.toolong", Util.getTimeStringFromSeconds(max));
+        if (this.max > 0 && oi.orElse(Long.MAX_VALUE) > this.max && !this.permissions.testSuffix(src, "exempt.length")) {
+            throw ReturnMessageException.fromKey("command.weather.toolong", Util.getTimeStringFromSeconds(this.max));
         }
 
         if (oi.isPresent()) {
             // YES! I should get a job at the weather service and show them how it's done!
             w.setWeather(we, oi.get() * 20L);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.weather.time", we.getName(), w.getName(), Util.getTimeStringFromSeconds(oi.get())));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.weather.time", we.getName(), w.getName(), Util.getTimeStringFromSeconds(oi.get())));
         } else {
             // No, probably because I've already gotten a job at the weather service...
             w.setWeather(we);
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.weather.set", we.getName(), w.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.weather.set", we.getName(), w.getName()));
         }
 
         // The weather control device has been activated!

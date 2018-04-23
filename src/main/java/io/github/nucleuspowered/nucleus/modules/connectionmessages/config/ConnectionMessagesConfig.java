@@ -47,42 +47,42 @@ public class ConnectionMessagesConfig {
     private boolean forceForAll = true;
 
     public boolean isShowFirstTimeMessage() {
-        return showFirstTimeMessage;
+        return this.showFirstTimeMessage;
     }
 
     public NucleusTextTemplateImpl getFirstTimeMessage() {
-        return firstTimeMessage;
+        return this.firstTimeMessage;
     }
 
     public boolean isModifyLoginMessage() {
-        return modifyLoginMessage;
+        return this.modifyLoginMessage;
     }
 
     public boolean isModifyLogoutMessage() {
-        return modifyLogoutMessage;
+        return this.modifyLogoutMessage;
     }
 
     public NucleusTextTemplateImpl getLoginMessage() {
-        return loginMessage;
+        return this.loginMessage;
     }
 
     public NucleusTextTemplateImpl getLogoutMessage() {
-        return logoutMessage;
+        return this.logoutMessage;
     }
 
     public boolean isDisableWithPermission() {
-        return disableWithPermission;
+        return this.disableWithPermission;
     }
 
     public boolean isDisplayPriorName() {
-        return displayPriorName;
+        return this.displayPriorName;
     }
 
     public NucleusTextTemplateImpl getPriorNameMessage() {
-        return priorNameMessage;
+        return this.priorNameMessage;
     }
 
     public boolean isForceForAll() {
-        return forceForAll;
+        return this.forceForAll;
     }
 }

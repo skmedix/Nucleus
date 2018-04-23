@@ -40,19 +40,19 @@ public class OnFirstLoginEvent extends AbstractEvent implements NucleusFirstJoin
     }
 
     @Override public Player getTargetEntity() {
-        return player;
+        return this.player;
     }
 
     @Override public Cause getCause() {
-        return cause;
+        return this.cause;
     }
 
     @Override public MessageChannel getOriginalChannel() {
-        return originalChannel;
+        return this.originalChannel;
     }
 
     @Override public Optional<MessageChannel> getChannel() {
-        return Optional.ofNullable(currentChannel);
+        return Optional.ofNullable(this.currentChannel);
     }
 
     @Override public void setChannel(@Nullable MessageChannel channel) {

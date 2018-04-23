@@ -79,7 +79,7 @@ public class CommandDoc {
     @Setting private String subcommands;
 
     public String getCommandName() {
-        return commandName;
+        return this.commandName;
     }
 
     public void setCommandName(String commandName) {
@@ -87,7 +87,7 @@ public class CommandDoc {
     }
 
     public String getAliases() {
-        return aliases;
+        return this.aliases;
     }
 
     public void setAliases(String aliases) {
@@ -95,7 +95,7 @@ public class CommandDoc {
     }
 
     public String getDefaultLevel() {
-        return defaultLevel;
+        return this.defaultLevel;
     }
 
     public void setDefaultLevel(String defaultLevel) {
@@ -103,7 +103,7 @@ public class CommandDoc {
     }
 
     public String getUsageString() {
-        return usageString;
+        return this.usageString;
     }
 
     public void setUsageString(String usageString) {
@@ -111,7 +111,7 @@ public class CommandDoc {
     }
 
     public String getOneLineDescription() {
-        return oneLineDescription;
+        return this.oneLineDescription;
     }
 
     public void setOneLineDescription(String oneLineDescription) {
@@ -119,7 +119,7 @@ public class CommandDoc {
     }
 
     public String getExtendedDescription() {
-        return extendedDescription;
+        return this.extendedDescription;
     }
 
     public void setExtendedDescription(String extendedDescription) {
@@ -127,7 +127,7 @@ public class CommandDoc {
     }
 
     public String getModule() {
-        return module;
+        return this.module;
     }
 
     public void setModule(String module) {
@@ -135,7 +135,7 @@ public class CommandDoc {
     }
 
     public String getPermissionbase() {
-        return permissionbase;
+        return this.permissionbase;
     }
 
     public void setPermissionbase(String permissionbase) {
@@ -143,7 +143,7 @@ public class CommandDoc {
     }
 
     public boolean isWarmup() {
-        return warmup;
+        return this.warmup;
     }
 
     public void setWarmup(boolean warmup) {
@@ -151,7 +151,7 @@ public class CommandDoc {
     }
 
     public boolean isCooldown() {
-        return cooldown;
+        return this.cooldown;
     }
 
     public void setCooldown(boolean cooldown) {
@@ -159,7 +159,7 @@ public class CommandDoc {
     }
 
     public boolean isCost() {
-        return cost;
+        return this.cost;
     }
 
     public void setCost(boolean cost) {
@@ -167,7 +167,7 @@ public class CommandDoc {
     }
 
     public List<PermissionDoc> getPermissions() {
-        return permissions;
+        return this.permissions;
     }
 
     public void setPermissions(List<PermissionDoc> permissions) {
@@ -175,7 +175,7 @@ public class CommandDoc {
     }
 
     public boolean isRequiresMixin() {
-        return requiresMixin;
+        return this.requiresMixin;
     }
 
     public void setRequiresMixin(boolean requiresMixin) {
@@ -183,19 +183,19 @@ public class CommandDoc {
     }
 
     public String getNucleusVersion() {
-        return nucleusVersion;
+        return this.nucleusVersion;
     }
 
     public String getMinecraftVersion() {
-        return minecraftVersion;
+        return this.minecraftVersion;
     }
 
     public String getSpongeVersion() {
-        return spongeVersion;
+        return this.spongeVersion;
     }
 
     public String getRootAliases() {
-        return rootAliases;
+        return this.rootAliases;
     }
 
     public void setRootAliases(String rootAliases) {
@@ -223,13 +223,13 @@ public class CommandDoc {
             };
         }
 
-        nucleusVersion = since.nucleusVersion().isEmpty() ? null : since.nucleusVersion();
-        minecraftVersion = since.minecraftVersion().isEmpty() ? null : since.minecraftVersion();
-        spongeVersion = since.spongeApiVersion().isEmpty() ? null : since.spongeApiVersion();
+        this.nucleusVersion = since.nucleusVersion().isEmpty() ? null : since.nucleusVersion();
+        this.minecraftVersion = since.minecraftVersion().isEmpty() ? null : since.minecraftVersion();
+        this.spongeVersion = since.spongeApiVersion().isEmpty() ? null : since.spongeApiVersion();
     }
 
     public String getSimpleUsage() {
-        return simpleUsage;
+        return this.simpleUsage;
     }
 
     public void setSimpleUsage(String simpleUsage) {
@@ -237,7 +237,7 @@ public class CommandDoc {
     }
 
     public String getSubcommands() {
-        return subcommands;
+        return this.subcommands;
     }
 
     public void setSubcommands(String subcommands) {
@@ -245,7 +245,7 @@ public class CommandDoc {
     }
 
     public List<String> getEssentialsEquivalents() {
-        return essentialsEquivalents;
+        return this.essentialsEquivalents;
     }
 
     public void setEssentialsEquivalents(List<String> essentialsEquivalents) {
@@ -253,15 +253,15 @@ public class CommandDoc {
     }
 
     public Boolean getExactEssEquiv() {
-        return isExactEssEquiv;
+        return this.isExactEssEquiv;
     }
 
     public void setExactEssEquiv(Boolean exactEssEquiv) {
-        isExactEssEquiv = exactEssEquiv;
+        this.isExactEssEquiv = exactEssEquiv;
     }
 
     public String getEssNotes() {
-        return essNotes;
+        return this.essNotes;
     }
 
     public void setEssNotes(String essNotes) {

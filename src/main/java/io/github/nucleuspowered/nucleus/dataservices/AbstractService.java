@@ -8,14 +8,12 @@ import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.dataservices.dataproviders.DataProvider;
 
-import java.io.IOException;
-
 public abstract class AbstractService<T> implements Service {
 
     protected T data;
     private final DataProvider<T> dataProvider;
 
-    protected AbstractService(DataProvider<T> dataProvider) throws Exception {
+    protected AbstractService(DataProvider<T> dataProvider) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
     }
 
@@ -48,7 +46,7 @@ public abstract class AbstractService<T> implements Service {
         if (Nucleus.getNucleus().isPrintingSavesAndLoads()) {
             Nucleus.getNucleus().getLogger().info("Loading: " + serviceName());
         }
-        data = dataProvider.load();
+        this.data = this.dataProvider.load();
     }
 
     @Override
@@ -68,7 +66,7 @@ public abstract class AbstractService<T> implements Service {
             if (Nucleus.getNucleus().isPrintingSavesAndLoads()) {
                 Nucleus.getNucleus().getLogger().info("Saving: " + serviceName());
             }
-            dataProvider.save(data);
+            this.dataProvider.save(this.data);
             return;
         }
 
@@ -80,7 +78,7 @@ public abstract class AbstractService<T> implements Service {
             if (Nucleus.getNucleus().isPrintingSavesAndLoads()) {
                 Nucleus.getNucleus().getLogger().info("Deleting: " + serviceName());
             }
-            dataProvider.delete();
+            this.dataProvider.delete();
             return true;
         } catch (Exception e) {
             Nucleus.getNucleus().getLogger().error("Could not delete", e);

@@ -39,27 +39,27 @@ public class ServerListConfig {
     }
 
     public boolean isHideVanishedPlayers() {
-        return hideVanishedPlayers;
+        return this.hideVanishedPlayers;
     }
 
     public boolean isHidePlayerCount() {
-        return hidePlayerCount;
+        return this.hidePlayerCount;
     }
 
     public List<NucleusTextTemplateImpl> getMessages() {
-        return messages;
+        return this.messages;
     }
 
     public List<NucleusTextTemplateImpl> getWhitelist() {
-        return whitelist;
+        return this.whitelist;
     }
 
     public boolean enableListener() {
-        return modifyServerList == ServerListSelection.TRUE || hideVanishedPlayers || hidePlayerCount;
+        return this.modifyServerList == ServerListSelection.TRUE || this.hideVanishedPlayers || this.hidePlayerCount;
     }
 
     public boolean enableWhitelistListener() {
-        return modifyServerList == ServerListSelection.WHITELIST;
+        return this.modifyServerList == ServerListSelection.WHITELIST;
     }
 
     public ServerListSelection getModifyServerList() {

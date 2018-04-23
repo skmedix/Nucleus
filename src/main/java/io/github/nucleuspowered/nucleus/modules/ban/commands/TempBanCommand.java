@@ -51,7 +51,7 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
     private final String duration = "duration";
     private BanConfig banConfig = new BanConfig();
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         this.banConfig = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(BanConfigAdapter.class).getNodeOrDefault();
     }
 
@@ -67,28 +67,29 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(GenericArguments.user(Text.of(user))), GenericArguments.onlyOne(new TimespanArgument(Text.of(duration))),
-                GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of(reasonKey)))
+                GenericArguments.onlyOne(GenericArguments.user(Text.of(this.user))), GenericArguments.onlyOne(new TimespanArgument(Text.of(
+                this.duration))),
+                GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of(this.reasonKey)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User u = args.<User>getOne(user).get();
-        Long time = args.<Long>getOne(duration).get();
-        String reason = args.<String>getOne(reasonKey).orElse(plugin.getMessageProvider().getMessageWithFormat("ban.defaultreason"));
+        User u = args.<User>getOne(this.user).get();
+        Long time = args.<Long>getOne(this.duration).get();
+        String reason = args.<String>getOne(this.reasonKey).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
 
-        if (permissions.testSuffix(u, "exempt.target", src, false)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.tempban.exempt", u.getName()));
+        if (this.permissions.testSuffix(u, "exempt.target", src, false)) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tempban.exempt", u.getName()));
         }
 
-        if (!u.isOnline() && !permissions.testSuffix(src, "offline")) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.tempban.offline.noperms"));
+        if (!u.isOnline() && !this.permissions.testSuffix(src, "offline")) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tempban.offline.noperms"));
         }
 
-        if (time > banConfig.getMaximumTempBanLength() &&  banConfig.getMaximumTempBanLength() != -1 &&
-                !permissions.testSuffix(src, "exempt.length")) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.tempban.length.toolong",
+        if (time > this.banConfig.getMaximumTempBanLength() && this.banConfig.getMaximumTempBanLength() != -1 &&
+                !this.permissions.testSuffix(src, "exempt.length")) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tempban.length.toolong",
                     Util.getTimeStringFromSeconds(this.banConfig.getMaximumTempBanLength())));
             return CommandResult.success();
         }
@@ -96,7 +97,7 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
         BanService service = Sponge.getServiceManager().provideUnchecked(BanService.class);
 
         if (service.isBanned(u.getProfile())) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.alreadyset", u.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.alreadyset", u.getName()));
             return CommandResult.empty();
         }
 
@@ -109,8 +110,10 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
 
         MutableMessageChannel send = new PermissionMessageChannel(BanCommand.notifyPermission).asMutable();
         send.addMember(src);
-        send.send(plugin.getMessageProvider().getTextMessageWithFormat("command.tempban.applied", u.getName(), Util.getTimeStringFromSeconds(time), src.getName()));
-        send.send(plugin.getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", reason));
+        send.send(Nucleus.getNucleus()
+                .getMessageProvider().getTextMessageWithFormat("command.tempban.applied", u.getName(), Util.getTimeStringFromSeconds(time), src
+                        .getName()));
+        send.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", reason));
 
         if (Sponge.getServer().getPlayer(u.getUniqueId()).isPresent()) {
             Sponge.getServer().getPlayer(u.getUniqueId()).get().kick(TextSerializers.FORMATTING_CODE.deserialize(reason));

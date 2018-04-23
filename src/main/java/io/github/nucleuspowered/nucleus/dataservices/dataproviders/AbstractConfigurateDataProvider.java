@@ -39,13 +39,13 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
     }
 
     @Override public boolean has() {
-        return Files.exists(file);
+        return Files.exists(this.file);
     }
 
     @Override
     public T load() throws Exception {
         try {
-            return transformOnLoad(loader.load(setOptions(getOptions())));
+            return transformOnLoad(this.loader.load(setOptions(getOptions())));
         } catch (Exception e) {
             return loadBackup().orElseThrow(() -> e);
         }
@@ -57,12 +57,12 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
 
     private Optional<T> loadBackup() {
         try {
-            if (Files.exists(backupFile)) {
-                logger.warn("Could not load " + file.toAbsolutePath().toString() + ", attempting to load backup.");
-                return Optional.of(transformOnLoad(this.provider.apply(backupFile).load(setOptions(getOptions()))));
+            if (Files.exists(this.backupFile)) {
+                this.logger.warn("Could not load " + this.file.toAbsolutePath().toString() + ", attempting to load backup.");
+                return Optional.of(transformOnLoad(this.provider.apply(this.backupFile).load(setOptions(getOptions()))));
             }
         } catch (Exception e) {
-            logger.warn("Could not load " + backupFile.toAbsolutePath().toString() + " either.");
+            this.logger.warn("Could not load " + this.backupFile.toAbsolutePath().toString() + " either.");
         }
 
         return Optional.empty();
@@ -78,14 +78,14 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
         }
 
         try {
-            if (Files.exists(file)) {
-                Files.copy(file, backupFile, StandardCopyOption.REPLACE_EXISTING);
+            if (Files.exists(this.file)) {
+                Files.copy(this.file, this.backupFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            loader.save(node);
+            this.loader.save(node);
         } catch (IOException e) {
-            if (Files.exists(backupFile)) {
-                Files.copy(backupFile, file, StandardCopyOption.REPLACE_EXISTING);
+            if (Files.exists(this.backupFile)) {
+                Files.copy(this.backupFile, this.file, StandardCopyOption.REPLACE_EXISTING);
             }
 
             throw getException(e);
@@ -94,18 +94,18 @@ public abstract class AbstractConfigurateDataProvider<T> implements DataProvider
 
     @Override
     public void delete() throws Exception {
-        Files.delete(file);
+        Files.delete(this.file);
     }
 
     private ConfigurationOptions getOptions() {
-        return setOptions(loader.getDefaultOptions());
+        return setOptions(this.loader.getDefaultOptions());
     }
 
     private IllegalStateException getException(String message) {
-        return new IllegalStateException("The file " + file.getFileName() + " has not been saved.\n" + message);
+        return new IllegalStateException("The file " + this.file.getFileName() + " has not been saved.\n" + message);
     }
 
     private IOException getException(Throwable inner) {
-        return new IOException("The file " + file.getFileName() + " has not been saved - an exception was thrown.", inner);
+        return new IOException("The file " + this.file.getFileName() + " has not been saved - an exception was thrown.", inner);
     }
 }

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class KitService extends AbstractService<KitConfigDataNode> {
 
-    public KitService(DataProvider<KitConfigDataNode> dataProvider) throws Exception {
+    public KitService(DataProvider<KitConfigDataNode> dataProvider) {
         super(dataProvider);
     }
 
@@ -32,7 +32,7 @@ public class KitService extends AbstractService<KitConfigDataNode> {
     }
 
     public Optional<KitDataNode> getKit(String name) {
-        return Util.getKeyIgnoreCase(data.getKits(), name).map(s -> data.getKits().get(s));
+        return Util.getKeyIgnoreCase(this.data.getKits(), name).map(s -> this.data.getKits().get(s));
     }
 
     public List<Kit> getFirstJoinKits() {
@@ -46,11 +46,11 @@ public class KitService extends AbstractService<KitConfigDataNode> {
     }
 
     public boolean addKit(Kit kit) {
-        if (data.getKits().keySet().stream().anyMatch(x -> kit.getName().equalsIgnoreCase(x))) {
+        if (this.data.getKits().keySet().stream().anyMatch(x -> kit.getName().equalsIgnoreCase(x))) {
             return false;
         }
 
-        data.getKits().put(kit.getName(), new KitDataNode(
+        this.data.getKits().put(kit.getName(), new KitDataNode(
                 kit.getStacks().stream().map(NucleusItemStackSnapshot::new).collect(Collectors.toList()),
                 kit.getCooldown().map(Duration::getSeconds).orElse(0L),
                 kit.getCost(),
@@ -66,9 +66,9 @@ public class KitService extends AbstractService<KitConfigDataNode> {
     }
 
     public boolean removeKit(String name) {
-        Map<String, KitDataNode> msk = data.getKits();
+        Map<String, KitDataNode> msk = this.data.getKits();
         Optional<String> key = msk.keySet().stream().filter(name::equalsIgnoreCase).findFirst();
-        return key.isPresent() && data.getKits().remove(key.get()) != null;
+        return key.isPresent() && this.data.getKits().remove(key.get()) != null;
     }
 
     @Override protected String serviceName() {

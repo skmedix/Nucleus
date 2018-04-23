@@ -5,11 +5,9 @@
 package io.github.nucleuspowered.nucleus.modules.fly;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
 import io.github.nucleuspowered.nucleus.modules.fly.config.FlyConfigAdapter;
-import io.github.nucleuspowered.nucleus.modules.mute.handler.MuteHandler;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;

@@ -70,7 +70,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
         if (type == UnderlyingType.USER) {
             UserParser p = new UserParser(onlyOne, () -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class));
-            parser = (name, cs, a) -> {
+            this.parser = (name, cs, a) -> {
                 List<?> i = p.accept(name, cs, a);
                 if (i.isEmpty()) {
                     i = pca.parseInternal(name, cs, a);
@@ -79,7 +79,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                 return i;
             };
 
-            completer = (s, cs, a, c) -> {
+            this.completer = (s, cs, a, c) -> {
                 List<String> toReturn = pca.completeInternal(s, cs, a, c);
 
                 if (!s.isEmpty()) {
@@ -101,8 +101,8 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                 return toReturn;
             };
         } else {
-            parser = pca::parseInternal;
-            completer = pca::completeInternal;
+            this.parser = pca::parseInternal;
+            this.completer = pca::completeInternal;
         }
     }
 
@@ -126,7 +126,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
         List<?> obj = null;
         try {
-            obj = parser.accept(fName, src, args);
+            obj = this.parser.accept(fName, src, args);
         } catch (ArgumentParseException ex) {
             // ignored
         }
@@ -142,7 +142,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
         // TODO: Display name
         Map<String, ModularUserService> allPlayers;
         if (Nucleus.getNucleus().isModuleLoaded(NicknameModule.ID)) {
-            allPlayers = userDataManager.getOnlineUsers().stream()
+            allPlayers = this.userDataManager.getOnlineUsers().stream()
                     .filter(x -> x.getUser().isOnline() && x.get(NicknameUserDataModule.class).getNicknameAsString().isPresent())
                     .collect(Collectors.toMap(s -> TextSerializers.FORMATTING_CODE.stripCodes(s.get(NicknameUserDataModule.class)
                     .getNicknameAsString().get().toLowerCase()), s -> s));
@@ -159,11 +159,12 @@ public class  NicknameArgument<T extends User> extends CommandElement {
             .sorted(Comparator.comparing(Map.Entry::getKey))
             .filter(x -> x.getValue().getUser().getPlayer().isPresent())
             .map(x -> x.getValue().getUser().getPlayer().get())
-            .filter(x -> filter.test(src, (T)x))
+            .filter(x -> this.filter.test(src, (T)x))
             .collect(Collectors.toList());
 
         if (players.isEmpty()) {
-            throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(type == UnderlyingType.PLAYER_CONSOLE ? "args.playerconsole.nouser" : "args.user.nouser", fName));
+            throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat(
+                    this.type == UnderlyingType.PLAYER_CONSOLE ? "args.playerconsole.nouser" : "args.user.nouser", fName));
         } else if (players.size() > 1 && this.onlyOne) {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", fName));
         }
@@ -189,11 +190,11 @@ public class  NicknameArgument<T extends User> extends CommandElement {
             fName = name;
         }
 
-        List<String> original = completer.accept(fName, src, args, context);
+        List<String> original = this.completer.accept(fName, src, args, context);
         if (playerOnly) {
             return original.stream().map(x -> "p:" + x).collect(Collectors.toList());
         } else if (Nucleus.getNucleus().isModuleLoaded(NicknameModule.ID)) {
-            List<String> toAdd = userDataManager.getOnlineUsers().stream()
+            List<String> toAdd = this.userDataManager.getOnlineUsers().stream()
                     .filter(x -> x.getUser().isOnline() && x.get(NicknameUserDataModule.class).getNicknameAsString().isPresent() &&
                             TextSerializers.FORMATTING_CODE.stripCodes(x.get(NicknameUserDataModule.class).getNicknameAsString().get())
                                     .toLowerCase().startsWith(fName))
@@ -231,8 +232,8 @@ public class  NicknameArgument<T extends User> extends CommandElement {
         @Override
         public List<?> accept(String s, CommandSource cs, CommandArgs a) throws ArgumentParseException {
             try {
-                UserStorageService uss = userStorageServiceSupplier.get();
-                if (onlyOne) {
+                UserStorageService uss = this.userStorageServiceSupplier.get();
+                if (this.onlyOne) {
                     return Lists.newArrayList(uss.get(s)
                         .orElseThrow(() -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
                 }
@@ -244,7 +245,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                         // Remove players who have no user
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .filter(x -> filter.test(cs, x))
+                        .filter(x -> this.filter.test(cs, x))
                         .filter(x -> PlayerConsoleArgument.shouldShow(x.getUniqueId(), cs))
                         .map(x -> x.getPlayer().map(y -> (User) y).orElse(x))
                         .limit(20) // stop after 20

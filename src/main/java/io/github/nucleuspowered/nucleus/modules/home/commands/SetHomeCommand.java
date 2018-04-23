@@ -74,14 +74,14 @@ public class SetHomeCommand extends AbstractCommand<Player> implements Reloadabl
         String home = args.<String>getOne(homeKey).orElse(NucleusHomeService.DEFAULT_HOME_NAME).toLowerCase();
 
         if (!NucleusHomeService.HOME_NAME_PATTERN.matcher(home).matches()) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.name"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sethome.name"));
         }
 
         Optional<Home> currentHome = homeHandler.getHome(src, home);
         boolean overwrite = currentHome.isPresent() && args.hasAny("o");
         if (currentHome.isPresent() && !overwrite) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.seterror", home));
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.tooverwrite", home).toBuilder()
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sethome.seterror", home));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sethome.tooverwrite", home).toBuilder()
                 .onClick(TextActions.runCommand("/sethome " + home + " -o")).build());
             return CommandResult.empty();
         }
@@ -98,7 +98,7 @@ public class SetHomeCommand extends AbstractCommand<Player> implements Reloadabl
 
                 Home current = currentHome.get();
                 homeHandler.modifyHomeInternal(cause, current, src.getLocation(), src.getRotation());
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.overwrite", home));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sethome.overwrite", home));
             } else {
                 homeHandler.createHomeInternal(cause, src, home, src.getLocation(), src.getRotation());
             }
@@ -106,7 +106,7 @@ public class SetHomeCommand extends AbstractCommand<Player> implements Reloadabl
             throw new ReturnMessageException(e.getText(), e);
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.sethome.set", home));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sethome.set", home));
         return CommandResult.success();
     }
 }

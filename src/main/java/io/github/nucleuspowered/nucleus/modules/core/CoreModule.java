@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.core;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPlayerMetadataService;
 import io.github.nucleuspowered.nucleus.api.service.NucleusWorldUUIDChangeService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
@@ -29,7 +30,7 @@ public class CoreModule extends ConfigurableModule<CoreConfigAdapter> {
     protected void performPreTasks() throws Exception {
         super.performPreTasks();
 
-        this.plugin.reloadMessages();
+        Nucleus.getNucleus().reloadMessages();
     }
 
 }

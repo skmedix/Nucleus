@@ -28,7 +28,7 @@ public class ClearCacheCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Nucleus.getNucleus().getUserDataManager().invalidateOld();
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.nucleus.clearcache.success"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.clearcache.success"));
         return CommandResult.success();
     }
 }

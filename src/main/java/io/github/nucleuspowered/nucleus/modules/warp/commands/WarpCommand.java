@@ -73,7 +73,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
     private boolean isSafeTeleport = true;
     private double defaultCost = 0;
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         WarpConfig wc = getServiceUnchecked(WarpConfigAdapter.class).getNodeOrDefault();
         this.defaultCost = wc.getDefaultWarpCost();
         this.isSafeTeleport = wc.isSafeTeleport();
@@ -96,13 +96,13 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
                                 .flag("f", "-force").setAnchorFlags(false).buildWith(GenericArguments.none()))),
             GenericArguments.optionalWeak(RequiredArgumentsArgument.r2(GenericArguments.requiringPermission(
                 new NoModifiersArgument<>(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(playerKey), NicknameArgument.UnderlyingType.PLAYER),
-                        NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE), permissions.getOthers()))),
+                    SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER),
+                        NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE), this.permissions.getOthers()))),
 
                 GenericArguments.onlyOne(
                     new AdditionalCompletionsArgument(
                         new WarpArgument(Text.of(warpNameArg), true), 0, 1,
-                            (c, s) -> permissions.testOthers(c) ?
+                            (c, s) -> this.permissions.testOthers(c) ?
                                 Sponge.getServer().getOnlinePlayers().stream().map(User::getName).collect(Collectors.toList()) : Lists.newArrayList()
                 ))
         };
@@ -110,14 +110,14 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
 
     @Override
     protected ContinueMode preProcessChecks(final CommandSource source, CommandContext args) {
-        if (args.<Player>getOne(playerKey).map(x -> !(source instanceof Player) || x.getUniqueId().equals(((Player) source).getUniqueId()))
+        if (args.<Player>getOne(this.playerKey).map(x -> !(source instanceof Player) || x.getUniqueId().equals(((Player) source).getUniqueId()))
                 .orElse(false)) {
             // Bypass cooldowns
             args.putArg(NoModifiersArgument.NO_COOLDOWN_ARGUMENT, true);
             return ContinueMode.CONTINUE;
         }
 
-        if (!plugin.getEconHelper().economyServiceExists() || permissions.testCostExempt(source) || args.hasAny("y")) {
+        if (!Nucleus.getNucleus().getEconHelper().economyServiceExists() || this.permissions.testCostExempt(source) || args.hasAny("y")) {
             return ContinueMode.CONTINUE;
         }
 
@@ -129,16 +129,17 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
             return ContinueMode.CONTINUE;
         }
 
-        String costWithUnit = plugin.getEconHelper().getCurrencySymbol(cost);
-        if (plugin.getEconHelper().hasBalance((Player)source, cost)) {
+        String costWithUnit = Nucleus.getNucleus().getEconHelper().getCurrencySymbol(cost);
+        if (Nucleus.getNucleus().getEconHelper().hasBalance((Player)source, cost)) {
             String command = String.format("/warp -y %s", wd.getName());
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.details", wd.getName(), costWithUnit));
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.details", wd.getName(), costWithUnit));
             source.sendMessage(
-            plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.clickaccept").toBuilder()
-                    .onClick(TextActions.runCommand(command)).onHover(TextActions.showText(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.clickhover", command)))
-                    .append(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.alt")).build());
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.clickaccept").toBuilder()
+                    .onClick(TextActions.runCommand(command)).onHover(TextActions.showText(
+                            Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.clickhover", command)))
+                    .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.alt")).build());
         } else {
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.nomoney", wd.getName(), costWithUnit));
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.nomoney", wd.getName(), costWithUnit));
         }
 
         return ContinueMode.STOP;
@@ -146,7 +147,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
 
     @Override
     public CommandResult executeCommand(CommandSource source, CommandContext args) throws Exception {
-        Player player = this.getUserFromArgs(Player.class, source, playerKey, args);
+        Player player = this.getUserFromArgs(Player.class, source, this.playerKey, args);
         boolean isOther = !(source instanceof Player) || !((Player) source).getUniqueId().equals(player.getUniqueId());
 
         // Permission checks are done by the parser.
@@ -163,7 +164,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
         UseWarpEvent event = CauseStackHelper.createFrameWithCausesWithReturn(c -> new UseWarpEvent(c, player, wd), source);
         if (Sponge.getEventManager().post(event)) {
             throw new ReturnMessageException(event.getCancelMessage().orElseGet(() ->
-                plugin.getMessageProvider().getTextMessageWithFormat("nucleus.eventcancelled")
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.eventcancelled")
             ));
         }
 
@@ -171,29 +172,31 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
         double cost = i.orElse(this.defaultCost);
 
         boolean charge = false;
-        if (!isOther && plugin.getEconHelper().economyServiceExists() && !permissions.testCostExempt(source) && cost > 0) {
-            if (plugin.getEconHelper().withdrawFromPlayer(player, cost, false)) {
+        if (!isOther && Nucleus.getNucleus().getEconHelper().economyServiceExists() && !this.permissions.testCostExempt(source) && cost > 0) {
+            if (Nucleus.getNucleus().getEconHelper().withdrawFromPlayer(player, cost, false)) {
                 charge = true; // only true for a warp by the current subject.
             } else {
-                source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.nomoney", wd.getName(), plugin.getEconHelper().getCurrencySymbol(cost)));
+                source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.nomoney", wd.getName(),
+                        Nucleus.getNucleus().getEconHelper().getCurrencySymbol(cost)));
                 return CommandResult.empty();
             }
         }
 
         // We have a warp data, warp them.
         if (isOther) {
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.namedstart", plugin.getNameUtil().getSerialisedName(player), wd.getName()));
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.namedstart",
+                    Nucleus.getNucleus().getNameUtil().getSerialisedName(player), wd.getName()));
         } else {
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.start", wd.getName()));
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.start", wd.getName()));
         }
 
         // Warp them.
         boolean isSafe = !args.getOne("f").isPresent() && this.isSafeTeleport;
         NucleusTeleportHandler.TeleportResult result =
-                plugin.getTeleportHandler().teleportPlayer(player, wd.getLocation().get(), wd.getRotation(), isSafe);
+                Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, wd.getLocation().get(), wd.getRotation(), isSafe);
         if (!result.isSuccess()) {
             if (charge) {
-                plugin.getEconHelper().depositInPlayer(player, cost, false);
+                Nucleus.getNucleus().getEconHelper().depositInPlayer(player, cost, false);
             }
 
             // Don't add the cooldown if enabled.
@@ -202,9 +205,10 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
         }
 
         if (isOther) {
-            player.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warps.warped", wd.getName()));
+            player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warps.warped", wd.getName()));
         } else if (charge) {
-            source.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.warp.cost.charged", plugin.getEconHelper().getCurrencySymbol(cost)));
+            source.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.warp.cost.charged",
+                    Nucleus.getNucleus().getEconHelper().getCurrencySymbol(cost)));
         }
 
         return CommandResult.success();

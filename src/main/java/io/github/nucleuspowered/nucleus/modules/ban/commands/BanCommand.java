@@ -73,49 +73,50 @@ public class BanCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.firstParsing(
-                        GenericArguments.onlyOne(UUIDArgument.gameProfile(Text.of(uuid))),
-                        GenericArguments.onlyOne(new GameProfileArgument(Text.of(user))),
-                        GenericArguments.onlyOne(GenericArguments.string(Text.of(name)))
+                        GenericArguments.onlyOne(UUIDArgument.gameProfile(Text.of(this.uuid))),
+                        GenericArguments.onlyOne(new GameProfileArgument(Text.of(this.user))),
+                        GenericArguments.onlyOne(GenericArguments.string(Text.of(this.name)))
                 ),
-                GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of(reason)))
+                GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of(this.reason)))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        final String r = args.<String>getOne(reason).orElse(plugin.getMessageProvider().getMessageWithFormat("ban.defaultreason"));
-        Optional<GameProfile> ou = Optional.ofNullable(args.<GameProfile>getOne(uuid).orElseGet(() -> args.<GameProfile>getOne(user).orElse(null)));
+        final String r = args.<String>getOne(this.reason).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
+        Optional<GameProfile> ou = Optional.ofNullable(args.<GameProfile>getOne(this.uuid).orElseGet(() -> args.<GameProfile>getOne(this.user).orElse(null)));
         if (ou.isPresent()) {
             Optional<User> optionalUser = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(ou.get());
-            if ((!optionalUser.isPresent() || !optionalUser.get().isOnline()) && !permissions.testSuffix(src, "offline")) {
-                throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.offline.noperms"));
+            if ((!optionalUser.isPresent() || !optionalUser.get().isOnline()) && !this.permissions.testSuffix(src, "offline")) {
+                throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.offline.noperms"));
             }
 
-            if (optionalUser.isPresent() && permissions.testSuffix(optionalUser.get(), "exempt.target", src, false)) {
-                throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.exempt", optionalUser.get().getName()));
+            if (optionalUser.isPresent() && this.permissions.testSuffix(optionalUser.get(), "exempt.target", src, false)) {
+                throw new ReturnMessageException(
+                        Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.exempt", optionalUser.get().getName()));
             }
 
             return executeBan(src, ou.get(), r);
         }
 
-        if (!permissions.testSuffix(src, "offline")) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.offline.noperms"));
+        if (!this.permissions.testSuffix(src, "offline")) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.offline.noperms"));
         }
 
-        final String userToFind = args.<String>getOne(name).get();
+        final String userToFind = args.<String>getOne(this.name).get();
 
         // Get the profile async.
-        Sponge.getScheduler().createAsyncExecutor(plugin).execute(() -> {
+        Sponge.getScheduler().createAsyncExecutor(Nucleus.getNucleus()).execute(() -> {
             GameProfileManager gpm = Sponge.getServer().getGameProfileManager();
             try {
                 GameProfile gp = gpm.get(userToFind).get();
 
                 // Ban the user sync.
-                Sponge.getScheduler().createSyncExecutor(plugin).execute(() -> {
+                Sponge.getScheduler().createSyncExecutor(Nucleus.getNucleus()).execute(() -> {
                     // Create the user.
                     UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
                     User user = uss.getOrCreate(gp);
-                    src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("gameprofile.new", user.getName()));
+                    src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("gameprofile.new", user.getName()));
 
                     try {
                         executeBan(src, gp, r);
@@ -126,7 +127,7 @@ public class BanCommand extends AbstractCommand<CommandSource> {
             } catch (Exception e) {
                 Nucleus.getNucleus().printStackTraceIfDebugMode(e);
 
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.profileerror", userToFind));
+                src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.profileerror", userToFind));
             }
         });
 
@@ -138,13 +139,14 @@ public class BanCommand extends AbstractCommand<CommandSource> {
 
         UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
         User user = uss.get(u).get();
-        if (!user.isOnline() && !permissions.testSuffix(src, "offline")) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.offline.noperms"));
+        if (!user.isOnline() && !this.permissions.testSuffix(src, "offline")) {
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.offline.noperms"));
             return CommandResult.empty();
         }
 
         if (service.isBanned(u)) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.alreadyset", u.getName().orElse(plugin.getMessageProvider().getMessageWithFormat("standard.unknown"))));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.alreadyset", u.getName().orElse(
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.unknown"))));
             return CommandResult.empty();
         }
 
@@ -155,8 +157,9 @@ public class BanCommand extends AbstractCommand<CommandSource> {
         // Get the permission, "quickstart.ban.notify"
         MutableMessageChannel send = new PermissionMessageChannel(notifyPermission).asMutable();
         send.addMember(src);
-        send.send(plugin.getMessageProvider().getTextMessageWithFormat("command.ban.applied", u.getName().orElse(plugin.getMessageProvider().getMessageWithFormat("standard.unknown")), src.getName()));
-        send.send(plugin.getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", r));
+        send.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ban.applied", u.getName().orElse(
+                Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.unknown")), src.getName()));
+        send.send(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", r));
 
         if (Sponge.getServer().getPlayer(u.getUniqueId()).isPresent()) {
             Sponge.getServer().getPlayer(u.getUniqueId()).get().kick(TextSerializers.FORMATTING_CODE.deserialize(r));

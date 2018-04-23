@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
 import com.flowpowered.math.vector.Vector3i;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -14,11 +15,9 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Locatable;
-import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
 
 @Permissions(prefix = "world", suggestedLevel = SuggestedLevel.ADMIN)
@@ -60,7 +59,7 @@ public class SetSpawnWorldCommand extends AbstractCommand<CommandSource> {
         }
 
         world.setSpawnPosition(loc);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.world.setspawn.success"));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setspawn.success"));
         return CommandResult.success();
     }
 }

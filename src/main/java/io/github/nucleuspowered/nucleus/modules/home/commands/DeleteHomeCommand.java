@@ -36,15 +36,15 @@ public class DeleteHomeCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(new HomeArgument(Text.of(homeKey), plugin))};
+        return new CommandElement[] {GenericArguments.onlyOne(new HomeArgument(Text.of(this.homeKey), Nucleus.getNucleus()))};
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        Home wl = args.<Home>getOne(homeKey).get();
+        Home wl = args.<Home>getOne(this.homeKey).get();
 
-        CauseStackHelper.createFrameWithCausesWithConsumer(c -> homeHandler.removeHomeInternal(c, wl), src);
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.home.delete.success", wl.getName()));
+        CauseStackHelper.createFrameWithCausesWithConsumer(c -> this.homeHandler.removeHomeInternal(c, wl), src);
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.home.delete.success", wl.getName()));
         return CommandResult.success();
     }
 }

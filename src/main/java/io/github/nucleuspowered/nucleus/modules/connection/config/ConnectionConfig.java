@@ -24,7 +24,7 @@ public class ConnectionConfig {
     private String serverFullMessage = "";
 
     public int getReservedSlots() {
-        return reservedSlots;
+        return this.reservedSlots;
     }
 
     public Optional<Text> getWhitelistMessage() {

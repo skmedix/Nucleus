@@ -32,26 +32,26 @@ public class PermissionRegistry {
         }
 
         CommandPermissionHandler handler = new CommandPermissionHandler(command, Nucleus.getNucleus());
-        serviceRegistry.put(command, handler);
+        this.serviceRegistry.put(command, handler);
         return handler;
     }
 
     public void addHandler(Class<? extends AbstractCommand> cb, CommandPermissionHandler cph) {
-        if (serviceRegistry.containsKey(cb)) {
+        if (this.serviceRegistry.containsKey(cb)) {
             // Silently discard.
             return;
         }
 
-        serviceRegistry.put(cb, cph);
+        this.serviceRegistry.put(cb, cph);
     }
 
     public void registerOtherPermission(String otherPermission, PermissionInformation pi) {
-        if (otherPermissions.containsKey(otherPermission)) {
+        if (this.otherPermissions.containsKey(otherPermission)) {
             // Silently discard.
             return;
         }
 
-        otherPermissions.put(otherPermission, pi);
+        this.otherPermissions.put(otherPermission, pi);
     }
 
     public void registerOtherPermission(String otherPermission, String description, SuggestedLevel level) {
@@ -60,8 +60,8 @@ public class PermissionRegistry {
 
     public Map<String, PermissionInformation> getPermissions() {
         Map<String, PermissionInformation> m = new HashMap<>();
-        serviceRegistry.values().forEach(x -> m.putAll(x.getSuggestedPermissions()));
-        m.putAll(otherPermissions);
+        this.serviceRegistry.values().forEach(x -> m.putAll(x.getSuggestedPermissions()));
+        m.putAll(this.otherPermissions);
         return m;
     }
 }

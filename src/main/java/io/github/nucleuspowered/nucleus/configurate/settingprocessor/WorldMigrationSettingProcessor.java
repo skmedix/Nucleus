@@ -18,7 +18,7 @@ public class WorldMigrationSettingProcessor implements SettingProcessor, Interna
     private final static TypeToken<UUID> uuidTypeToken = TypeToken.of(UUID.class);
 
     @Override
-    public void process(ConfigurationNode cn) throws ObjectMappingException {
+    public void process(ConfigurationNode cn) {
         try {
             UUID uuid = cn.getValue(uuidTypeToken);
             getServiceUnchecked(UUIDChangeService.class).getMappedUUID(uuid)

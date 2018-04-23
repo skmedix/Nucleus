@@ -26,7 +26,7 @@ public class AlternativeUsageArgument extends WrappedElement {
         this.usage = usage;
     }
 
-    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
+    @Nullable @Override protected Object parseValue(CommandSource source, CommandArgs args) {
         return null;
     }
 
@@ -39,6 +39,6 @@ public class AlternativeUsageArgument extends WrappedElement {
     }
 
     @Override public Text getUsage(CommandSource src) {
-        return usage.apply(src);
+        return this.usage.apply(src);
     }
 }

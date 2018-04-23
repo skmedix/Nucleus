@@ -57,7 +57,7 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
     }
 
     public Optional<Text> getNicknameAsText() {
-        return Optional.ofNullable(nickname);
+        return Optional.ofNullable(this.nickname);
     }
 
     public Optional<String> getNicknameAsString() {

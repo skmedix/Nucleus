@@ -40,14 +40,15 @@ public class ExperienceCommand extends AbstractCommand<CommandSource> {
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         Player pl = args.<Player>getOne(playerKey).get();
 
         ExperienceHolderData ehd = pl.get(ExperienceHolderData.class).get();
         int exp = ehd.totalExperience().get();
         int lv = ehd.level().get();
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.exp.info", pl.getName(), String.valueOf(exp), String.valueOf(lv)));
+        src.sendMessage(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.exp.info", pl.getName(), String.valueOf(exp), String.valueOf(lv)));
         return CommandResult.success();
     }
 

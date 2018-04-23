@@ -27,12 +27,12 @@ public class PaginationBuilderWrapper implements PaginationList.Builder {
     }
 
     @Override public PaginationList.Builder contents(Iterable<Text> contents) {
-        texts = Lists.newArrayList(contents);
+        this.texts = Lists.newArrayList(contents);
         return this;
     }
 
     @Override public PaginationList.Builder contents(Text... contents) {
-        texts = Lists.newArrayList(contents);
+        this.texts = Lists.newArrayList(contents);
         return this;
     }
 
@@ -62,8 +62,8 @@ public class PaginationBuilderWrapper implements PaginationList.Builder {
     }
 
     @Override public PaginationList build() {
-        Preconditions.checkNotNull(texts);
-        ListIterator<Text> text = texts.listIterator();
+        Preconditions.checkNotNull(this.texts);
+        ListIterator<Text> text = this.texts.listIterator();
         while (text.hasNext()) {
             Text t = text.next();
             if (t.toPlain().isEmpty()) {
@@ -71,7 +71,7 @@ public class PaginationBuilderWrapper implements PaginationList.Builder {
             }
         }
 
-        return this.builder.contents(texts).build();
+        return this.builder.contents(this.texts).build();
     }
 
     @Override public PaginationList.Builder from(PaginationList value) {
@@ -80,7 +80,7 @@ public class PaginationBuilderWrapper implements PaginationList.Builder {
 
     @Override public PaginationList.Builder reset() {
         this.builder.reset();
-        texts = null;
+        this.texts = null;
         return this;
     }
 }

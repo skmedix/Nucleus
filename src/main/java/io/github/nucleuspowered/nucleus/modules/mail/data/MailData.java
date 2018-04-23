@@ -36,19 +36,19 @@ public class MailData implements MailMessage {
     }
 
     @Override public String getMessage() {
-        return message;
+        return this.message;
     }
 
     @Override public Instant getDate() {
-        return Instant.ofEpochMilli(date);
+        return Instant.ofEpochMilli(this.date);
     }
 
     public UUID getUuid() {
-        return uuid;
+        return this.uuid;
     }
 
     @Override public Optional<User> getSender() {
-        return Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(uuid);
+        return Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(this.uuid);
     }
 
     @Override public boolean equals(Object o) {
@@ -61,16 +61,16 @@ public class MailData implements MailMessage {
 
         MailData mailData = (MailData) o;
 
-        if (date != mailData.date) {
+        if (this.date != mailData.date) {
             return false;
         }
-        return uuid.equals(mailData.uuid) && message.equals(mailData.message);
+        return this.uuid.equals(mailData.uuid) && this.message.equals(mailData.message);
     }
 
     @Override public int hashCode() {
-        int result = uuid.hashCode();
-        result = 31 * result + (int) (date ^ (date >>> 32));
-        result = 31 * result + message.hashCode();
+        int result = this.uuid.hashCode();
+        result = 31 * result + (int) (this.date ^ (this.date >>> 32));
+        result = 31 * result + this.message.hashCode();
         return result;
     }
 }

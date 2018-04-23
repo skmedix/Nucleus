@@ -46,13 +46,12 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-public class CoreListener extends ListenerBase implements Reloadable {
+public class CoreListener implements Reloadable, ListenerBase {
 
     @Nullable private NucleusTextTemplate getKickOnStopMessage = null;
     @Nullable private final URL url;
@@ -112,7 +111,7 @@ public class CoreListener extends ListenerBase implements Reloadable {
                 });
             }
 
-            plugin.getUserCacheService().updateCacheForPlayer(qsu);
+            Nucleus.getNucleus().getUserCacheService().updateCacheForPlayer(qsu);
         });
     }
 
@@ -130,17 +129,17 @@ public class CoreListener extends ListenerBase implements Reloadable {
             c.setFirstPlay(c.isStartedFirstJoin() && !c.getLastLogout().isPresent());
 
             if (c.isFirstPlay()) {
-                plugin.getGeneralService().getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
+                Nucleus.getNucleus().getGeneralService().getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
             }
 
             c.setFirstJoin(player.getJoinData().firstPlayed().get());
-            if (this.plugin.isServer()) {
+            if (Nucleus.getNucleus().isServer()) {
                 c.setLastIp(player.getConnection().getAddress().getAddress());
             }
 
             // We'll do this bit shortly - after the login events have resolved.
             final String name = player.getName();
-            Task.builder().execute(() -> c.setLastKnownName(name)).delayTicks(20L).submit(plugin);
+            Task.builder().execute(() -> c.setLastKnownName(name)).delayTicks(20L).submit(Nucleus.getNucleus());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -161,7 +160,7 @@ public class CoreListener extends ListenerBase implements Reloadable {
 
         // Warn about wildcard.
         if (!ServiceChangeListener.isOpOnly() && player.hasPermission("nucleus")) {
-            MessageProvider provider = this.plugin.getMessageProvider();
+            MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
             Nucleus.getNucleus().getLogger().warn("The player " + player.getName() + " has got either the nucleus wildcard or the * wildcard "
                     + "permission. This may cause unintended side effects.");
 
@@ -197,7 +196,7 @@ public class CoreListener extends ListenerBase implements Reloadable {
             return;
         }
 
-        this.plugin.getUserDataManager().get(player).ifPresent(x -> onPlayerQuit(x, player));
+        Nucleus.getNucleus().getUserDataManager().get(player).ifPresent(x -> onPlayerQuit(x, player));
     }
 
     private void onPlayerQuit(ModularUserService x, Player player) {
@@ -209,13 +208,13 @@ public class CoreListener extends ListenerBase implements Reloadable {
             coreUserDataModule.setLastIp(address);
             coreUserDataModule.setLastLogout(location);
             x.save();
-            plugin.getUserCacheService().updateCacheForPlayer(x);
+            Nucleus.getNucleus().getUserCacheService().updateCacheForPlayer(x);
         } catch (Exception e) {
             Nucleus.getNucleus().printStackTraceIfDebugMode(e);
         }
     }
 
-    @Override public void onReload() throws Exception {
+    @Override public void onReload() {
         CoreConfig c = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(CoreConfigAdapter.class)
                 .getNodeOrDefault();
         this.getKickOnStopMessage = c.isKickOnStop() ? c.getKickOnStopMessage() : null;
@@ -224,12 +223,10 @@ public class CoreListener extends ListenerBase implements Reloadable {
 
     @Listener
     public void onServerAboutToStop(final GameStoppingServerEvent event) {
-        plugin.getUserDataManager().getOnlineUsers().forEach(x -> x.getPlayer().ifPresent(y -> onPlayerQuit(x, y)));
+        Nucleus.getNucleus().getUserDataManager().getOnlineUsers().forEach(x -> x.getPlayer().ifPresent(y -> onPlayerQuit(x, y)));
 
         if (this.getKickOnStopMessage != null) {
-            Iterator<Player> players = Sponge.getServer().getOnlinePlayers().iterator();
-            while (players.hasNext()) {
-                Player p = players.next();
+            for (Player p : Sponge.getServer().getOnlinePlayers()) {
                 Text msg = this.getKickOnStopMessage.getForCommandSource(p);
                 if (msg.isEmpty()) {
                     p.kick();
@@ -244,11 +241,14 @@ public class CoreListener extends ListenerBase implements Reloadable {
     @Listener
     public void onGameReload(final GameReloadEvent event) {
         CommandSource requester = event.getCause().first(CommandSource.class).orElse(Sponge.getServer().getConsole());
-        if (plugin.reload()) {
-            requester.sendMessage(Text.of(TextColors.YELLOW, "[Nucleus] ", plugin.getMessageProvider().getTextMessageWithFormat("command.reload.one")));
-            requester.sendMessage(Text.of(TextColors.YELLOW, "[Nucleus] ", plugin.getMessageProvider().getTextMessageWithFormat("command.reload.two")));
+        if (Nucleus.getNucleus().reload()) {
+            requester.sendMessage(Text.of(TextColors.YELLOW, "[Nucleus] ",
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reload.one")));
+            requester.sendMessage(Text.of(TextColors.YELLOW, "[Nucleus] ",
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reload.two")));
         } else {
-            requester.sendMessage(Text.of(TextColors.RED, "[Nucleus] ", plugin.getMessageProvider().getTextMessageWithFormat("command.reload.errorone")));
+            requester.sendMessage(Text.of(TextColors.RED, "[Nucleus] ",
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.reload.errorone")));
         }
     }
 }

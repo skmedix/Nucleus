@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.inventory.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.Since;
@@ -57,24 +58,25 @@ public class InvSeeCommand extends AbstractCommand<Player> implements Reloadable
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            SelectorWrapperArgument.nicknameSelector(Text.of(player), NicknameArgument.UnderlyingType.USER)
+            SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.USER)
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        User target = args.<User>getOne(player).get();
+        User target = args.<User>getOne(this.player).get();
 
-        if (!target.isOnline() && !permissions.testSuffix(src, "offline")) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.invsee.nooffline"));
+        if (!target.isOnline() && !this.permissions.testSuffix(src, "offline")) {
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.invsee.nooffline"));
         }
 
         if (!this.self && target.getUniqueId().equals(src.getUniqueId())) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.invsee.self"));
+            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.invsee.self"));
         }
 
-        if (permissions.testSuffix(target, "exempt.target", src, false)) {
-            throw new ReturnMessageException(plugin.getMessageProvider().getTextMessageWithFormat("command.invsee.targetexempt", target.getName()));
+        if (this.permissions.testSuffix(target, "exempt.target", src, false)) {
+            throw new ReturnMessageException(
+                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.invsee.targetexempt", target.getName()));
         }
 
         // Just in case, get the subject inventory if they are online.
@@ -82,7 +84,7 @@ public class InvSeeCommand extends AbstractCommand<Player> implements Reloadable
             Inventory targetInv = target.isOnline() ? target.getPlayer().get().getInventory() : target.getInventory();
             Optional<Container> oc = src.openInventory(targetInv);
             if (oc.isPresent()) {
-                if (!permissions.testSuffix(src, "modify") || permissions.testSuffix(target, "exempt.interact")) {
+                if (!this.permissions.testSuffix(src, "modify") || this.permissions.testSuffix(target, "exempt.interact")) {
                     InvSeeListener.addEntry(src.getUniqueId(), oc.get());
                 }
 
@@ -96,7 +98,7 @@ public class InvSeeCommand extends AbstractCommand<Player> implements Reloadable
     }
 
     @Override public void onReload() {
-        this.self = plugin.getConfigValue(InventoryModule.ID, InventoryConfigAdapter.class,
+        this.self = Nucleus.getNucleus().getConfigValue(InventoryModule.ID, InventoryConfigAdapter.class,
                 InventoryConfig::isAllowInvseeOnSelf).orElse(false);
     }
 }

@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.commands;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -42,20 +43,20 @@ public class CheckMuteCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.firstParsing(
-                GenericArguments.user(Text.of(playerKey)),
-                    new UUIDArgument<>(Text.of(playerKey), u -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(u))
+                GenericArguments.user(Text.of(this.playerKey)),
+                    new UUIDArgument<>(Text.of(this.playerKey), u -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(u))
             )
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
         // Get the user.
-        User user = args.<User>getOne(playerKey).get();
+        User user = args.<User>getOne(this.playerKey).get();
 
-        Optional<MuteData> omd = handler.getPlayerMuteData(user);
+        Optional<MuteData> omd = this.handler.getPlayerMuteData(user);
         if (!omd.isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkmute.none", user.getName()));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkmute.none", user.getName()));
             return CommandResult.success();
         }
 
@@ -67,26 +68,26 @@ public class CheckMuteCommand extends AbstractCommand<CommandSource> {
         } else {
             name = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(md.getMuter().get())
                     .map(User::getName)
-                    .orElseGet(() -> plugin.getMessageProvider().getMessageWithFormat("standard.unknown"));
+                    .orElseGet(() -> Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.unknown"));
         }
 
         if (md.getRemainingTime().isPresent()) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkmute.mutedfor", user.getName(),
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkmute.mutedfor", user.getName(),
                     name, Util.getTimeStringFromSeconds(md.getRemainingTime().get().getSeconds())));
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkmute.mutedperm", user.getName(),
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkmute.mutedperm", user.getName(),
                     name));
         }
 
         if (md.getCreationTime() > 0) {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkmute.created",
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkmute.created",
                     Util.FULL_TIME_FORMATTER.withLocale(src.getLocale()).format(Instant.ofEpochSecond(md.getCreationTime()))));
         } else {
-            src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.checkmute.created",
-                    plugin.getMessageProvider().getMessageWithFormat("standard.unknown")));
+            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.checkmute.created",
+                    Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.unknown")));
         }
 
-        src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", md.getReason()));
+        src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", md.getReason()));
         return CommandResult.success();
     }
 }

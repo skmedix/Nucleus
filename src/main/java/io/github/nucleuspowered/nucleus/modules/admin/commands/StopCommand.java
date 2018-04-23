@@ -34,13 +34,13 @@ public class StopCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.optional(
-                        GenericArguments.remainingJoinedStrings(Text.of(messageKey)))
+                        GenericArguments.remainingJoinedStrings(Text.of(this.messageKey)))
         };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Optional<String> opt = args.getOne(messageKey);
+    public CommandResult executeCommand(CommandSource src, CommandContext args) {
+        Optional<String> opt = args.getOne(this.messageKey);
         if (opt.isPresent()) {
             Sponge.getServer().shutdown(TextSerializers.FORMATTING_CODE.deserialize(opt.get()));
         } else {
