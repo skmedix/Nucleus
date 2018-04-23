@@ -24,10 +24,6 @@ public class RequiredArgumentsArgument extends CommandElement {
         return new RequiredArgumentsArgument(element, 2);
     }
 
-    public static RequiredArgumentsArgument r3(CommandElement element) {
-        return new RequiredArgumentsArgument(element, 3);
-    }
-
     public RequiredArgumentsArgument(CommandElement element, int minimumRequired) {
         this(element, minimumRequired, Integer.MAX_VALUE);
     }

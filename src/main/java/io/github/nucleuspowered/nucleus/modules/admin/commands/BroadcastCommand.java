@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
 import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
-import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -40,7 +39,9 @@ public class BroadcastCommand extends AbstractCommand<CommandSource> implements 
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] { GenericArguments.onlyOne(new RemainingStringsArgument(Text.of(message))) };
+        return new CommandElement[] {
+                GenericArguments.remainingRawJoinedStrings(Text.of(message))
+        };
     }
 
     @Override

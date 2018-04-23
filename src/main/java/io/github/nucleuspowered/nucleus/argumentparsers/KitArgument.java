@@ -64,6 +64,7 @@ public class KitArgument extends CommandElement {
             String name = args.peek().toLowerCase();
             return this.kitHandler.getKitNames().stream()
                     .filter(s -> s.toLowerCase().startsWith(name))
+                    .limit(20)
                     .map(x -> this.kitHandler.getKit(x).get())
                     .filter(x -> checkPermission(src, x))
                     .filter(x -> this.permissionCheck && (showhidden || !x.isHiddenFromList()))

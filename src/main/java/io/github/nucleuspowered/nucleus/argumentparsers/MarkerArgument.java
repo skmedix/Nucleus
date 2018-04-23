@@ -21,11 +21,7 @@ public class MarkerArgument extends CommandElement {
     public final static String MARKER = "marker";
 
     public MarkerArgument() {
-        this(Text.of(MARKER));
-    }
-
-    public MarkerArgument(@Nullable Text key) {
-        super(key);
+        super(Text.of(MARKER));
     }
 
     @Nullable

@@ -24,22 +24,22 @@ import javax.annotation.Nullable;
 
 public class ImprovedGameModeArgument extends CommandElement {
 
-    private final static Map<String, GameMode> gameModeMap = Maps.newHashMap();
+    private final static Map<String, GameMode> GAMEMODE_MAP = Maps.newHashMap();
 
     static {
-        gameModeMap.put("survival", GameModes.SURVIVAL);
-        gameModeMap.put("s", GameModes.SURVIVAL);
-        gameModeMap.put("su", GameModes.SURVIVAL);
-        gameModeMap.put("0", GameModes.SURVIVAL);
-        gameModeMap.put("creative", GameModes.CREATIVE);
-        gameModeMap.put("c", GameModes.CREATIVE);
-        gameModeMap.put("1", GameModes.CREATIVE);
-        gameModeMap.put("adventure", GameModes.ADVENTURE);
-        gameModeMap.put("a", GameModes.ADVENTURE);
-        gameModeMap.put("2", GameModes.ADVENTURE);
-        gameModeMap.put("spectator", GameModes.SPECTATOR);
-        gameModeMap.put("sp", GameModes.SPECTATOR);
-        gameModeMap.put("3", GameModes.SPECTATOR);
+        GAMEMODE_MAP.put("survival", GameModes.SURVIVAL);
+        GAMEMODE_MAP.put("s", GameModes.SURVIVAL);
+        GAMEMODE_MAP.put("su", GameModes.SURVIVAL);
+        GAMEMODE_MAP.put("0", GameModes.SURVIVAL);
+        GAMEMODE_MAP.put("creative", GameModes.CREATIVE);
+        GAMEMODE_MAP.put("c", GameModes.CREATIVE);
+        GAMEMODE_MAP.put("1", GameModes.CREATIVE);
+        GAMEMODE_MAP.put("adventure", GameModes.ADVENTURE);
+        GAMEMODE_MAP.put("a", GameModes.ADVENTURE);
+        GAMEMODE_MAP.put("2", GameModes.ADVENTURE);
+        GAMEMODE_MAP.put("spectator", GameModes.SPECTATOR);
+        GAMEMODE_MAP.put("sp", GameModes.SPECTATOR);
+        GAMEMODE_MAP.put("3", GameModes.SPECTATOR);
     }
 
     public ImprovedGameModeArgument(@Nullable Text key) {
@@ -50,7 +50,7 @@ public class ImprovedGameModeArgument extends CommandElement {
     @Override
     protected Object parseValue(CommandSource source, CommandArgs args) throws ArgumentParseException {
         String arg = args.next();
-        GameMode mode = gameModeMap.get(arg.toLowerCase());
+        GameMode mode = GAMEMODE_MAP.get(arg.toLowerCase());
 
         if (mode == null) {
             throw args.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.gamemode.error", arg));
@@ -63,9 +63,9 @@ public class ImprovedGameModeArgument extends CommandElement {
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
             String arg = args.peek();
-            return gameModeMap.keySet().stream().filter(x -> arg.startsWith(arg.toLowerCase())).collect(Collectors.toList());
+            return GAMEMODE_MAP.keySet().stream().filter(x -> arg.startsWith(arg.toLowerCase())).collect(Collectors.toList());
         } catch (ArgumentParseException e) {
-            return Lists.newArrayList(gameModeMap.keySet());
+            return Lists.newArrayList(GAMEMODE_MAP.keySet());
         }
     }
 }

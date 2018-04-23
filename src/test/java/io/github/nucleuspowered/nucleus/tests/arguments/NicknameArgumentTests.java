@@ -4,12 +4,14 @@
  */
 package io.github.nucleuspowered.nucleus.tests.arguments;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.tests.TestBase;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
 import org.spongepowered.api.command.args.CommandArgs;
@@ -18,8 +20,10 @@ import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.user.UserStorageService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class NicknameArgumentTests extends TestBase {
 
@@ -61,10 +65,14 @@ public class NicknameArgumentTests extends TestBase {
     private UserStorageService getMockUserStorageService() {
         GameProfile gp1 = Mockito.mock(GameProfile.class);
         GameProfile gp2 = Mockito.mock(GameProfile.class);
+        Collection<GameProfile> names = ImmutableList.of(gp1, gp2);
         Mockito.when(gp1.getName()).thenReturn(Optional.of("test"));
         Mockito.when(gp2.getName()).thenReturn(Optional.of("testtest"));
 
         UserStorageService mockUss = Mockito.mock(UserStorageService.class);
+        Mockito.when(mockUss.match(Mockito.anyString())).thenAnswer((Answer<Collection<GameProfile>>) invocation ->
+                names.stream().filter(x -> x.getName().get()
+                        .startsWith(invocation.getArgumentAt(0, String.class).toLowerCase())).collect(Collectors.toList()));
         Mockito.when(mockUss.getAll()).thenReturn(Lists.newArrayList(gp1, gp2));
 
         User u1 = Mockito.mock(User.class);

@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -40,7 +39,7 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
             new KitArgument(Text.of(KIT_PARAMETER), false),
             GenericArguments.firstParsing(
                 new PositiveIntegerArgument(Text.of(index)),
-                new RemainingStringsArgument(Text.of(command)))
+                GenericArguments.remainingRawJoinedStrings(Text.of(command)))
         };
     }
 

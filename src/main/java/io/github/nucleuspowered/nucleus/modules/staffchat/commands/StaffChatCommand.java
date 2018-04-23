@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.staffchat.commands;
 
 import io.github.nucleuspowered.nucleus.api.EventContexts;
-import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -42,7 +41,7 @@ public class StaffChatCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(new RemainingStringsArgument(Text.of(message)))
+            GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(message)))
         };
     }
 

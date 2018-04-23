@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -17,6 +16,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -32,7 +32,7 @@ public class KitAddCommandCommand extends KitFallbackBase<CommandSource> {
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
             new KitArgument(Text.of(KIT_PARAMETER), false),
-            new RemainingStringsArgument(Text.of(command))
+            GenericArguments.remainingRawJoinedStrings(Text.of(command))
         };
     }
 

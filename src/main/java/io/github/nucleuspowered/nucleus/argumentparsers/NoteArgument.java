@@ -63,11 +63,8 @@ public class NoteArgument extends CommandElement {
             throw args.createError(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("args.note.indexnotnumber"));
         }
 
-        if (!noteData.isEmpty()) {
-            return new Result(user, noteData.get(index));
-        }
+        return new Result(user, noteData.get(index));
 
-        throw args.createError(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("args.note.nousernotes",user.getName()));
     }
 
     @Override

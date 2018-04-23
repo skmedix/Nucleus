@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-public class NicknameArgument<T extends User> extends CommandElement {
+public class  NicknameArgument<T extends User> extends CommandElement {
 
     private final UserDataManager userDataManager;
     private final ThrownTriFunction<String, CommandSource, CommandArgs, List<?>, ArgumentParseException> parser;
@@ -237,9 +237,9 @@ public class NicknameArgument<T extends User> extends CommandElement {
                         .orElseThrow(() -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
                 }
 
-                List<User> users = uss.getAll().stream()
+                List<User> users = uss.match(s)
+                        .stream()
                         // Get the players who start with the string.
-                        .filter(x -> x.getName().filter(y -> y.toLowerCase().startsWith(s.toLowerCase())).isPresent())
                         .map(uss::get)
                         // Remove players who have no user
                         .filter(Optional::isPresent)
@@ -247,6 +247,7 @@ public class NicknameArgument<T extends User> extends CommandElement {
                         .filter(x -> filter.test(cs, x))
                         .filter(x -> PlayerConsoleArgument.shouldShow(x.getUniqueId(), cs))
                         .map(x -> x.getPlayer().map(y -> (User) y).orElse(x))
+                        .limit(20) // stop after 20
                         .collect(Collectors.toList());
 
                 if (!users.isEmpty()) {

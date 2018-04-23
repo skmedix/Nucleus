@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
-import io.github.nucleuspowered.nucleus.argumentparsers.RemainingStringsArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -39,7 +38,7 @@ public class SetDescriptionCommand extends AbstractCommand<CommandSource> {
             GenericArguments.flags().flag("r", "-remove", "-delete").buildWith(
                 GenericArguments.seq(
                     new WarpArgument(Text.of(warpKey), false, false),
-                    GenericArguments.optional(new RemainingStringsArgument(Text.of(descriptionKey)))
+                    GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(descriptionKey)))
                 )
             )
         };

@@ -91,6 +91,6 @@ public class HomeArgument extends CommandElement {
         }
 
         String name = homeName.toLowerCase();
-        return s.stream().filter(x -> x.toLowerCase().startsWith(name)).collect(Collectors.toList());
+        return s.stream().filter(x -> x.toLowerCase().startsWith(name)).limit(20).collect(Collectors.toList());
     }
 }
