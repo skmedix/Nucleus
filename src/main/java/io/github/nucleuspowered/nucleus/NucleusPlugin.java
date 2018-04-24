@@ -76,7 +76,6 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
@@ -369,8 +368,8 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    @Listener(order = Order.FIRST)
-    public void onPostInit(GamePostInitializationEvent event) {
+    @Listener(order = Order.POST)
+    public void onInitLate(GameInitializationEvent event) {
         if (this.isErrored != null) {
             return;
         }

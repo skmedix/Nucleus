@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 
 public class MailHandler implements NucleusMailService {
 
-    private final Nucleus plugin = Nucleus.getNucleus();
-
     @Override
     public final List<MailMessage> getMail(User player, MailFilter... filters) {
         return Lists.newArrayList(getMailInternal(player, filters));

@@ -25,7 +25,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @Permissions(prefix = "mail", suggestedLevel = SuggestedLevel.USER)
 @RunAsync
-@RegisterCommand(value = {"send", "s"}, subcommandOf = MailCommand.class)
+@RegisterCommand(value = {"send", "s"}, subcommandOf = MailCommand.class, rootAliasRegister = "sendmail")
 @NonnullByDefault
 public class SendMailCommand extends AbstractCommand<CommandSource> {
 
