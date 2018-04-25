@@ -14,12 +14,11 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.annotationprocessor.Store;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NoModifiersArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.Constants;
 import io.github.nucleuspowered.nucleus.internal.CostCancellableTask;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.TimingsDummy;
 import io.github.nucleuspowered.nucleus.internal.annotations.RequiresEconomy;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
@@ -957,6 +956,11 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         }
     }
 
+    protected final <U extends User> U getUserFromArgs(Class<U> clazz, CommandSource src, Text argument, CommandContext args) throws
+            ReturnMessageException {
+        return getUserFromArgs(clazz, src, argument.toPlain(), args, "command.playeronly");
+    }
+
     protected final <U extends User> U getUserFromArgs(Class<U> clazz, CommandSource src, String argument, CommandContext args) throws ReturnMessageException {
         return getUserFromArgs(clazz, src, argument, args, "command.playeronly");
     }
@@ -1320,8 +1324,6 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
     @NonnullByDefault
     public abstract static class SimpleTargetOtherPlayer extends AbstractCommand<CommandSource> {
 
-        final String playerKey = "player";
-
         protected CommandElement[] additionalArguments() {
             return new CommandElement[] {};
         }
@@ -1331,8 +1333,8 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                 GenericArguments.optionalWeak(
                     GenericArguments.requiringPermission(
                         new NoModifiersArgument<>(
-                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER),
-                            NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE
+                                NucleusParameters.ONE_PLAYER,
+                                NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE
                         ),
                             this.permissions.getOthers()
                     )
@@ -1341,7 +1343,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         }
 
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-            Player target = this.getUserFromArgs(Player.class, src, this.playerKey, args);
+            Player target = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
             return executeWithPlayer(src, target, args, src instanceof Player && ((Player) src).getUniqueId().equals(target.getUniqueId()));
         }
 

@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoHelpSubcommand;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NotifyIfAFK;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -18,8 +19,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 /**
@@ -31,27 +30,24 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RegisterCommand({"reply", "r"})
 @EssentialsEquivalent({"r", "reply"})
 @NonnullByDefault
-@NotifyIfAFK(ReplyCommand.USER_KEY)
+@NotifyIfAFK(NucleusParameters.Keys.S_PLAYER)
 public class ReplyCommand extends AbstractCommand<CommandSource> {
-
-    static final String USER_KEY = "player";
-    private static final String MESSAGE_KEY = "message";
 
     private final MessageHandler handler = getServiceUnchecked(MessageHandler.class);
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(MESSAGE_KEY)))
+                NucleusParameters.MESSAGE
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) {
-        boolean b = this.handler.replyMessage(src, args.<String>getOne(MESSAGE_KEY).get());
+        boolean b = this.handler.replyMessage(src, args.<String>getOne(NucleusParameters.Keys.MESSAGE).get());
         if (b) {
             // For Notify on AFK
-            this.handler.getLastMessageFrom(Util.getUUID(src)).ifPresent(x -> args.putArg(USER_KEY, x));
+            this.handler.getLastMessageFrom(Util.getUUID(src)).ifPresent(x -> args.putArg(NucleusParameters.Keys.S_PLAYER, x));
             return CommandResult.success();
         }
 

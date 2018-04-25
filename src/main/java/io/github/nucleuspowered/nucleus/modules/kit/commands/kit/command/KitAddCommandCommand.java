@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -17,7 +18,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -28,18 +28,17 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RegisterCommand(value = {"add", "+"}, subcommandOf = KitCommandCommand.class)
 public class KitAddCommandCommand extends KitFallbackBase<CommandSource> {
 
-    private final String command = "command";
-
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
             new KitArgument(Text.of(KIT_PARAMETER), false),
-            GenericArguments.remainingRawJoinedStrings(Text.of(this.command))
+            NucleusParameters.COMMAND
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
-        String c = args.<String>getOne(this.command).get().replace(" {player} ", " {{player}} ");
+        String c = args.<String>getOne(NucleusParameters.Keys.COMMAND).get()
+                .replace(" {player} ", " {{player}} ");
         kitInfo.addCommand(c);
         KIT_HANDLER.saveKit(kitInfo);
 

@@ -8,6 +8,7 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.BoundedIntegerArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -34,7 +35,6 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
 
     private final String timespan = "time to display";
     private final String line = "line";
-    private final String message = "message";
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
@@ -42,9 +42,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
                 .flag("r", "-remove")
                 .valueFlag(new BoundedIntegerArgument(Text.of(this.line), 1, 2),"l", "-line")
                 .valueFlag(new TimespanArgument(Text.of(this.timespan)), "t", "-time")
-                .buildWith(
-                    GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(this.message)))
-                )
+                .buildWith(NucleusParameters.OPTIONAL_MESSAGE)
         };
     }
 
@@ -68,7 +66,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
         // Which line?
         boolean linetwo = args.<Integer>getOne(this.line).map(x -> x == 2).orElse(false);
 
-        Optional<String> onMessage = args.getOne(this.message);
+        Optional<String> onMessage = args.getOne(NucleusParameters.Keys.MESSAGE);
 
         if (!onMessage.isPresent()) {
             boolean isValid = mod.getExpiry().map(x -> x.isAfter(Instant.now())).orElse(false);

@@ -5,8 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.inventory.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.Since;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -28,7 +27,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Map;
@@ -42,7 +40,6 @@ import java.util.Optional;
 @NonnullByDefault
 public class InvSeeCommand extends AbstractCommand<Player> implements Reloadable {
 
-    private final String player = "subject";
     private boolean self = false;
 
     @Override
@@ -58,13 +55,13 @@ public class InvSeeCommand extends AbstractCommand<Player> implements Reloadable
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.USER)
+                NucleusParameters.ONE_USER
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        User target = args.<User>getOne(this.player).get();
+        User target = args.<User>getOne(NucleusParameters.Keys.USER).get();
 
         if (!target.isOnline() && !this.permissions.testSuffix(src, "offline")) {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.invsee.nooffline"));

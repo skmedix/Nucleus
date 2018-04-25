@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.kick.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -18,9 +19,7 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -35,13 +34,11 @@ import java.util.Map;
 @NonnullByDefault
 public class KickCommand extends AbstractCommand<CommandSource> {
 
-    private final String player = "subject";
-    private final String reason = "reason";
-
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.player(Text.of(this.player))),
-                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reason))))
+        return new CommandElement[] {
+                NucleusParameters.ONE_PLAYER,
+                NucleusParameters.OPTIONAL_REASON
         };
     }
 
@@ -55,8 +52,9 @@ public class KickCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player pl = args.<Player>getOne(this.player).get();
-        String r = args.<String>getOne(this.reason).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.kick.defaultreason"));
+        Player pl = args.<Player>getOne(NucleusParameters.Keys.PLAYER).get();
+        String r = args.<String>getOne(NucleusParameters.Keys.REASON).orElse(Nucleus.getNucleus().getMessageProvider()
+                .getMessageWithFormat("command.kick.defaultreason"));
 
         if (this.permissions.testSuffix(pl, "exempt.target", src, false)) {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kick.exempt", pl.getName()));

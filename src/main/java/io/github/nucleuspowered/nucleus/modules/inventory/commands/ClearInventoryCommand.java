@@ -6,8 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.inventory.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -21,7 +20,6 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @RegisterCommand({"clear", "clearinv", "clearinventory", "ci", "clearinvent"})
@@ -31,21 +29,19 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @EssentialsEquivalent({"clearinventory", "ci", "clean", "clearinvent"})
 public class ClearInventoryCommand extends AbstractCommand<CommandSource> {
 
-    private final String player = "subject";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.optional(
                 GenericArguments.requiringPermission(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.USER),
+                        NucleusParameters.ONE_USER,
                         this.permissions.getPermissionWithSuffix("others")
                 ))
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource source, CommandContext args) throws Exception {
-        User user = this.getUserFromArgs(User.class, source, this.player, args);
+        User user = this.getUserFromArgs(User.class, source, NucleusParameters.Keys.USER, args);
         if (user.getPlayer().isPresent()) {
             Player target = user.getPlayer().get();
             Util.getStandardInventory(target).clear();

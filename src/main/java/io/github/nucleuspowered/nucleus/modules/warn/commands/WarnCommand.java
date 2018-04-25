@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.warn.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -45,9 +46,7 @@ import java.util.UUID;
 @RegisterCommand({"warn", "warning", "addwarning"})
 public class WarnCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
-    private final String playerKey = "subject";
     private final String durationKey = "duration";
-    private final String reasonKey = "reason";
 
     private final WarnHandler handler = getServiceUnchecked(WarnHandler.class);
 
@@ -68,16 +67,18 @@ public class WarnCommand extends AbstractCommand<CommandSource> implements Reloa
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[]{GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerKey))),
+        return new CommandElement[] {
+                NucleusParameters.ONE_USER,
                 GenericArguments.onlyOne(GenericArguments.optionalWeak(new TimespanArgument(Text.of(this.durationKey)))),
-                GenericArguments.onlyOne(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reasonKey))))};
+                NucleusParameters.REASON
+        };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        final User user = args.<User>getOne(this.playerKey).get();
+        final User user = args.<User>getOne(NucleusParameters.Keys.USER).get();
         Optional<Long> optDuration = args.getOne(this.durationKey);
-        String reason = args.<String>getOne(this.reasonKey).get();
+        String reason = args.<String>getOne(NucleusParameters.Keys.REASON).get();
 
         if (this.permissions.testSuffix(user, "exempt.target", src, false)) {
             throw ReturnMessageException.fromKey("command.warn.exempt", user.getName());

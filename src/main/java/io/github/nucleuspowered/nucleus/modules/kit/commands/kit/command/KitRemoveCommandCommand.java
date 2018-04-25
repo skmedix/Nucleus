@@ -8,6 +8,7 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -33,14 +34,13 @@ import java.util.List;
 public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
 
     private final String index = "index";
-    private final String command = "command";
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
             new KitArgument(Text.of(KIT_PARAMETER), false),
             GenericArguments.firstParsing(
                 new PositiveIntegerArgument(Text.of(this.index)),
-                GenericArguments.remainingRawJoinedStrings(Text.of(this.command)))
+                NucleusParameters.COMMAND)
         };
     }
 
@@ -61,7 +61,8 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
 
             cmd = commands.remove(idx - 1);
         } else {
-            cmd = args.<String>getOne(this.command).get().replace(" {player} ", " {{player}} ");
+            cmd = args.<String>getOne(NucleusParameters.Keys.COMMAND).get()
+                    .replace(" {player} ", " {{player}} ");
             if (!commands.remove(cmd)) {
                 throw ReturnMessageException.fromKey("command.kit.command.remove.noexist", cmd, kitInfo.getName());
             }

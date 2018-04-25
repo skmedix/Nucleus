@@ -5,8 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.fun.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -22,7 +21,6 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
@@ -41,21 +39,17 @@ import javax.annotation.Nullable;
         notes = "Selectors can be used, entities can be struck.")
 public class LightningCommand extends AbstractCommand<CommandSource> {
 
-    private final String player = "subject";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
                 GenericArguments.optional(
-                    GenericArguments.requiringPermission(
-                        SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.PLAYER, false, Living.class),
-                            this.permissions.getPermissionWithSuffix("others")))
+                    GenericArguments.requiringPermission(NucleusParameters.MANY_LIVING, this.permissions.getPermissionWithSuffix("others")))
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        Collection<Living> playerCollection = args.getAll(this.player);
+        Collection<Living> playerCollection = args.getAll(NucleusParameters.Keys.SUBJECT);
 
         // No argument, let's not smite the subject.
         if (playerCollection.isEmpty()) {

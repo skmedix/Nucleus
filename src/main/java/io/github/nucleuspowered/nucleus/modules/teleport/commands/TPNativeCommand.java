@@ -21,6 +21,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
  * This is a wrapper class for /minecraft:tp to map to "tpn", for those who want
  * that.
  */
+// TODO: Remove and remap /minecraft:tp
 @NonnullByDefault
 @NoModifiers
 @NoPermissions
@@ -31,7 +32,9 @@ public class TPNativeCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.remainingJoinedStrings(Text.of(this.a))};
+        return new CommandElement[] {
+                GenericArguments.remainingJoinedStrings(Text.of(this.a))
+        };
     }
 
     @Override

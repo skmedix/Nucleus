@@ -6,10 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.playerinfo.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -69,10 +67,6 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
     private static final String EXTENDED_SUFFIX = "extended";
     public static final String EXTENDED_PERMISSION = PermissionRegistry.PERMISSIONS_PREFIX + "seen." + EXTENDED_SUFFIX;
 
-    private final String uuid = "uuid";
-    private final String playerKey = "subject";
-    private final Text notEmpty = Text.of(" ");
-
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
@@ -84,14 +78,16 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.firstParsing(
-                GenericArguments.onlyOne(UUIDArgument.user(Text.of(this.uuid))),
-                GenericArguments.onlyOne(SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.USER)))
+                NucleusParameters.ONE_USER_UUID,
+                NucleusParameters.ONE_USER
+            )
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) {
-        User user = args.<User>getOne(this.uuid).isPresent() ? args.<User>getOne(this.uuid).get() : args.<User>getOne(this.playerKey).get();
+        User user = args.<User>getOne(NucleusParameters.Keys.USER_UUID).isPresent() ?
+                args.<User>getOne(NucleusParameters.Keys.USER_UUID).get() : args.<User>getOne(NucleusParameters.Keys.PLAYER).get();
         if (user.isOnline()) {
             // Get the player in case the User is displaying the wrong name.
             user = user.getPlayer().get();
@@ -118,7 +114,7 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
                 Nucleus.getNucleus().getNameUtil().getName(user))));
 
         if (this.permissions.testSuffix(src, EXTENDED_SUFFIX)) {
-            messages.add(this.notEmpty);
+            messages.add(Util.SPACE);
             messages.add(messageProvider.getTextMessageWithFormat("command.seen.uuid", user.getUniqueId().toString()));
 
             if (user.isOnline()) {

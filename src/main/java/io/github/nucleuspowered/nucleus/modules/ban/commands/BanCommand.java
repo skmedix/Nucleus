@@ -6,8 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.GameProfileArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -48,11 +47,7 @@ import java.util.Optional;
 public class BanCommand extends AbstractCommand<CommandSource> {
 
     static final String notifyPermission = PermissionRegistry.PERMISSIONS_PREFIX + "ban.notify";
-    private final String uuid = "uuid";
-    private final String user = "user";
     private final String name = "name";
-
-    private final String reason = "reason";
 
     @Override
     public Map<String, PermissionInformation> permissionsToRegister() {
@@ -73,18 +68,21 @@ public class BanCommand extends AbstractCommand<CommandSource> {
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.firstParsing(
-                        GenericArguments.onlyOne(UUIDArgument.gameProfile(Text.of(this.uuid))),
-                        GenericArguments.onlyOne(new GameProfileArgument(Text.of(this.user))),
+                        NucleusParameters.ONE_GAME_PROFILE_UUID,
+                        NucleusParameters.ONE_GAME_PROFILE,
                         GenericArguments.onlyOne(GenericArguments.string(Text.of(this.name)))
                 ),
-                GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of(this.reason)))
+                GenericArguments.optionalWeak(NucleusParameters.REASON)
         };
     }
 
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) throws Exception {
-        final String r = args.<String>getOne(this.reason).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
-        Optional<GameProfile> ou = Optional.ofNullable(args.<GameProfile>getOne(this.uuid).orElseGet(() -> args.<GameProfile>getOne(this.user).orElse(null)));
+        final String r = args.<String>getOne(NucleusParameters.Keys.REASON).orElseGet(() ->
+                Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
+        Optional<GameProfile> ou = Optional.ofNullable(
+                args.<GameProfile>getOne(NucleusParameters.Keys.USER_UUID).orElseGet(() ->
+                        args.<GameProfile>getOne(NucleusParameters.Keys.USER).orElse(null)));
         if (ou.isPresent()) {
             Optional<User> optionalUser = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(ou.get());
             if ((!optionalUser.isPresent() || !optionalUser.get().isOnline()) && !this.permissions.testSuffix(src, "offline")) {

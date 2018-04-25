@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.RegexArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -23,7 +24,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 public class NameBanCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
     private final String nameKey = "name";
-    private final String reasonKey = "reason";
 
     private final NameBanHandler handler = getServiceUnchecked(NameBanHandler.class);
     private String defaultReason = "Your name is inappropriate";
@@ -55,13 +54,13 @@ public class NameBanCommand extends AbstractCommand<CommandSource> implements Re
                     return Lists.newArrayList();
                 }
             })),
-            GenericArguments.optional(GenericArguments.remainingJoinedStrings(Text.of(this.reasonKey)))
+            NucleusParameters.OPTIONAL_REASON
         };
     }
 
     @Override public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         String name = args.<String>getOne(this.nameKey).get().toLowerCase();
-        String reason = args.<String>getOne(this.reasonKey).orElse(this.defaultReason);
+        String reason = args.<String>getOne(NucleusParameters.Keys.REASON).orElse(this.defaultReason);
 
         if (this.handler.addName(name, reason, CauseStackHelper.createCause(src))) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nameban.success", name));

@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.admin.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -19,7 +20,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.cause.EventContext;
@@ -37,14 +37,11 @@ import java.util.Map;
 @NonnullByDefault
 public class SudoCommand extends AbstractCommand<CommandSource> {
 
-    private final String playerKey = "subject";
-    private final String commandKey = "command";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.onlyOne(GenericArguments.player(Text.of(this.playerKey))),
-                GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.commandKey)))
+                NucleusParameters.ONE_PLAYER,
+                NucleusParameters.COMMAND
         };
     }
 
@@ -57,8 +54,8 @@ public class SudoCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player pl = args.<Player>getOne(this.playerKey).get();
-        String cmd = args.<String>getOne(this.commandKey).get();
+        Player pl = args.<Player>getOne(NucleusParameters.Keys.PLAYER).get();
+        String cmd = args.<String>getOne(NucleusParameters.Keys.COMMAND).get();
         if (pl.equals(src) || this.permissions.testSuffix(pl, "exempt.target", src, false)) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.sudo.noperms"));
             return CommandResult.empty();

@@ -6,9 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.IfConditionElseArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -27,7 +26,6 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.HashMap;
@@ -45,8 +43,6 @@ import java.util.Map;
         notes = "If you have permission, this will override '/tptoggle' automatically.")
 @NonnullByDefault
 public class TeleportHereCommand extends AbstractCommand<Player> implements Reloadable {
-
-    private final String playerKey = "subject";
 
     private final TeleportHandler handler = getServiceUnchecked(TeleportHandler.class);
 
@@ -67,17 +63,16 @@ public class TeleportHereCommand extends AbstractCommand<Player> implements Relo
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.flags().flag("q", "-quiet").buildWith(
-                    GenericArguments.onlyOne(
                         IfConditionElseArgument.permission(this.permissions.getPermissionWithSuffix("offline"),
-                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.USER),
-                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER))))
+                                NucleusParameters.ONE_USER_PLAYER_KEY,
+                                NucleusParameters.ONE_PLAYER))
         };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
         boolean beQuiet = args.<Boolean>getOne("q").orElse(this.isDefaultQuiet);
-        User target = args.<User>getOne(this.playerKey).get();
+        User target = args.<User>getOne(NucleusParameters.Keys.PLAYER).get();
         if (target.getPlayer().isPresent()) {
             this.handler.getBuilder().setFrom(target.getPlayer().get()).setTo(src).setSilentSource(beQuiet).startTeleport();
         } else {

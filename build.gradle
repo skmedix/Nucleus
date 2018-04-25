@@ -40,7 +40,7 @@ allprojects {
     apply plugin: 'java'
 }
 
-project.ext.versionno = '1.3.8'
+project.ext.versionno = '1.4.0'
 project.ext.minecraftversion = '1.12.2'
 project.ext.spongeapiversion = '7.0'
 project.ext.suffix = '-SNAPSHOT'
@@ -48,6 +48,7 @@ project.ext.hash = ''
 
 String docVer
 boolean isSnapshot
+boolean isMajor
 
 if (project.properties.containsKey('override-doc-ver')) {
     docVer = project.properties.get('override-doc-ver')
@@ -55,6 +56,7 @@ if (project.properties.containsKey('override-doc-ver')) {
 } else {
     docVer = project.ext.versionno + "-S" + project.ext.spongeapiversion
     isSnapshot = project.ext.suffix.endsWith('SNAPSHOT')
+    isMajor = project.ext.versionno.endsWith('.0')
 }
 
 // Add Git hash for unique version numbers, but only for non-snapshot versions
@@ -243,7 +245,13 @@ task relnotes {
                     .replace('{{message}}', gitCommitMessage.message())
                     .replace('{{sponge}}', project.ext.spongeapiversion)
         } else {
-            String contents = new File('changelogs/templates/release.md').getText("UTF-8")
+            String contents
+            if (isMajor) {
+                contents = new File('changelogs/templates/release-big.md').getText("UTF-8")
+            } else {
+                contents = new File('changelogs/templates/release.md').getText("UTF-8")
+            }
+
             String notes = new File('changelogs/templates/' + docVer + ".md").getText("UTF-8")
             complete = contents
                     .replace('{{hash}}', gitHash.hash)

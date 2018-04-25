@@ -8,6 +8,7 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.EventContexts;
 import io.github.nucleuspowered.nucleus.api.chat.NucleusChatChannel;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -25,7 +26,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -50,18 +50,16 @@ public class MeCommand extends AbstractCommand<CommandSource> implements Reloada
     private ChatConfig config = null;
     private final MeChannel channel = new MeChannel();
 
-    private final String messageKey = "message";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.remainingRawJoinedStrings(Text.of(messageKey))
+                NucleusParameters.MESSAGE
         };
     }
 
     @Override
     public CommandResult executeCommand(@Nonnull CommandSource src, CommandContext args) throws Exception {
-        String message = ChatListener.stripPermissionless(src, args.<String>getOne(messageKey).get());
+        String message = ChatListener.stripPermissionless(src, args.<String>getOne(NucleusParameters.Keys.MESSAGE).get());
         Text header = config.getMePrefix().getForCommandSource(src);
         TextParsingUtils.StyleTuple t = Nucleus.getNucleus().getTextParsingUtils().getLastColourAndStyle(header, null);
         Text originalMessage = TextSerializers.FORMATTING_CODE.deserialize(message);

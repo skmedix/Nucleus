@@ -5,8 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.GameProfileArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -22,7 +21,6 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.ban.BanService;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.ban.Ban;
@@ -36,16 +34,12 @@ import java.util.Optional;
 @NonnullByDefault
 public class UnbanCommand extends AbstractCommand<CommandSource> {
 
-    private final String key = "uuid";
-    private final String key2 = "user";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.firstParsing(
-                // GenericArguments.onlyOne(GenericArguments.user(Text.of(key))),
-                GenericArguments.onlyOne(UUIDArgument.gameProfile(Text.of(this.key))),
-                GenericArguments.onlyOne(new GameProfileArgument(Text.of(this.key2)))
+                    NucleusParameters.ONE_GAME_PROFILE_UUID,
+                    NucleusParameters.ONE_GAME_PROFILE
             )
         };
     }
@@ -53,10 +47,10 @@ public class UnbanCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) {
         GameProfile gp;
-        if (args.hasAny(this.key)) {
-            gp = args.<GameProfile>getOne(this.key).get();
+        if (args.hasAny(NucleusParameters.Keys.USER_UUID)) {
+            gp = args.<GameProfile>getOne(NucleusParameters.Keys.USER_UUID).get();
         } else {
-            gp = args.<GameProfile>getOne(this.key2).get();
+            gp = args.<GameProfile>getOne(NucleusParameters.Keys.USER).get();
         }
 
         BanService service = Sponge.getServiceManager().provideUnchecked(BanService.class);

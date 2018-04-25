@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.warp.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -31,7 +32,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class SetDescriptionCommand extends AbstractCommand<CommandSource> {
 
     private final String warpKey = "warp";
-    private final String descriptionKey = "description";
     private final WarpHandler handler = getServiceUnchecked(WarpHandler.class);
 
     @Override public CommandElement[] getArguments() {
@@ -39,7 +39,7 @@ public class SetDescriptionCommand extends AbstractCommand<CommandSource> {
             GenericArguments.flags().flag("r", "-remove", "-delete").buildWith(
                 GenericArguments.seq(
                     new WarpArgument(Text.of(this.warpKey), false, false),
-                    GenericArguments.optional(GenericArguments.remainingRawJoinedStrings(Text.of(this.descriptionKey)))
+                    NucleusParameters.OPTIONAL_DESCRIPTION
                 )
             )
         };
@@ -59,7 +59,7 @@ public class SetDescriptionCommand extends AbstractCommand<CommandSource> {
         }
 
         // Add the category.
-        Text message = TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(this.descriptionKey).get());
+        Text message = TextSerializers.FORMATTING_CODE.deserialize(args.<String>getOne(NucleusParameters.Keys.DESCRIPTION).get());
         if (this.handler.setWarpDescription(warpName, message)) {
             src.sendMessage(
                     Nucleus.getNucleus().getMessageProvider().getTextMessageWithTextFormat("command.warp.description.added", message, Text.of(warpName)));

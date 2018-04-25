@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.ban.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -47,7 +48,6 @@ import java.util.Map;
 public class TempBanCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
     private final String user = "user";
-    private final String reasonKey = "reasonKey";
     private final String duration = "duration";
     private BanConfig banConfig = new BanConfig();
 
@@ -67,9 +67,9 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(GenericArguments.user(Text.of(this.user))), GenericArguments.onlyOne(new TimespanArgument(Text.of(
-                this.duration))),
-                GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of(this.reasonKey)))
+                GenericArguments.onlyOne(GenericArguments.user(Text.of(this.user))),
+                GenericArguments.onlyOne(new TimespanArgument(Text.of(this.duration))),
+                NucleusParameters.OPTIONAL_REASON
         };
     }
 
@@ -77,7 +77,8 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         User u = args.<User>getOne(this.user).get();
         Long time = args.<Long>getOne(this.duration).get();
-        String reason = args.<String>getOne(this.reasonKey).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
+        String reason = args.<String>getOne(NucleusParameters.Keys.REASON)
+                .orElseGet(() -> Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
 
         if (this.permissions.testSuffix(u, "exempt.target", src, false)) {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tempban.exempt", u.getName()));

@@ -8,8 +8,7 @@ import com.flowpowered.math.vector.Vector3i;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.BoundedIntegerArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -45,7 +44,6 @@ import java.util.Map;
 @EssentialsEquivalent("tppos")
 public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
 
-    private final String key = "subject";
     private final String location = "world";
     private final String x = "x";
     private final String y = "y";
@@ -63,11 +61,7 @@ public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
                         GenericArguments.seq(
                             // Actual arguments
                             GenericArguments.optionalWeak(
-                                    GenericArguments.requiringPermission(
-                                            GenericArguments.onlyOne(
-                                                    SelectorWrapperArgument.nicknameSelector(Text.of(this.key), NicknameArgument.UnderlyingType.PLAYER)),
-
-                                            this.permissions.getOthers())),
+                                    GenericArguments.requiringPermission(NucleusParameters.ONE_PLAYER, this.permissions.getOthers())),
                             GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.world(Text.of(this.location)))),
                             GenericArguments.onlyOne(new BoundedIntegerArgument(Text.of(this.x), Integer.MIN_VALUE, Integer.MAX_VALUE)),
                             GenericArguments.onlyOne(new BoundedIntegerArgument(Text.of(this.y), 0, 255)),
@@ -86,7 +80,7 @@ public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player pl = this.getUserFromArgs(Player.class, src, this.key, args);
+        Player pl = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
         WorldProperties wp = args.<WorldProperties>getOne(this.location).orElse(pl.getWorld().getProperties());
         World world = Sponge.getServer().loadWorld(wp.getUniqueId()).get();
 

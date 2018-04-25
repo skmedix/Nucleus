@@ -8,8 +8,7 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -24,7 +23,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
@@ -49,11 +47,10 @@ import java.util.stream.Collectors;
 @RegisterCommand(value = "list", subcommandOf = HomeCommand.class, rootAliasRegister = {"listhomes", "homes"})
 public class ListHomeCommand extends AbstractCommand<CommandSource> {
 
-    private final String player = "subject";
     private final String exempt = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(HomeOtherCommand.class)
         .getPermissionWithSuffix(HomeOtherCommand.OTHER_EXEMPT_PERM_SUFFIX);
 
-    private final HomeHandler homeHandler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(HomeHandler.class);
+    private final HomeHandler homeHandler = getServiceUnchecked(HomeHandler.class);
 
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -64,15 +61,15 @@ public class ListHomeCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.optional(GenericArguments.onlyOne(
-                GenericArguments.requiringPermission(
-                        SelectorWrapperArgument.nicknameSelector(Text.of(this.player), NicknameArgument.UnderlyingType.USER, true, Player.class),
-                        this.permissions.getPermissionWithSuffix("others"))))};
+        return new CommandElement[] {
+                GenericArguments.optional(GenericArguments.requiringPermission(
+                        NucleusParameters.ONE_USER, this.permissions.getPermissionWithSuffix("others")))
+        };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User user = this.getUserFromArgs(User.class, src, this.player, args); // args.getOne(subject);
+        User user = this.getUserFromArgs(User.class, src, NucleusParameters.Keys.USER, args);
         Text header;
 
         boolean other = src instanceof User && !((User) src).getUniqueId().equals(user.getUniqueId());

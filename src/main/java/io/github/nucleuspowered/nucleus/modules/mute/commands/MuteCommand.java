@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.mute.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -64,7 +65,6 @@ public class MuteCommand extends AbstractCommand<CommandSource> implements Reloa
 
     private final String playerArgument = "subject";
     private final String timespanArgument = "time";
-    private final String reason = "reason";
 
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -82,7 +82,8 @@ public class MuteCommand extends AbstractCommand<CommandSource> implements Reloa
         return new CommandElement[] {
             GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerArgument))),
             GenericArguments.onlyOne(GenericArguments.optionalWeak(new TimespanArgument(Text.of(this.timespanArgument)))),
-            GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reason))))};
+            NucleusParameters.OPTIONAL_REASON
+        };
     }
 
     @Override
@@ -93,7 +94,7 @@ public class MuteCommand extends AbstractCommand<CommandSource> implements Reloa
 
         Optional<Long> time = args.getOne(this.timespanArgument);
         Optional<MuteData> omd = this.handler.getPlayerMuteData(user);
-        Optional<String> reas = args.getOne(this.reason);
+        Optional<String> reas = args.getOne(NucleusParameters.Keys.REASON);
 
         if (this.permissions.testSuffix(user, "exempt.target", src, false)) {
             throw ReturnMessageException.fromKey("command.mute.exempt", user.getName());

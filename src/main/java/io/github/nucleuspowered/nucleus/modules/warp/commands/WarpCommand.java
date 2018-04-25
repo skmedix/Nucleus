@@ -8,11 +8,10 @@ import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.argumentparsers.AdditionalCompletionsArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NoModifiersArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.RequiredArgumentsArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoCost;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -69,7 +68,6 @@ import java.util.stream.Collectors;
 public class WarpCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
     static final String warpNameArg = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("args.name.warpname");
-    private final String playerKey = "subject";
     private boolean isSafeTeleport = true;
     private double defaultCost = 0;
 
@@ -96,7 +94,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
                                 .flag("f", "-force").setAnchorFlags(false).buildWith(GenericArguments.none()))),
             GenericArguments.optionalWeak(RequiredArgumentsArgument.r2(GenericArguments.requiringPermission(
                 new NoModifiersArgument<>(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER),
+                        NucleusParameters.ONE_PLAYER,
                         NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE), this.permissions.getOthers()))),
 
                 GenericArguments.onlyOne(
@@ -110,7 +108,8 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
 
     @Override
     protected ContinueMode preProcessChecks(final CommandSource source, CommandContext args) {
-        if (args.<Player>getOne(this.playerKey).map(x -> !(source instanceof Player) || x.getUniqueId().equals(((Player) source).getUniqueId()))
+        if (args.<Player>getOne(NucleusParameters.Keys.PLAYER).map(x -> !(source instanceof Player) || x.getUniqueId().equals(((Player) source)
+                .getUniqueId()))
                 .orElse(false)) {
             // Bypass cooldowns
             args.putArg(NoModifiersArgument.NO_COOLDOWN_ARGUMENT, true);
@@ -147,7 +146,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
 
     @Override
     public CommandResult executeCommand(CommandSource source, CommandContext args) throws Exception {
-        Player player = this.getUserFromArgs(Player.class, source, this.playerKey, args);
+        Player player = this.getUserFromArgs(Player.class, source, NucleusParameters.Keys.PLAYER, args);
         boolean isOther = !(source instanceof Player) || !((Player) source).getUniqueId().equals(player.getUniqueId());
 
         // Permission checks are done by the parser.

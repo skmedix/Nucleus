@@ -7,10 +7,9 @@ package io.github.nucleuspowered.nucleus.modules.jail.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.JailArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.LocationData;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -52,10 +51,8 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
 
     private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
 
-    private final String playerKey = "subject";
     private final String jailKey = "jail";
     private final String durationKey = "duration";
-    private final String reasonKey = "reason";
     private boolean requireUnjailPermission = false;
 
     @Override
@@ -73,16 +70,17 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.USER)),
-            GenericArguments.optional(GenericArguments.onlyOne(new JailArgument(Text.of(this.jailKey), this.handler))),
-            GenericArguments.optionalWeak(GenericArguments.onlyOne(new TimespanArgument(Text.of(this.durationKey)))),
-            GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.remainingJoinedStrings(Text.of(this.reasonKey))))};
+                NucleusParameters.ONE_USER,
+                GenericArguments.optional(GenericArguments.onlyOne(new JailArgument(Text.of(this.jailKey), this.handler))),
+                GenericArguments.optionalWeak(GenericArguments.onlyOne(new TimespanArgument(Text.of(this.durationKey)))),
+                NucleusParameters.OPTIONAL_REASON
+        };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // Get the subject.
-        User pl = args.<User>getOne(this.playerKey).get();
+        User pl = args.<User>getOne(NucleusParameters.ONE_PLAYER.getKey()).get();
         if (!pl.isOnline() && !this.permissions.testSuffix(src, "offline")) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jail.offline.noperms"));
             return CommandResult.empty();
@@ -120,7 +118,8 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
 
         // This might not be there.
         Optional<Long> duration = args.getOne(this.durationKey);
-        String reason = args.<String>getOne(this.reasonKey).orElse(Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.jail.reason"));
+        String reason = args.<String>getOne(NucleusParameters.Keys.REASON)
+                .orElseGet(() -> Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.jail.reason"));
         JailData jd;
         Text message;
         Text messageTo;

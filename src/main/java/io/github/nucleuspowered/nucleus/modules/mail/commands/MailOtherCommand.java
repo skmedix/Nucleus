@@ -5,8 +5,7 @@
 package io.github.nucleuspowered.nucleus.modules.mail.commands;
 
 import io.github.nucleuspowered.nucleus.argumentparsers.MailFilterArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -30,17 +29,16 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 public class MailOtherCommand extends AbstractCommand<CommandSource> {
 
     private final MailHandler handler = getServiceUnchecked(MailHandler.class);
-    private final String userKey = "user";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            SelectorWrapperArgument.nicknameSelector(Text.of(this.userKey), NicknameArgument.UnderlyingType.USER),
-            GenericArguments.optional(GenericArguments.allOf(new MailFilterArgument(Text.of(MailReadBase.filters), this.handler)))};
+                NucleusParameters.ONE_USER,
+                GenericArguments.optional(GenericArguments.allOf(new MailFilterArgument(Text.of(MailReadBase.filters), this.handler)))};
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) {
-        return MailReadBase.INSTANCE.executeCommand(src, args.<User>getOne(this.userKey).get(), args.getAll(MailReadBase.filters));
+        return MailReadBase.INSTANCE.executeCommand(src, args.<User>getOne(NucleusParameters.Keys.USER).get(), args.getAll(MailReadBase.filters));
     }
 }

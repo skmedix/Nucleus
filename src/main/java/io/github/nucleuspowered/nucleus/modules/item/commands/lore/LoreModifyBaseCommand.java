@@ -6,11 +6,11 @@ package io.github.nucleuspowered.nucleus.modules.item.commands.lore;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
 import org.spongepowered.api.data.type.HandTypes;
@@ -25,14 +25,13 @@ import java.util.List;
 @NonnullByDefault
 abstract class LoreModifyBaseCommand extends AbstractCommand<Player> {
 
-    final String loreKey = "lore";
     final String loreLine = "line";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
                 new PositiveIntegerArgument(Text.of(this.loreLine), false),
-                GenericArguments.remainingJoinedStrings(Text.of(this.loreKey))
+                NucleusParameters.LORE
         };
     }
 

@@ -8,8 +8,7 @@ import com.flowpowered.math.imaginary.Quaterniond;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -30,7 +29,6 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
@@ -50,7 +48,6 @@ import java.util.function.Consumer;
 public class KittyCannonCommand extends AbstractCommand<CommandSource> {
 
     private final Random random = new Random();
-    private final String playerKey = "subject";
     private final List<OcelotType> ocelotTypes = Lists.newArrayList(Sponge.getRegistry().getAllOf(OcelotType.class));
 
     @Override protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -70,16 +67,13 @@ public class KittyCannonCommand extends AbstractCommand<CommandSource> {
                 .permissionFlag(this.permissions.getPermissionWithSuffix("fire"), "f", "-fire")
                 .buildWith(
                     GenericArguments.optional(
-                        GenericArguments.requiringPermission(
-                            SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER, false, Player.class),
-
-                                this.permissions.getOthers())))
+                        GenericArguments.requiringPermission(NucleusParameters.MANY_PLAYER, this.permissions.getOthers())))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Collection<Player> playerList = args.getAll(this.playerKey);
+        Collection<Player> playerList = args.getAll(NucleusParameters.Keys.PLAYER);
         if (playerList.isEmpty()) {
             if (src instanceof Player) {
                 playerList = Lists.newArrayList((Player)src);

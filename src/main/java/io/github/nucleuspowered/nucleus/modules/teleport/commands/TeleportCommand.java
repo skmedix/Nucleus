@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.argumentparsers.IfConditionElseArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PlayerConsoleArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -50,7 +51,6 @@ import java.util.function.Supplier;
 public class TeleportCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
     private final String playerToKey = "Player to warp to";
-    private final String playerKey = "subject";
     private final String quietKey = "quiet";
 
     private boolean isDefaultQuiet = false;
@@ -79,11 +79,9 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
 
                     new AlternativeUsageArgument(
                         GenericArguments.seq(
-                            GenericArguments.onlyOne(
                                 IfConditionElseArgument.permission(this.permissions.getPermissionWithSuffix("offline"),
-                                    SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.USER),
-                                    SelectorWrapperArgument.nicknameSelector(Text.of(this.playerKey), NicknameArgument.UnderlyingType.PLAYER,
-                                        true, Player.class, (c, p) -> PlayerConsoleArgument.shouldShow(p, c)))),
+                                        NucleusParameters.ONE_USER_PLAYER_KEY,
+                                        NucleusParameters.ONE_PLAYER),
 
                             new IfConditionElseArgument(
                                 GenericArguments.optionalWeak(
@@ -111,8 +109,8 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
 
     private boolean testForSecondPlayer(CommandSource source, CommandContext context) {
         try {
-            if (context.hasAny(this.playerKey) && this.permissions.testOthers(source)) {
-                return context.<User>getOne(this.playerKey).map(y -> y.getPlayer().isPresent()).orElse(false);
+            if (context.hasAny(NucleusParameters.Keys.PLAYER) && this.permissions.testOthers(source)) {
+                return context.<User>getOne(NucleusParameters.Keys.PLAYER).map(y -> y.getPlayer().isPresent()).orElse(false);
             }
         } catch (Exception e) {
             // ignored
@@ -122,7 +120,7 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
     }
 
     @Override protected ContinueMode preProcessChecks(CommandSource source, CommandContext args) {
-        return TeleportHandler.canTeleportTo(source, args.<User>getOne(this.playerKey).get()) ? ContinueMode.CONTINUE : ContinueMode.STOP;
+        return TeleportHandler.canTeleportTo(source, args.<User>getOne(NucleusParameters.Keys.PLAYER).get()) ? ContinueMode.CONTINUE : ContinueMode.STOP;
     }
 
     @Override
@@ -132,7 +130,7 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
         User to;
         Player from;
         if (oTo.isPresent()) { // Two player argument.
-            from = args.<User>getOne(this.playerKey).map(x -> x.getPlayer().orElse(null))
+            from = args.<User>getOne(NucleusParameters.Keys.PLAYER).map(x -> x.getPlayer().orElse(null))
                 .orElseThrow(() -> ReturnMessageException.fromKey("command.playeronly"));
             to = oTo.get();
             if (to.equals(src)) {
@@ -140,7 +138,7 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
             }
         } else if (src instanceof Player) {
             from = (Player) src;
-            to = args.<User>getOne(this.playerKey).get();
+            to = args.<User>getOne(NucleusParameters.Keys.PLAYER).get();
         } else {
             throw ReturnMessageException.fromKey("command.playeronly");
         }
