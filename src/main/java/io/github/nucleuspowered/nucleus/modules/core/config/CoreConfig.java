@@ -67,6 +67,9 @@ public class CoreConfig {
     @Setting(value = "check-for-wildcard", comment = "config.core.wildcard")
     private boolean checkForWildcard = true;
 
+    @Setting(value = "show-warning-on-startup", comment = "config.core.warning-on-startup")
+    private boolean warningOnStartup = true;
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -135,4 +138,7 @@ public class CoreConfig {
         return this.checkForWildcard;
     }
 
+    public boolean isWarningOnStartup() {
+        return this.warningOnStartup;
+    }
 }

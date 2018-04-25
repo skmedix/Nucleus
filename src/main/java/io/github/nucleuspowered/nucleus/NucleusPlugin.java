@@ -508,44 +508,46 @@ public class NucleusPlugin extends Nucleus {
             this.hasStarted = true;
             Sponge.getScheduler().createSyncExecutor(this).submit(() -> this.gameStartedTime = Instant.now());
 
-            // What about perms and econ?
-            List<Text> lt = Lists.newArrayList();
-            if (ServiceChangeListener.isOpOnly()) {
-                addTri(lt);
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.nopermplugin"));
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.nopermplugin2"));
-            }
-
-            if (!Sponge.getServiceManager().isRegistered(EconomyService.class)) {
-                if (lt.isEmpty()) {
+            if (this.getInternalServiceManager().getService(CoreConfigAdapter.class).get().getNodeOrDefault().isWarningOnStartup()) {
+                // What about perms and econ?
+                List<Text> lt = Lists.newArrayList();
+                if (ServiceChangeListener.isOpOnly()) {
                     addTri(lt);
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.nopermplugin"));
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.nopermplugin2"));
                 }
 
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.noeconplugin"));
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.noeconplugin2"));
-            }
+                if (!Sponge.getServiceManager().isRegistered(EconomyService.class)) {
+                    if (lt.isEmpty()) {
+                        addTri(lt);
+                    }
 
-            if (!lt.isEmpty()) {
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.seesuggested"));
-            }
-
-            if (!this.startupMessages.isEmpty()) {
-                if (lt.isEmpty()) {
-                    addTri(lt);
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.noeconplugin"));
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.noeconplugin2"));
                 }
 
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
-                lt.addAll(this.startupMessages);
-                this.startupMessages.clear();
-            }
+                if (!lt.isEmpty()) {
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.seesuggested"));
+                }
 
-            if (!lt.isEmpty()) {
-                lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
-                ConsoleSource c = Sponge.getServer().getConsole();
-                lt.forEach(c::sendMessage);
+                if (!this.startupMessages.isEmpty()) {
+                    if (lt.isEmpty()) {
+                        addTri(lt);
+                    }
+
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
+                    lt.addAll(this.startupMessages);
+                    this.startupMessages.clear();
+                }
+
+                if (!lt.isEmpty()) {
+                    lt.add(this.messageProvider.getTextMessageWithFormat("standard.line"));
+                    ConsoleSource c = Sponge.getServer().getConsole();
+                    lt.forEach(c::sendMessage);
+                }
             }
         }
     }
