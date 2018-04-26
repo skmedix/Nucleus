@@ -48,6 +48,7 @@ project.ext.hash = ''
 
 String docVer
 boolean isSnapshot
+boolean isPR
 boolean isMajor
 
 if (project.properties.containsKey('override-doc-ver')) {
@@ -56,6 +57,7 @@ if (project.properties.containsKey('override-doc-ver')) {
 } else {
     docVer = project.ext.versionno + "-S" + project.ext.spongeapiversion
     isSnapshot = project.ext.suffix.endsWith('SNAPSHOT')
+    isPR = project.ext.suffix.contains('PR')
     isMajor = project.ext.versionno.endsWith('.0')
 }
 
@@ -248,6 +250,8 @@ task relnotes {
             String contents
             if (isMajor) {
                 contents = new File('changelogs/templates/release-big.md').getText("UTF-8")
+            } else if (isPR) {
+                contents = new File('changelogs/templates/release-pr.md').getText("UTF-8")
             } else {
                 contents = new File('changelogs/templates/release.md').getText("UTF-8")
             }

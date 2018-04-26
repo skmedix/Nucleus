@@ -1,4 +1,6 @@
-This is a major release for Nucleus for Sponge API version {{sponge}} 
+This is a pre-release version of Nucleus for Sponge API version {{sponge}} 
+
+**THIS IS A PRE-RELEASE VERSION AND MAY NOT BE STABLE**
 
 This was built from Nucleus commit: {{hash}}
 
