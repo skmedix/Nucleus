@@ -12,6 +12,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Scan;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.UniqueUserCountTransientModule;
@@ -19,7 +20,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -44,16 +44,14 @@ public class DebugCommand extends AbstractCommand<CommandSource> {
     @RegisterCommand(value = "setsession", subcommandOf = DebugCommand.class)
     public static class SetSession extends AbstractCommand<CommandSource> {
 
-        private final String key = "true|false";
-
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                    GenericArguments.optional(GenericArguments.bool(Text.of(this.key)))
+                    NucleusParameters.OPTIONAL_ONE_TRUE_FALSE
             };
         }
 
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
-            boolean set = args.<Boolean>getOne(this.key).orElseGet(() -> !Nucleus.getNucleus().isSessionDebug());
+            boolean set = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElseGet(() -> !Nucleus.getNucleus().isSessionDebug());
             Nucleus.getNucleus().setSessionDebug(set);
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.setsession", String.valueOf(set)));
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nucleus.debug.setsession2"));

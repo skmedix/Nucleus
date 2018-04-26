@@ -5,11 +5,11 @@
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import org.spongepowered.api.Sponge;
@@ -35,19 +35,18 @@ import java.util.function.Supplier;
 @RegisterCommand(value = {"clone", "copy"}, subcommandOf = WorldCommand.class)
 public class CloneWorldCommand extends AbstractCommand<CommandSource> {
 
-    private final String worldKey = "world to copy";
     private final String newKey = "new name";
 
     @Override protected CommandElement[] getArguments() {
         return new CommandElement[] {
-                new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL),
+                NucleusParameters.WORLD_PROPERTIES_ALL,
                 GenericArguments.string(Text.of(this.newKey))
         };
     }
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties worldToCopy = args.<WorldProperties>getOne(this.worldKey).get();
+        WorldProperties worldToCopy = args.<WorldProperties>getOne(NucleusParameters.Keys.WORLD).get();
         final String oldName = worldToCopy.getWorldName();
         final String newName = args.<String>getOne(this.newKey).get();
         if (Sponge.getServer().getWorldProperties(newName).isPresent()) {

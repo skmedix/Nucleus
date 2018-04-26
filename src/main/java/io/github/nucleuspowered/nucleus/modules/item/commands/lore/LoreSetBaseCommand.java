@@ -6,8 +6,8 @@ package io.github.nucleuspowered.nucleus.modules.item.commands.lore;
 
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandElement;

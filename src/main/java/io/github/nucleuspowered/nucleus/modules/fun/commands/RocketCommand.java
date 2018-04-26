@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.argumentparsers.PositiveDoubleArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import org.spongepowered.api.Sponge;
@@ -32,27 +33,24 @@ import java.util.concurrent.TimeUnit;
 @Permissions(supportsOthers = true, suggestedLevel = SuggestedLevel.ADMIN)
 public class RocketCommand extends AbstractCommand<CommandSource> {
 
-    private final String arg = "player";
     private final String velocity = "velocity";
 
     @Override
     protected CommandElement[] getArguments() {
-        return new CommandElement[]{
+        return new CommandElement[] {
                 GenericArguments.flags()
                         .flag("h", "-hard")
                         .flag("g", "-g")
                         .valueFlag(new PositiveDoubleArgument(Text.of(this.velocity)), "v", "-velocity")
                         .flag("s", "-silent")
                         .flag("e", "-explosion")
-                        .buildWith(
-                        GenericArguments.optional(GenericArguments.player(Text.of(this.arg)))
-                )
+                        .buildWith(NucleusParameters.ONE_PLAYER)
         };
     }
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player target = getUserFromArgs(Player.class, src, this.arg, args);
+        Player target = getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
         boolean isSelf = target.equals(src);
         if (!isSelf && !this.permissions.testOthers(src)) {
             throw ReturnMessageException.fromKey("command.rocket.noothers");

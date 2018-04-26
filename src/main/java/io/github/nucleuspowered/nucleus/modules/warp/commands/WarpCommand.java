@@ -11,13 +11,13 @@ import io.github.nucleuspowered.nucleus.argumentparsers.AdditionalCompletionsArg
 import io.github.nucleuspowered.nucleus.argumentparsers.NoModifiersArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.RequiredArgumentsArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
-import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoCost;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ContinueMode;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;

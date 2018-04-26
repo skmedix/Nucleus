@@ -11,6 +11,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -18,10 +19,8 @@ import io.github.nucleuspowered.nucleus.modules.ignore.datamodules.IgnoreUserDat
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Map;
@@ -34,10 +33,6 @@ import java.util.Map;
 @NonnullByDefault
 public class IgnoreCommand extends AbstractCommand<Player> {
 
-
-    private final String userKey = "user";
-    private final String toggleKey = "toggle";
-
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = Maps.newHashMap();
@@ -47,14 +42,16 @@ public class IgnoreCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.user(Text.of(this.userKey))),
-                GenericArguments.optional(GenericArguments.onlyOne(GenericArguments.bool(Text.of(this.toggleKey))))};
+        return new CommandElement[] {
+                NucleusParameters.ONE_USER,
+                NucleusParameters.OPTIONAL_ONE_TRUE_FALSE
+        };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) {
         // Get the target
-        User target = args.<User>getOne(this.userKey).get();
+        User target = args.<User>getOne(NucleusParameters.Keys.USER).get();
 
         if (target.equals(src)) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.ignore.self"));
@@ -71,7 +68,7 @@ public class IgnoreCommand extends AbstractCommand<Player> {
         }
 
         // Ok, we can ignore or unignore them.
-        boolean ignore = args.<Boolean>getOne(this.toggleKey).orElse(!inu.getIgnoreList().contains(target.getUniqueId()));
+        boolean ignore = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElse(!inu.getIgnoreList().contains(target.getUniqueId()));
 
         if (ignore) {
             inu.addToIgnoreList(target.getUniqueId());

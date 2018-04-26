@@ -9,18 +9,18 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
+import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @RegisterCommand({"exp", "experience", "xp"})
@@ -30,18 +30,19 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @NonnullByDefault
 public class ExperienceCommand extends AbstractCommand<CommandSource> {
 
-    public static final String playerKey = "subject";
     public static final String experienceKey = "experience";
     public static final String levelKey = "level";
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] { GenericArguments.onlyOne(GenericArguments.playerOrSource(Text.of(playerKey))) };
+        return new CommandElement[] {
+                NucleusParameters.OPTIONAL_ONE_PLAYER
+        };
     }
 
     @Override
-    public CommandResult executeCommand(CommandSource src, CommandContext args) {
-        Player pl = args.<Player>getOne(playerKey).get();
+    public CommandResult executeCommand(CommandSource src, CommandContext args) throws ReturnMessageException {
+        Player pl = getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
 
         ExperienceHolderData ehd = pl.get(ExperienceHolderData.class).get();
         int exp = ehd.totalExperience().get();

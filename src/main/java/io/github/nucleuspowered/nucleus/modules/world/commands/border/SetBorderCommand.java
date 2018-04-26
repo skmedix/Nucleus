@@ -5,12 +5,12 @@
 package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -32,7 +32,6 @@ import java.util.Optional;
 @NonnullByDefault
 public class SetBorderCommand extends AbstractCommand<CommandSource> {
 
-    private final String worldKey = "world";
     private final String xKey = "x";
     private final String zKey = "z";
     private final String diameter = "diameter";
@@ -44,7 +43,7 @@ public class SetBorderCommand extends AbstractCommand<CommandSource> {
             GenericArguments.firstParsing(
                 // Console + player
                 GenericArguments.seq(
-                    GenericArguments.optionalWeak(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL))),
+                    NucleusParameters.OPTIONAL_WORLD_PROPERTIES_ALL,
                     GenericArguments.onlyOne(GenericArguments.integer(Text.of(this.xKey))),
                     GenericArguments.onlyOne(GenericArguments.integer(Text.of(this.zKey))),
                     GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(this.diameter))),
@@ -61,7 +60,7 @@ public class SetBorderCommand extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, NucleusParameters.Keys.WORLD, args);
         int x;
         int z;
         int dia = args.<Integer>getOne(this.diameter).get();

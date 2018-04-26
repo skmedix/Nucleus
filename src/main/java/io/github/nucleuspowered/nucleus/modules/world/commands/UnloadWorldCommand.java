@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -37,7 +38,6 @@ import java.util.stream.Collectors;
 public class UnloadWorldCommand extends AbstractCommand<CommandSource> {
 
     private final String transferWorldKey = "transferWorld";
-    private final String worldKey = "world";
 
     @Override
     public CommandElement[] getArguments() {
@@ -45,13 +45,13 @@ public class UnloadWorldCommand extends AbstractCommand<CommandSource> {
             GenericArguments.flags()
                 .permissionFlag(Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(DisableWorldCommand.class).getBase(), "d", "-disable")
                 .valueFlag(new NucleusWorldPropertiesArgument(Text.of(this.transferWorldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY), "t", "-transfer")
-                .buildWith(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
+                .buildWith(NucleusParameters.WORLD_PROPERTIES_ENABLED_ONLY)
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties worldProperties = args.<WorldProperties>getOne(this.worldKey).get();
+        WorldProperties worldProperties = args.<WorldProperties>getOne(NucleusParameters.Keys.WORLD).get();
         Optional<WorldProperties> transferWorld = args.getOne(this.transferWorldKey);
         boolean disable = args.hasAny("d");
 

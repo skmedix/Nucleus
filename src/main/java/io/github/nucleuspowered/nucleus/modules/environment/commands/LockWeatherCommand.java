@@ -12,6 +12,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.modules.environment.datamodule.EnvironmentWorldDataModule;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -34,13 +35,12 @@ public class LockWeatherCommand extends AbstractCommand<CommandSource> {
     private final WorldDataManager loader = Nucleus.getNucleus().getWorldDataManager();
 
     private final String worldKey = "world";
-    private final String toggleKey = "toggle";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.world(Text.of(this.worldKey)))),
-                GenericArguments.onlyOne(GenericArguments.optional(GenericArguments.bool(Text.of(this.toggleKey))))
+                NucleusParameters.OPTIONAL_ONE_TRUE_FALSE
         };
     }
 
@@ -60,7 +60,7 @@ public class LockWeatherCommand extends AbstractCommand<CommandSource> {
         }
 
         EnvironmentWorldDataModule environmentWorldDataModule = ws.get().get(EnvironmentWorldDataModule.class);
-        boolean toggle = args.<Boolean>getOne(this.toggleKey).orElse(!environmentWorldDataModule.isLockWeather());
+        boolean toggle = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).orElse(!environmentWorldDataModule.isLockWeather());
 
         environmentWorldDataModule.setLockWeather(toggle);
         ws.get().set(environmentWorldDataModule);

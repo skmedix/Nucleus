@@ -6,13 +6,13 @@ package io.github.nucleuspowered.nucleus.modules.environment.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.WeatherArgument;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularWorldService;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
@@ -42,7 +42,6 @@ import java.util.Optional;
 @EssentialsEquivalent({"thunder", "sun", "weather", "sky", "storm", "rain"})
 public class WeatherCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
-    private final String world = "world";
     private final String weather = "weather";
     private final String duration = "duration";
 
@@ -63,8 +62,7 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[]{
-                GenericArguments.optionalWeak(GenericArguments.onlyOne(
-                        new NucleusWorldPropertiesArgument(Text.of(this.world), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY))),
+                NucleusParameters.OPTIONAL_WEAK_WORLD_PROPERTIES_ENABLED_ONLY,
                 GenericArguments.onlyOne(new WeatherArgument(Text.of(this.weather))), // More flexible with the arguments we can use.
                 GenericArguments.onlyOne(GenericArguments.optional(new TimespanArgument(Text.of(this.duration))))
         };
@@ -73,7 +71,7 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // We can predict the weather on multiple worlds now!
-        WorldProperties wp = this.getWorldFromUserOrArgs(src, this.world, args);
+        WorldProperties wp = this.getWorldFromUserOrArgs(src, NucleusParameters.Keys.WORLD, args);
         World w = Sponge.getServer().getWorld(wp.getUniqueId())
             .orElseThrow(() -> ReturnMessageException.fromKey("args.worldproperties.notloaded", wp.getWorldName()));
 

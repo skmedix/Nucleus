@@ -10,11 +10,11 @@ import com.google.common.collect.Sets;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.CostCancellableTask;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
@@ -39,7 +39,6 @@ import org.spongepowered.api.data.property.block.MatterProperty;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.PositionOutOfBoundsException;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.Chunk;
@@ -88,8 +87,7 @@ public class RandomTeleportCommand extends AbstractCommand.SimpleTargetOtherPlay
         return new CommandElement[] {
             GenericArguments.optionalWeak(
                 GenericArguments.requiringPermission(
-                    new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY),
-                        this.permissions.getPermissionWithSuffix("world")
+                        NucleusParameters.WORLD_PROPERTIES_ENABLED_ONLY, this.permissions.getPermissionWithSuffix("world")
                 ))
         };
     }

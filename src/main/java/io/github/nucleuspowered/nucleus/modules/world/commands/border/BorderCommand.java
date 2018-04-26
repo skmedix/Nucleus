@@ -7,17 +7,16 @@ package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.modules.world.commands.WorldCommand;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.service.pagination.PaginationService;
@@ -33,18 +32,17 @@ import java.util.List;
 @NonnullByDefault
 public class BorderCommand extends AbstractCommand<CommandSource> {
 
-    private final String worldKey = "world";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ENABLED_ONLY)))
+                NucleusParameters.OPTIONAL_WORLD_PROPERTIES_ENABLED_ONLY
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, NucleusParameters.Keys.WORLD, args);
         List<Text> worldBorderInfo = Lists.newArrayList();
 
         Vector3d centre = wp.getWorldBorderCenter();

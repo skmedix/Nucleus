@@ -5,13 +5,13 @@
 package io.github.nucleuspowered.nucleus.modules.message.commands;
 
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoHelpSubcommand;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NotifyIfAFK;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RedirectModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.message.handlers.MessageHandler;
@@ -30,7 +30,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RegisterCommand({"reply", "r"})
 @EssentialsEquivalent({"r", "reply"})
 @NonnullByDefault
-@NotifyIfAFK(NucleusParameters.Keys.S_PLAYER)
+@NotifyIfAFK(NucleusParameters.Keys.PLAYER)
 public class ReplyCommand extends AbstractCommand<CommandSource> {
 
     private final MessageHandler handler = getServiceUnchecked(MessageHandler.class);
@@ -47,7 +47,7 @@ public class ReplyCommand extends AbstractCommand<CommandSource> {
         boolean b = this.handler.replyMessage(src, args.<String>getOne(NucleusParameters.Keys.MESSAGE).get());
         if (b) {
             // For Notify on AFK
-            this.handler.getLastMessageFrom(Util.getUUID(src)).ifPresent(x -> args.putArg(NucleusParameters.Keys.S_PLAYER, x));
+            this.handler.getLastMessageFrom(Util.getUUID(src)).ifPresent(x -> args.putArg(NucleusParameters.Keys.PLAYER, x));
             return CommandResult.success();
         }
 

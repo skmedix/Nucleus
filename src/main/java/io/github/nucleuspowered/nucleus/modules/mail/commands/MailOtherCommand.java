@@ -5,12 +5,12 @@
 package io.github.nucleuspowered.nucleus.modules.mail.commands;
 
 import io.github.nucleuspowered.nucleus.argumentparsers.MailFilterArgument;
-import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.modules.mail.handlers.MailHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;

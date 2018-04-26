@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoWarmup;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NotifyIfAFK;
@@ -13,6 +12,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ContinueMode;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
@@ -38,7 +38,7 @@ import java.util.Map;
 @NoWarmup(generateConfigEntry = true, generatePermissionDocs = true)
 @RegisterCommand({"tpahere", "tpaskhere", "teleportaskhere"})
 @EssentialsEquivalent("tpahere")
-@NotifyIfAFK(NucleusParameters.Keys.S_PLAYER)
+@NotifyIfAFK(NucleusParameters.Keys.PLAYER)
 public class TeleportAskHereCommand extends AbstractCommand<Player> {
 
     private final TeleportHandler tpHandler = getServiceUnchecked(TeleportHandler.class);

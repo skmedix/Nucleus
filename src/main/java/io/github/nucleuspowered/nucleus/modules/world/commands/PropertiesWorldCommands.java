@@ -5,19 +5,17 @@
 package io.github.nucleuspowered.nucleus.modules.world.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Scan;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.util.ThrownBiConsumer;
 import io.github.nucleuspowered.nucleus.util.TriConsumer;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.storage.WorldProperties;
 
@@ -25,9 +23,6 @@ import javax.annotation.Nullable;
 
 @Scan
 public class PropertiesWorldCommands {
-
-    private static final String worldKey = "world";
-    private static final String valueKey = "true|false";
 
     @NonnullByDefault
     private static abstract class AbstractSetCommand extends AbstractCommand<CommandSource> {
@@ -51,14 +46,14 @@ public class PropertiesWorldCommands {
 
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                GenericArguments.optionalWeak(new NucleusWorldPropertiesArgument(Text.of(worldKey), NucleusWorldPropertiesArgument.Type.ALL)),
-                GenericArguments.bool(Text.of(valueKey))
+                    NucleusParameters.OPTIONAL_WORLD_PROPERTIES_ALL,
+                    NucleusParameters.ONE_TRUE_FALSE
             };
         }
 
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-            WorldProperties worldProperties = getWorldPropertiesOrDefault(src, worldKey, args);
-            boolean set = args.<Boolean>getOne(valueKey).get();
+            WorldProperties worldProperties = getWorldPropertiesOrDefault(src, NucleusParameters.Keys.WORLD, args);
+            boolean set = args.<Boolean>getOne(NucleusParameters.Keys.BOOL).get();
             this.setter.accept(worldProperties, set);
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.setproperty.success", this.name, worldProperties.getWorldName(), String.valueOf(set)));
 

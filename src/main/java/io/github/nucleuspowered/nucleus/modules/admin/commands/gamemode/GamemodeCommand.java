@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedGameModeArgument
 import io.github.nucleuspowered.nucleus.argumentparsers.MarkerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
@@ -54,8 +55,7 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
             GenericArguments.optional(GenericArguments.firstParsing(
                 // <player> <mode>
                 GenericArguments.seq(
-                        GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(
-                                this.userKey))), this.permissions.getOthers()),
+                        GenericArguments.requiringPermission(NucleusParameters.ONE_PLAYER, this.permissions.getOthers()),
                         GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey))),
                         new MarkerArgument()
                 ),
@@ -70,7 +70,7 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Player user;
         if (args.hasAny(MarkerArgument.MARKER)) {
-            user = this.getUserFromArgs(Player.class, src, this.userKey, args);
+            user = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
         } else {
             user = this.getUserFromArgs(Player.class, src, "thisisjunk", args);
         }

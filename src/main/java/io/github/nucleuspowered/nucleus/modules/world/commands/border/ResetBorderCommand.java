@@ -5,18 +5,16 @@
 package io.github.nucleuspowered.nucleus.modules.world.commands.border;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
@@ -29,17 +27,15 @@ import java.util.Optional;
 @NonnullByDefault
 public class ResetBorderCommand extends AbstractCommand<CommandSource> {
 
-    private final String worldKey = "world";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optionalWeak(GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.worldKey), NucleusWorldPropertiesArgument.Type.ALL))),
+                NucleusParameters.OPTIONAL_WORLD_PROPERTIES_ALL,
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties wp = getWorldFromUserOrArgs(src, this.worldKey, args);
+        WorldProperties wp = getWorldFromUserOrArgs(src, NucleusParameters.Keys.WORLD, args);
         wp.setWorldBorderCenter(0, 0);
         Optional<World> world = Sponge.getServer().getWorld(wp.getUniqueId());
 

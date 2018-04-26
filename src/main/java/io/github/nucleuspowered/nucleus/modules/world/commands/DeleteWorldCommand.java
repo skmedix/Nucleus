@@ -7,13 +7,13 @@ package io.github.nucleuspowered.nucleus.modules.world.commands;
 import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RequiresPlatform;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.util.Tuples;
@@ -22,7 +22,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.storage.WorldProperties;
@@ -48,18 +47,17 @@ import javax.annotation.Nullable;
 public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
 
     @Nullable private Tuples.Quad<Instant, UUID, WorldProperties, Path> confirm = null;
-    private final String world = "world";
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new NucleusWorldPropertiesArgument(Text.of(this.world), NucleusWorldPropertiesArgument.Type.ALL)),
+                NucleusParameters.WORLD_PROPERTIES_ALL,
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        WorldProperties properties = args.<WorldProperties>getOne(this.world).get();
+        WorldProperties properties = args.<WorldProperties>getOne(NucleusParameters.Keys.WORLD).get();
         if (!properties.isEnabled()) {
             throw ReturnMessageException.fromKey("args.worldproperties.noexistdisabled", properties.getWorldName());
         }

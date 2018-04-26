@@ -13,6 +13,7 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
@@ -41,8 +42,6 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
     private boolean mustGetAll;
     private boolean isDrop;
 
-    private final String playerKey = "subject";
-
     @Override protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> mspi = Maps.newHashMap();
         mspi.put("overridecheck", PermissionInformation.getWithTranslation("permission.kit.give.override", SuggestedLevel.ADMIN));
@@ -51,11 +50,11 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("overridecheck"), "i", "-ignore").buildWith(
-                GenericArguments.none()
-            ),
-            GenericArguments.onlyOne(GenericArguments.player(Text.of(this.playerKey))),
-            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
+                GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("overridecheck"), "i", "-ignore")
+                    .buildWith(GenericArguments.seq(
+                        NucleusParameters.ONE_PLAYER,
+                        GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false)))
+                )
         };
     }
 
@@ -63,7 +62,7 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
 
         Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
-        Player player = args.<Player>getOne(this.playerKey).get();
+        Player player = args.<Player>getOne(NucleusParameters.Keys.PLAYER).get();
         boolean skip = args.hasAny("i");
         if (src instanceof Player && player.getUniqueId().equals(((Player) src).getUniqueId())) {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.give.self"));

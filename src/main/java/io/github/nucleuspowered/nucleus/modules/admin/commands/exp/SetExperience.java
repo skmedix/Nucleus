@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
+import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.modules.admin.commands.ExperienceCommand;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -33,7 +34,7 @@ public class SetExperience extends AbstractCommand<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.player(Text.of(ExperienceCommand.playerKey)))),
+                NucleusParameters.OPTIONAL_ONE_PLAYER,
                 GenericArguments.firstParsing(
                         GenericArguments.onlyOne(new ExperienceLevelArgument(Text.of(ExperienceCommand.levelKey))),
                         GenericArguments.onlyOne(new PositiveIntegerArgument(Text.of(ExperienceCommand.experienceKey)))
@@ -43,7 +44,7 @@ public class SetExperience extends AbstractCommand<CommandSource> {
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Player pl = this.getUserFromArgs(Player.class, src, ExperienceCommand.playerKey, args);
+        Player pl = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
         if (!ExperienceCommand.checkGameMode(pl, src)) {
             return CommandResult.empty();
         }

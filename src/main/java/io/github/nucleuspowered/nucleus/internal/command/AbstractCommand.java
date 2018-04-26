@@ -18,7 +18,6 @@ import io.github.nucleuspowered.nucleus.argumentparsers.NoModifiersArgument;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.Constants;
 import io.github.nucleuspowered.nucleus.internal.CostCancellableTask;
-import io.github.nucleuspowered.nucleus.internal.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.TimingsDummy;
 import io.github.nucleuspowered.nucleus.internal.annotations.RequiresEconomy;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
