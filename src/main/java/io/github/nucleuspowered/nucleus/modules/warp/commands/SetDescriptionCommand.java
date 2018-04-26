@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.warp.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
-import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -14,6 +13,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
+import io.github.nucleuspowered.nucleus.modules.warp.WarpParameters;
 import io.github.nucleuspowered.nucleus.modules.warp.handlers.WarpHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -31,22 +31,21 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @RegisterCommand(value = {"setdescription"}, subcommandOf = WarpCommand.class)
 public class SetDescriptionCommand extends AbstractCommand<CommandSource> {
 
-    private final String warpKey = "warp";
     private final WarpHandler handler = getServiceUnchecked(WarpHandler.class);
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
             GenericArguments.flags().flag("r", "-remove", "-delete").buildWith(
                 GenericArguments.seq(
-                    new WarpArgument(Text.of(this.warpKey), false, false),
-                    NucleusParameters.OPTIONAL_DESCRIPTION
+                        WarpParameters.WARP_NO_PERM,
+                        NucleusParameters.OPTIONAL_DESCRIPTION
                 )
             )
         };
     }
 
     @Override public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        String warpName = args.<Warp>getOne(this.warpKey).get().getName();
+        String warpName = args.<Warp>getOne(WarpParameters.WARP_KEY).get().getName();
         if (args.hasAny("r")) {
             // Remove the desc.
             if (this.handler.setWarpDescription(warpName, null)) {

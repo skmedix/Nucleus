@@ -40,7 +40,7 @@ public class CategoryCommand extends AbstractCommand<CommandSource> {
 
     private static final String key = "category";
     private static final String displayname = "displayname";
-    private static final String description = "displayname";
+    private static final String description = "description";
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         return CommandResult.empty();

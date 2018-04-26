@@ -36,17 +36,11 @@ public class WarpArgument extends CommandElement implements Reloadable, Internal
 
     private NucleusWarpService service;
     private final boolean permissionCheck;
-    private final boolean requiresLocation;
     private boolean separate = true;
 
     public WarpArgument(@Nullable Text key, boolean permissionCheck) {
-        this(key, permissionCheck, true);
-    }
-
-    public WarpArgument(@Nullable Text key, boolean permissionCheck, boolean requiresLocation) {
         super(key);
         this.permissionCheck = permissionCheck;
-        this.requiresLocation = requiresLocation;
         if (this.permissionCheck) {
             Nucleus.getNucleus().registerReloadable(this);
         }
@@ -89,12 +83,12 @@ public class WarpArgument extends CommandElement implements Reloadable, Internal
                 return ImmutableList.of(el);
             } else if (elements.isEmpty()) {
                 return ImmutableList.of();
-            } else if (!this.requiresLocation && !(this.permissionCheck && this.separate)) {
+            } else if (!(this.permissionCheck && this.separate)) { // permissioncheck and requires location were always the same
                 return elements;
             }
 
             Stream<String> stream = elements.stream();
-            if (this.requiresLocation) {
+            if (this.permissionCheck) {
                 stream.filter(s -> this.service.getWarp(s).get().getLocation().isPresent());
             }
 

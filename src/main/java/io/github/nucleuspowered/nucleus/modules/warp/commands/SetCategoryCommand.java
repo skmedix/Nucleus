@@ -7,13 +7,13 @@ package io.github.nucleuspowered.nucleus.modules.warp.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.WarpCategory;
-import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
+import io.github.nucleuspowered.nucleus.modules.warp.WarpParameters;
 import io.github.nucleuspowered.nucleus.modules.warp.handlers.WarpHandler;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -42,7 +42,6 @@ import javax.annotation.Nullable;
 @RegisterCommand(value = {"setcategory"}, subcommandOf = WarpCommand.class)
 public class SetCategoryCommand extends AbstractCommand<CommandSource> {
 
-    private final String warpKey = "warp";
     private final String categoryKey = "category";
     private final WarpHandler handler = getServiceUnchecked(WarpHandler.class);
 
@@ -50,15 +49,15 @@ public class SetCategoryCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
             GenericArguments.flags().flag("r", "-remove", "-delete").flag("n", "-new").buildWith(
                 GenericArguments.seq(
-                    new WarpArgument(Text.of(this.warpKey), false, false),
-                    GenericArguments.optional(new SetCategoryWarpCategoryArgument (Text.of(this.categoryKey)))
+                        WarpParameters.WARP_NO_PERM,
+                        GenericArguments.optional(new SetCategoryWarpCategoryArgument (Text.of(this.categoryKey)))
                 )
             )
         };
     }
 
     @Override public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        String warpName = args.<Warp>getOne(this.warpKey).get().getName();
+        String warpName = args.<Warp>getOne(WarpParameters.WARP_KEY).get().getName();
         if (args.hasAny("r")) {
             // Remove the category.
             if (this.handler.setWarpCategory(warpName, null)) {

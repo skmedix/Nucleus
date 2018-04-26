@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
+import io.github.nucleuspowered.nucleus.modules.warp.WarpParameters;
 import io.github.nucleuspowered.nucleus.modules.warp.event.CreateWarpEvent;
 import io.github.nucleuspowered.nucleus.modules.warp.handlers.WarpHandler;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
@@ -27,8 +28,6 @@ import java.util.regex.Pattern;
 /**
  * Creates a warp where the player is currently standing. The warp must not
  * exist.
- *
- * Command Usage: /warp set [warp] Permission: nucleus.warp.set.base
  */
 @Permissions(prefix = "warp")
 @RegisterCommand(value = {"set"}, subcommandOf = WarpCommand.class, rootAliasRegister = { "setwarp", "warpset" })
@@ -41,17 +40,14 @@ public class SetWarpCommand extends AbstractCommand<Player> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.string(Text.of(WarpCommand.warpNameArg)))};
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[] {"set"};
+        return new CommandElement[] {
+                GenericArguments.onlyOne(GenericArguments.string(Text.of(WarpParameters.WARP_KEY)))
+        };
     }
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        String warp = args.<String>getOne(WarpCommand.warpNameArg).get();
+        String warp = args.<String>getOne(WarpParameters.WARP_KEY).get();
 
         // Needs to match the name...
         if (!this.warpRegex.matcher(warp).matches()) {

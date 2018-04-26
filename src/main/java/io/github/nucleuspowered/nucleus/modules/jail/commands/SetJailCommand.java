@@ -23,7 +23,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @Permissions(prefix = "jail")
 @RunAsync
 @NoModifiers
-@RegisterCommand(value = "set", subcommandOf = JailsCommand.class)
+@RegisterCommand(value = "set", subcommandOf = JailsCommand.class, rootAliasRegister = { "setjail", "createjail" })
 @EssentialsEquivalent({"setjail", "createjail"})
 @NonnullByDefault
 public class SetJailCommand extends AbstractCommand<Player> {

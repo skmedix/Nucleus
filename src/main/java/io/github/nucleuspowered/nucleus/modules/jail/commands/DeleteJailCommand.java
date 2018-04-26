@@ -23,7 +23,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 @Permissions(prefix = "jail")
 @RunAsync
 @NoModifiers
-@RegisterCommand(value = {"delete", "del", "remove"}, subcommandOf = JailsCommand.class)
+@RegisterCommand(value = {"delete", "del", "remove"}, subcommandOf = JailsCommand.class, rootAliasRegister = { "deljail", "rmjail", "deletejail" })
 @EssentialsEquivalent({"deljail", "remjail", "rmjail"})
 @NonnullByDefault
 public class DeleteJailCommand extends AbstractCommand<CommandSource> {

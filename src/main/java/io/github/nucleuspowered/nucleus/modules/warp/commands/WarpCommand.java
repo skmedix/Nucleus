@@ -10,7 +10,6 @@ import io.github.nucleuspowered.nucleus.api.nucleusdata.Warp;
 import io.github.nucleuspowered.nucleus.argumentparsers.AdditionalCompletionsArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NoModifiersArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.RequiredArgumentsArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.WarpArgument;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoCost;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -24,6 +23,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
+import io.github.nucleuspowered.nucleus.modules.warp.WarpParameters;
 import io.github.nucleuspowered.nucleus.modules.warp.config.WarpConfig;
 import io.github.nucleuspowered.nucleus.modules.warp.config.WarpConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.warp.event.UseWarpEvent;
@@ -36,7 +36,6 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
@@ -67,7 +66,6 @@ import java.util.stream.Collectors;
 @EssentialsEquivalent(value = {"warp", "warps"}, isExact = false, notes = "Use '/warp' for warping, '/warps' to list warps.")
 public class WarpCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
-    static final String warpNameArg = Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("args.name.warpname");
     private boolean isSafeTeleport = true;
     private double defaultCost = 0;
 
@@ -99,7 +97,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
 
                 GenericArguments.onlyOne(
                     new AdditionalCompletionsArgument(
-                        new WarpArgument(Text.of(warpNameArg), true), 0, 1,
+                            WarpParameters.WARP_PERM, 0, 1,
                             (c, s) -> this.permissions.testOthers(c) ?
                                 Sponge.getServer().getOnlinePlayers().stream().map(User::getName).collect(Collectors.toList()) : Lists.newArrayList()
                 ))
@@ -120,7 +118,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
             return ContinueMode.CONTINUE;
         }
 
-        Warp wd = args.<Warp>getOne(warpNameArg).get();
+        Warp wd = args.<Warp>getOne(WarpParameters.WARP_KEY).get();
         Optional<Double> i = wd.getCost();
         double cost = i.orElse(this.defaultCost);
 
@@ -150,7 +148,7 @@ public class WarpCommand extends AbstractCommand<CommandSource> implements Reloa
         boolean isOther = !(source instanceof Player) || !((Player) source).getUniqueId().equals(player.getUniqueId());
 
         // Permission checks are done by the parser.
-        Warp wd = args.<Warp>getOne(warpNameArg).get();
+        Warp wd = args.<Warp>getOne(WarpParameters.WARP_KEY).get();
 
         // Load the world in question
         if (!wd.getTransform().isPresent()) {
