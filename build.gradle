@@ -326,7 +326,22 @@ if (!project.hasProperty("nosign")) {
     copyAsc.dependsOn(signShadow)
     oreDeploy.dependsOn(buildAndSign)
 
-    oreDeploy.setChannel((project.properties.get("oreDeploy.channel") ?: "testing").toString())
+    oreDeploy.setRecommended(project.properties.containsKey("oreDeploy.recommended"))
+    if (project.properties.containsKey("oreDeploy.channel")) {
+        oreDeploy.setChannel(project.properties.get("oreDeploy.channel").toString())
+    } else if (project.properties.containsKey("oreDeploy.select")) {
+        if (isPR) {
+            oreDeploy.setChannel("pre-release")
+        } else if (isSnapshot) {
+            oreDeploy.setChannel("testing")
+        } else {
+            oreDeploy.setChannel("Release")
+            oreDeploy.setRecommended(true)
+        }
+    } else {
+        oreDeploy.setChannel("testing")
+    }
+
     oreDeploy.setRecommended(project.properties.containsKey("oreDeploy.recommended"))
     oreDeploy.setDeploy(project.configurations.shadow) // yet another hack
 
