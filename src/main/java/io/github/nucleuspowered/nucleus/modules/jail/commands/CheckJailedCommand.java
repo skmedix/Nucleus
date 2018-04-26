@@ -7,19 +7,17 @@ package io.github.nucleuspowered.nucleus.modules.jail.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.NamedLocation;
-import io.github.nucleuspowered.nucleus.argumentparsers.JailArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
-import io.github.nucleuspowered.nucleus.modules.jail.handlers.JailHandler;
+import io.github.nucleuspowered.nucleus.modules.jail.JailParameters;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -36,21 +34,16 @@ import java.util.stream.Collectors;
 @NonnullByDefault
 public class CheckJailedCommand extends AbstractCommand<CommandSource> {
 
-    private final String jailNameKey = "jail name";
-    private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
-
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(
-                new JailArgument(Text.of(this.jailNameKey), this.handler)
-            )
+                JailParameters.OPTIONAL_JAIL
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         // Using the cache, tell us who is jailed.
         MessageProvider provider = Nucleus.getNucleus().getMessageProvider();
-        Optional<NamedLocation> jail = args.getOne(this.jailNameKey);
+        Optional<NamedLocation> jail = args.getOne(JailParameters.JAIL_KEY);
         List<UUID> usersInJail = jail.map(x -> Nucleus.getNucleus().getUserCacheService().getJailedIn(x.getName()))
                 .orElseGet(() -> Nucleus.getNucleus().getUserCacheService().getJailed());
         String jailName = jail.map(NamedLocation::getName).orElseGet(() -> provider.getMessageWithFormat("standard.alljails"));

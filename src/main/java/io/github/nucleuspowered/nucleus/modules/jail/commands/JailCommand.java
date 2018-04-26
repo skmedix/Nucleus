@@ -6,8 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.jail.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.JailArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.LocationData;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -19,6 +17,7 @@ import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEq
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.modules.jail.JailParameters;
 import io.github.nucleuspowered.nucleus.modules.jail.config.JailConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.jail.data.JailData;
 import io.github.nucleuspowered.nucleus.modules.jail.handlers.JailHandler;
@@ -28,7 +27,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
@@ -51,8 +49,6 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
 
     private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
 
-    private final String jailKey = "jail";
-    private final String durationKey = "duration";
     private boolean requireUnjailPermission = false;
 
     @Override
@@ -71,8 +67,8 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
     public CommandElement[] getArguments() {
         return new CommandElement[] {
                 NucleusParameters.ONE_USER,
-                GenericArguments.optional(GenericArguments.onlyOne(new JailArgument(Text.of(this.jailKey), this.handler))),
-                GenericArguments.optionalWeak(GenericArguments.onlyOne(new TimespanArgument(Text.of(this.durationKey)))),
+                JailParameters.OPTIONAL_JAIL,
+                NucleusParameters.OPTIONAL_WEAK_DURATION,
                 NucleusParameters.OPTIONAL_REASON
         };
     }
@@ -80,7 +76,7 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         // Get the subject.
-        User pl = args.<User>getOne(NucleusParameters.ONE_PLAYER.getKey()).get();
+        User pl = args.<User>getOne(NucleusParameters.Keys.USER).get();
         if (!pl.isOnline() && !this.permissions.testSuffix(src, "offline")) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.jail.offline.noperms"));
             return CommandResult.empty();
@@ -111,13 +107,13 @@ public class JailCommand extends AbstractCommand<CommandSource> implements Reloa
     }
 
     private CommandResult onJail(CommandSource src, CommandContext args, User user) throws ReturnMessageException {
-        Optional<LocationData> owl = args.getOne(this.jailKey);
+        Optional<LocationData> owl = args.getOne(JailParameters.JAIL_KEY);
         if (!owl.isPresent()) {
             throw ReturnMessageException.fromKey("command.jail.jail.nojail");
         }
 
         // This might not be there.
-        Optional<Long> duration = args.getOne(this.durationKey);
+        Optional<Long> duration = args.getOne(NucleusParameters.Keys.DURATION);
         String reason = args.<String>getOne(NucleusParameters.Keys.REASON)
                 .orElseGet(() -> Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("command.jail.reason"));
         JailData jd;

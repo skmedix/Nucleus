@@ -23,11 +23,10 @@ import javax.annotation.Nullable;
 
 public class JailArgument extends CommandElement {
 
-    private final JailHandler handler;
+    private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
 
-    public JailArgument(@Nullable Text key, JailHandler handler) {
+    public JailArgument(@Nullable Text key) {
         super(key);
-        this.handler = handler;
     }
 
     @Nullable

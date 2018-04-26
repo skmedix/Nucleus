@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.ban.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -25,10 +24,8 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.ban.BanService;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -47,8 +44,6 @@ import java.util.Map;
 @NonnullByDefault
 public class TempBanCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
-    private final String user = "user";
-    private final String duration = "duration";
     private BanConfig banConfig = new BanConfig();
 
     @Override public void onReload() {
@@ -67,16 +62,16 @@ public class TempBanCommand extends AbstractCommand<CommandSource> implements Re
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(GenericArguments.user(Text.of(this.user))),
-                GenericArguments.onlyOne(new TimespanArgument(Text.of(this.duration))),
+                NucleusParameters.ONE_USER,
+                NucleusParameters.DURATION,
                 NucleusParameters.OPTIONAL_REASON
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        User u = args.<User>getOne(this.user).get();
-        Long time = args.<Long>getOne(this.duration).get();
+        User u = args.<User>getOne(NucleusParameters.Keys.USER).get();
+        Long time = args.<Long>getOne(NucleusParameters.Keys.DURATION).get();
         String reason = args.<String>getOne(NucleusParameters.Keys.REASON)
                 .orElseGet(() -> Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("ban.defaultreason"));
 

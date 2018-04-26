@@ -10,6 +10,7 @@ import io.github.nucleuspowered.nucleus.argumentparsers.GameProfileArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -30,6 +31,7 @@ public class NucleusParameters {
         public static final String BOOL = "true|false";
         public static final String COMMAND = "command";
         public static final String DESCRIPTION = "description";
+        public static final String DURATION = "duration";
         public static final String LORE = "lore";
         public static final String MESSAGE = "message";
         public static final String PLAYER = "player";
@@ -129,4 +131,10 @@ public class NucleusParameters {
 
     public static final CommandElement WORLD_PROPERTIES_LOADED_ONLY = GenericArguments.onlyOne(
             new NucleusWorldPropertiesArgument(Text.of(WORLD), NucleusWorldPropertiesArgument.Type.LOADED_ONLY));
+
+    public static final CommandElement DURATION = GenericArguments.onlyOne(new TimespanArgument(Text.of(Keys.DURATION)));
+
+    public static final CommandElement OPTIONAL_DURATION = GenericArguments.optional(DURATION);
+
+    public static final CommandElement OPTIONAL_WEAK_DURATION = GenericArguments.optionalWeak(DURATION);
 }

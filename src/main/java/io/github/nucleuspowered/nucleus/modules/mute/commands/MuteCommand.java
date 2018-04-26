@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.mute.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -27,10 +26,8 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MutableMessageChannel;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -63,9 +60,6 @@ public class MuteCommand extends AbstractCommand<CommandSource> implements Reloa
         return mutedChatPermission;
     }
 
-    private final String playerArgument = "subject";
-    private final String timespanArgument = "time";
-
     @Override
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
@@ -80,8 +74,8 @@ public class MuteCommand extends AbstractCommand<CommandSource> implements Reloa
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(GenericArguments.user(Text.of(this.playerArgument))),
-            GenericArguments.onlyOne(GenericArguments.optionalWeak(new TimespanArgument(Text.of(this.timespanArgument)))),
+            NucleusParameters.ONE_USER,
+            NucleusParameters.OPTIONAL_WEAK_DURATION,
             NucleusParameters.OPTIONAL_REASON
         };
     }
@@ -90,9 +84,9 @@ public class MuteCommand extends AbstractCommand<CommandSource> implements Reloa
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
 
         // Get the user.
-        User user = args.<User>getOne(this.playerArgument).get();
+        User user = args.<User>getOne(NucleusParameters.Keys.USER).get();
 
-        Optional<Long> time = args.getOne(this.timespanArgument);
+        Optional<Long> time = args.getOne(NucleusParameters.Keys.DURATION);
         Optional<MuteData> omd = this.handler.getPlayerMuteData(user);
         Optional<String> reas = args.getOne(NucleusParameters.Keys.REASON);
 

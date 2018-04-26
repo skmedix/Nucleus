@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.environment.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.WeatherArgument;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularWorldService;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -43,7 +42,6 @@ import java.util.Optional;
 public class WeatherCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
     private final String weather = "weather";
-    private final String duration = "duration";
 
     private long max = Long.MAX_VALUE;
 
@@ -64,7 +62,7 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
         return new CommandElement[]{
                 NucleusParameters.OPTIONAL_WEAK_WORLD_PROPERTIES_ENABLED_ONLY,
                 GenericArguments.onlyOne(new WeatherArgument(Text.of(this.weather))), // More flexible with the arguments we can use.
-                GenericArguments.onlyOne(GenericArguments.optional(new TimespanArgument(Text.of(this.duration))))
+                NucleusParameters.OPTIONAL_DURATION
         };
     }
 
@@ -86,7 +84,7 @@ public class WeatherCommand extends AbstractCommand<CommandSource> implements Re
         Weather we = args.<Weather>getOne(this.weather).get();
 
         // Have we gotten an accurate forecast? Do we know how long this weather spell will go on for?
-        Optional<Long> oi = args.getOne(this.duration);
+        Optional<Long> oi = args.getOne(NucleusParameters.Keys.DURATION);
 
         // Even weather masters have their limits. Sometimes.
         if (this.max > 0 && oi.orElse(Long.MAX_VALUE) > this.max && !this.permissions.testSuffix(src, "exempt.length")) {

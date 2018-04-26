@@ -10,7 +10,6 @@ import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
@@ -53,15 +52,15 @@ public class KitGiveCommand extends KitFallbackBase<CommandSource> implements Re
                 GenericArguments.flags().permissionFlag(this.permissions.getPermissionWithSuffix("overridecheck"), "i", "-ignore")
                     .buildWith(GenericArguments.seq(
                         NucleusParameters.ONE_PLAYER,
-                        GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false)))
-                )
+                        KitFallbackBase.KIT_PARAMETER_NO_PERM_CHECK
+                ))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
 
-        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         Player player = args.<Player>getOne(NucleusParameters.Keys.PLAYER).get();
         boolean skip = args.hasAny("i");
         if (src instanceof Player && player.getUniqueId().equals(((Player) src).getUniqueId())) {

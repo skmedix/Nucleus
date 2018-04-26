@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -18,7 +17,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @NoModifiers
@@ -30,12 +28,12 @@ public class KitClearCommandCommand extends KitFallbackBase<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(KIT_PARAMETER), false)
+                KitFallbackBase.KIT_PARAMETER_NO_PERM_CHECK
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
-        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         kitInfo.setCommands(Lists.newArrayList());
         KIT_HANDLER.saveKit(kitInfo);
 

@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -40,12 +39,12 @@ public class KitEditCommandCommand extends KitFallbackBase<Player> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(KIT_PARAMETER), false)
+                KitFallbackBase.KIT_PARAMETER_NO_PERM_CHECK
         };
     }
 
     @Override protected CommandResult executeCommand(Player src, CommandContext args) throws Exception {
-        final Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
+        final Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         List<String> commands = kitInfo.getCommands();
         if (commands.size() > 9 * 6) {
             throw ReturnMessageException.fromKey("command.kit.command.edit.toomany", kitInfo.getName());

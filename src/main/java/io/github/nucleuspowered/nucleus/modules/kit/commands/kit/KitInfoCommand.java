@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.Since;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -19,7 +18,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -35,13 +33,13 @@ public class KitInfoCommand extends KitFallbackBase<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false))
+                KitFallbackBase.KIT_PARAMETER_NO_PERM_CHECK
         };
     }
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) {
-        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         MessageProvider mp = Nucleus.getNucleus().getMessageProvider();
         Util.getPaginationBuilder(src).title(mp.getTextMessageWithFormat("command.kit.info.title", kit.getName()))
                 .contents(

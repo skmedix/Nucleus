@@ -10,7 +10,6 @@ import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.exceptions.KitRedeemException;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.EconHelper;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoCooldown;
@@ -29,9 +28,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
-import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Map;
@@ -58,7 +55,7 @@ public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), true))
+                KitFallbackBase.KIT_PARAMETER_PERM_CHECK
         };
     }
 
@@ -81,7 +78,7 @@ public class KitCommand extends KitFallbackBase<Player> implements Reloadable {
 
     @Override
     public CommandResult executeCommand(Player player, CommandContext args) throws ReturnMessageException {
-        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
 
         EconHelper econHelper = Nucleus.getNucleus().getEconHelper();
         double cost = econHelper.economyServiceExists() ? kit.getCost() : 0;

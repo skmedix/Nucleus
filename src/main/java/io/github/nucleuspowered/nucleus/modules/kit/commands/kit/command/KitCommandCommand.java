@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -39,13 +38,13 @@ public class KitCommandCommand extends KitFallbackBase<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(KIT_PARAMETER), true)
+                KitFallbackBase.KIT_PARAMETER_PERM_CHECK
         };
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) {
         // List all commands on a kit.
-        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         List<String> commands = kit.getCommands();
 
         if (commands.isEmpty()) {

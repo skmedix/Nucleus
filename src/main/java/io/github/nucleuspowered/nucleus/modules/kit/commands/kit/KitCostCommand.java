@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
@@ -36,14 +35,14 @@ public class KitCostCommand extends KitFallbackBase<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                GenericArguments.onlyOne(new KitArgument(Text.of(KIT_PARAMETER), false)),
+                KitFallbackBase.KIT_PARAMETER_NO_PERM_CHECK,
                 GenericArguments.onlyOne(GenericArguments.doubleNum(Text.of(this.costKey)))
         };
     }
 
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) {
-        Kit kit = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kit = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         double cost = args.<Double>getOne(this.costKey).get();
 
         if (cost < 0) {

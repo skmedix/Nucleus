@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.serverlist.commands;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.argumentparsers.BoundedIntegerArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -33,7 +32,6 @@ import java.util.Optional;
 @NonnullByDefault
 public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
 
-    private final String timespan = "time to display";
     private final String line = "line";
 
     @Override public CommandElement[] getArguments() {
@@ -41,7 +39,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
             GenericArguments.flags()
                 .flag("r", "-remove")
                 .valueFlag(new BoundedIntegerArgument(Text.of(this.line), 1, 2),"l", "-line")
-                .valueFlag(new TimespanArgument(Text.of(this.timespan)), "t", "-time")
+                .valueFlag(NucleusParameters.DURATION, "t", "-time")
                 .buildWith(NucleusParameters.OPTIONAL_MESSAGE)
         };
     }
@@ -96,7 +94,7 @@ public class TemporaryMessageCommand extends AbstractCommand<CommandSource> {
         String nMessage = onMessage.get();
 
         // If the expiry is null or before now, and there is no timespan, then it's an hour.
-        Instant endTime = args.<Long>getOne(this.timespan).map(x -> Instant.now().plus(x, ChronoUnit.SECONDS))
+        Instant endTime = args.<Long>getOne(NucleusParameters.Keys.DURATION).map(x -> Instant.now().plus(x, ChronoUnit.SECONDS))
                 .orElseGet(() -> mod.getExpiry().map(x -> x.isBefore(Instant.now()) ? x.plusSeconds(3600) : x)
                 .orElseGet(() -> Instant.now().plusSeconds(3600)));
 

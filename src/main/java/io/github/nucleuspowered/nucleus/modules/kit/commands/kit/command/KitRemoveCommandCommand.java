@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.kit.commands.kit.command;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
-import io.github.nucleuspowered.nucleus.argumentparsers.KitArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.PositiveIntegerArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
@@ -37,7 +36,7 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
-            new KitArgument(Text.of(KIT_PARAMETER), false),
+            KitFallbackBase.KIT_PARAMETER_NO_PERM_CHECK,
             GenericArguments.firstParsing(
                 new PositiveIntegerArgument(Text.of(this.index)),
                 NucleusParameters.COMMAND)
@@ -45,7 +44,7 @@ public class KitRemoveCommandCommand extends KitFallbackBase<CommandSource> {
     }
 
     @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER).get();
+        Kit kitInfo = args.<Kit>getOne(KIT_PARAMETER_KEY).get();
         List<String> commands = kitInfo.getCommands();
 
         String cmd;
