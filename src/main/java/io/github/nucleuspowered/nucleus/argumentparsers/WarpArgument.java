@@ -83,16 +83,13 @@ public class WarpArgument extends CommandElement implements Reloadable, Internal
                 return ImmutableList.of(el);
             } else if (elements.isEmpty()) {
                 return ImmutableList.of();
-            } else if (!(this.permissionCheck && this.separate)) { // permissioncheck and requires location were always the same
+            } else if (!this.permissionCheck)) { // permissioncheck and requires location were always the same
                 return elements;
             }
 
-            Stream<String> stream = elements.stream();
-            if (this.permissionCheck) {
-                stream.filter(s -> this.service.getWarp(s).get().getLocation().isPresent());
-            }
+            Stream<String> stream = elements.stream().filter(s -> this.service.getWarp(s).get().getLocation().isPresent());
 
-            if (this.permissionCheck && this.separate) {
+            if (this.separate) {
                 stream.filter(x -> checkPermission(src, x));
             }
 
