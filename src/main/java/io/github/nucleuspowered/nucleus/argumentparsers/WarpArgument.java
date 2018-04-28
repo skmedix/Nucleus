@@ -22,6 +22,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,16 +94,17 @@ public class WarpArgument extends CommandElement implements Reloadable, Internal
                 return elements;
             }
 
+            Predicate<String> predicate = x -> true;
             Stream<String> stream = elements.stream();
             if (this.requiresLocation) {
-                stream.filter(s -> this.service.getWarp(s).get().getLocation().isPresent());
+                predicate.and(s -> this.service.getWarp(s).get().getLocation().isPresent());
             }
 
             if (this.permissionCheck && this.separate) {
-                stream.filter(x -> checkPermission(src, x));
+                predicate.and(x -> checkPermission(src, x));
             }
 
-            return stream.collect(Collectors.toList());
+            return elements.stream().filter(predicate::test).collect(Collectors.toList());
         } catch (ArgumentParseException e) {
             return ImmutableList.of();
         }
