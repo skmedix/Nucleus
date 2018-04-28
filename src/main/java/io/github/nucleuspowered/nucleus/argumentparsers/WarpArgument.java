@@ -83,7 +83,7 @@ public class WarpArgument extends CommandElement implements Reloadable, Internal
                 return ImmutableList.of(el);
             } else if (elements.isEmpty()) {
                 return ImmutableList.of();
-            } else if (!this.permissionCheck)) { // permissioncheck and requires location were always the same
+            } else if (!this.permissionCheck) { // permissioncheck and requires location were always the same
                 return elements;
             }
 
