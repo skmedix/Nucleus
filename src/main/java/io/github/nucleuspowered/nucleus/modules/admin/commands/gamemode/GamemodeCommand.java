@@ -7,7 +7,7 @@ package io.github.nucleuspowered.nucleus.modules.admin.commands.gamemode;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedGameModeArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.MarkerArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.NoneThrowOnCompleteArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
@@ -35,8 +35,8 @@ import java.util.Optional;
 @EssentialsEquivalent(value = {"gamemode", "gm"}, isExact = false, notes = "/gm does not toggle between survival and creative, use /gmt for that")
 public class GamemodeCommand extends GamemodeBase<CommandSource> {
 
-    private final String userKey = "user";
     private final String gamemodeKey = "gamemode";
+    private final String gamemodeself = "gamemode_self";
 
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -52,30 +52,29 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.firstParsing(
-                // <player> <mode>
-                GenericArguments.seq(
-                        GenericArguments.requiringPermission(NucleusParameters.ONE_PLAYER, this.permissions.getOthers()),
-                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey))),
-                        new MarkerArgument()
-                ),
-
-                // <mode>
-                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey)))
-            ))
+                GenericArguments.firstParsing(
+                        GenericArguments.requiringPermission(GenericArguments.seq(
+                                NucleusParameters.ONE_PLAYER,
+                                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey)))
+                        ), this.permissions.getOthers()),
+                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeself))),
+                        NoneThrowOnCompleteArgument.INSTANCE
+                )
         };
     }
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Player user;
-        if (args.hasAny(MarkerArgument.MARKER)) {
-            user = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
-        } else {
+        Optional<GameMode> ogm;
+        if (args.hasAny(this.gamemodeself)) {
             user = this.getUserFromArgs(Player.class, src, "thisisjunk", args);
+            ogm = args.getOne(this.gamemodeself);
+        } else {
+            user = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
+            ogm = args.getOne(this.gamemodeKey);
         }
 
-        Optional<GameMode> ogm = args.getOne(this.gamemodeKey);
         if (!ogm.isPresent()) {
             String mode = user.get(Keys.GAME_MODE).orElse(GameModes.SURVIVAL).getName();
             if (src.equals(user)) {

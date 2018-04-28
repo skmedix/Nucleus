@@ -63,9 +63,14 @@ public class ImprovedGameModeArgument extends CommandElement {
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
             String arg = args.peek();
-            return GAMEMODE_MAP.keySet().stream().filter(x -> arg.startsWith(arg.toLowerCase())).collect(Collectors.toList());
+            return GAMEMODE_MAP.keySet().stream().filter(x -> x.startsWith(arg.toLowerCase())).collect(Collectors.toList());
         } catch (ArgumentParseException e) {
             return Lists.newArrayList(GAMEMODE_MAP.keySet());
         }
+    }
+
+    @Override
+    public Text getUsage(CommandSource src) {
+        return Text.of("game mode");
     }
 }
