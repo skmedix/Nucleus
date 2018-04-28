@@ -24,7 +24,7 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 @Permissions(prefix = "itemname")
 @NonnullByDefault
-@RegisterCommand(value = "set", subcommandOf = ItemNameCommand.class)
+@RegisterCommand(value = "set", subcommandOf = ItemNameCommand.class, rootAliasRegister = { "setitemname", "renameitem" })
 public class ItemNameSetCommand extends AbstractCommand<Player> {
 
     private final String nameKey = "name";
