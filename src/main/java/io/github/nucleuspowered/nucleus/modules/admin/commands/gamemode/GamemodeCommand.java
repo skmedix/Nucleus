@@ -6,7 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.admin.commands.gamemode;
 
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.argumentparsers.ImprovedGameModeArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.MarkerArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.NoneThrowOnCompleteArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
@@ -35,6 +35,7 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
 
     private final String userKey = "user";
     private final String gamemodeKey = "gamemode";
+    private final String gamemodeself = "gamemode_self";
 
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
@@ -50,36 +51,35 @@ public class GamemodeCommand extends GamemodeBase<CommandSource> {
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.firstParsing(
-                // <player> <mode>
-                GenericArguments.seq(
-                        GenericArguments.requiringPermission(GenericArguments.onlyOne(GenericArguments.player(Text.of(userKey))), permissions.getOthers()),
-                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey))),
-                        new MarkerArgument()
-                ),
-
-                // <mode>
-                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(gamemodeKey)))
-            ))
+                GenericArguments.firstParsing(
+                        GenericArguments.requiringPermission(GenericArguments.seq(
+                                GenericArguments.onlyOne(GenericArguments.player(Text.of(this.userKey))),
+                                GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeKey)))
+                        ), this.permissions.getOthers()),
+                        GenericArguments.onlyOne(new ImprovedGameModeArgument(Text.of(this.gamemodeself))),
+                        NoneThrowOnCompleteArgument.INSTANCE
+                )
         };
     }
 
     @Override
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Player user;
-        if (args.hasAny(MarkerArgument.MARKER)) {
-            user = this.getUserFromArgs(Player.class, src, userKey, args);
-        } else {
+        Optional<GameMode> ogm;
+        if (args.hasAny(this.gamemodeself)) {
             user = this.getUserFromArgs(Player.class, src, "thisisjunk", args);
+            ogm = args.getOne(this.gamemodeself);
+        } else {
+            user = this.getUserFromArgs(Player.class, src, this.userKey, args);
+            ogm = args.getOne(this.gamemodeKey);
         }
 
-        Optional<GameMode> ogm = args.getOne(gamemodeKey);
         if (!ogm.isPresent()) {
             String mode = user.get(Keys.GAME_MODE).orElse(GameModes.SURVIVAL).getName();
             if (src.equals(user)) {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.get.base", mode));
+                src.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.get.base", mode));
             } else {
-                src.sendMessage(plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.get.other", user.getName(), mode));
+                src.sendMessage(this.plugin.getMessageProvider().getTextMessageWithFormat("command.gamemode.get.other", user.getName(), mode));
             }
 
             return CommandResult.success();

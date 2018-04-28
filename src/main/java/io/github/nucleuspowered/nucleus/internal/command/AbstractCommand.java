@@ -556,7 +556,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
 
         final List<String> options = Lists.newArrayList();
         CommandContext context = new CommandContext();
-        context.putArg(COMPLETION_ARG, true); // We don't care for the value.
+        context.putArg(CommandContext.TAB_COMPLETION, true); // We don't care for the value.
 
         // Subcommand
         Object state = args.getState();
