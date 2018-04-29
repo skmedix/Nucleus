@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.argumentparsers;
 
+import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.argumentparsers.util.WrappedElement;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
@@ -44,7 +45,9 @@ public class AdditionalCompletionsArgument extends WrappedElement {
         if (args.getAll().size() >= this.minArgs && args.getAll().size() <= this.maxArgs) {
             try {
                 String a = args.peek();
-                s.addAll(this.additional.apply(src, a));
+                List<String> result = Lists.newArrayList(s);
+                result.addAll(this.additional.apply(src, a));
+                return result;
             } catch (ArgumentParseException e) {
                 // ignored
             }
