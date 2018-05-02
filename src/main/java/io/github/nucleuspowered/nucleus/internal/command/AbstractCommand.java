@@ -102,12 +102,6 @@ import javax.annotation.Nullable;
 @Store(Constants.COMMAND)
 public abstract class AbstractCommand<T extends CommandSource> implements CommandCallable, InternalServiceManagerTrait, PermissionHandlerTrait {
 
-    /**
-     * An argument key to denote that the current operation is for a tab completion and
-     * so the argument should react accordingly. This is specifically useful for an
-     * argument that will accept partial completion of names.
-     */
-    public static final String COMPLETION_ARG = "comp";
     private static final InputTokenizer tokeniser = InputTokenizer.quotedStrings(false);
     private static final List<ICommandInterceptor> commandInterceptors = Lists.newArrayList();
 
@@ -454,8 +448,8 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
             // If we're running async...
             if (this.isAsync) {
                 // Create an executor that runs the command async.
-                this.plugin.getLogger().debug("Running " + this.getClass().getName() + " in async mode.");
-                Sponge.getScheduler().createAsyncExecutor(this.plugin).execute(() -> onExecute(castedSource, context));
+                Nucleus.getNucleus().getLogger().debug("Running " + this.getClass().getName() + " in async mode.");
+                Sponge.getScheduler().createAsyncExecutor(Nucleus.getNucleus()).execute(() -> onExecute(castedSource, context));
 
                 // Tell Sponge we're done.
                 return CommandResult.success();

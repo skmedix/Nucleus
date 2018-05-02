@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +28,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.AbstractElementVisitor8;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -39,14 +41,29 @@ public class StoreProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         Map<Element, String> classes = new HashMap<>();
+        Map<TypeMirror, String> store = new HashMap<>();
 
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Store.class);
+        Set<? extends Element> elements = new HashSet<>(roundEnv.getElementsAnnotatedWith(Store.class));
         for (Element element : elements) {
             // Only storing classes.
             if (element.getKind().isClass()) {
                 Store s = element.getAnnotation(Store.class);
                 classes.put(element, s.isRoot() ? null : s.value());
+            } else if (element.getKind().isInterface()) {
+                Store s = element.getAnnotation(Store.class);
+                store.put(element.asType(), s.value());
             }
+        }
+
+        for (Map.Entry<TypeMirror, String> entry : store.entrySet()) {
+            roundEnv.getRootElements()
+                    .stream()
+                    .filter(x -> x.getKind().isClass())
+                    .filter(x -> implementsInterface(x, entry.getKey()))
+                    .forEach(x -> {
+                        System.out.println(x);
+                        classes.put(x, entry.getValue());
+                    });
         }
 
         // Get the root elements
@@ -126,6 +143,10 @@ public class StoreProcessor extends AbstractProcessor {
         @Override public StringTuple visitTypeParameter(TypeParameterElement e, Boolean aBoolean) {
             return null;
         }
+    }
+
+    private boolean implementsInterface (Element myTypeElement, TypeMirror desiredInterface) {
+        return this.processingEnv.getTypeUtils().isAssignable(myTypeElement.asType(), desiredInterface);
     }
 
     static class StringTuple {

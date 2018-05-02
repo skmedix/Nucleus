@@ -21,6 +21,8 @@ public interface ListenerBase extends InternalServiceManagerTrait, PermissionHan
         return Maps.newHashMap();
     }
 
+    @EntryPoint
+    @Store(Constants.LISTENER)
     interface Conditional extends ListenerBase {
 
         boolean shouldEnable();

@@ -28,9 +28,13 @@ import io.github.nucleuspowered.nucleus.internal.command.ICommandInterceptor;
 import io.github.nucleuspowered.nucleus.internal.docgen.DocGenCache;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListener;
+import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
+import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.handlers.BasicSeenInformationProvider;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.handlers.SeenHandler;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.commented.SimpleCommentedConfigurationNode;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -63,7 +67,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 @Store(isRoot = true)
-public abstract class StandardModule implements Module {
+public abstract class StandardModule implements Module, InternalServiceManagerTrait {
 
     private final String moduleId;
     private final String moduleName;
@@ -72,6 +76,7 @@ public abstract class StandardModule implements Module {
     protected final InternalServiceManager serviceManager;
     private final CommandsConfig commandsConfig;
     @Nullable private Map<String, List<String>> msls;
+    private final String message = NucleusPlugin.getNucleus().getMessageProvider().getMessageWithFormat("config.enabled");
 
     public StandardModule() {
         ModuleData md = this.getClass().getAnnotation(ModuleData.class);
@@ -207,6 +212,7 @@ public abstract class StandardModule implements Module {
         loadCommands();
         loadEvents();
         loadRunnables();
+        prepareAliasedCommands();
         try {
             performEnableTasks();
         } catch (Exception e) {
@@ -275,6 +281,21 @@ public abstract class StandardModule implements Module {
         } catch (Exception e) {
             this.plugin.getLogger().error("Could not save defaults.");
             e.printStackTrace();
+        }
+    }
+
+    private void prepareAliasedCommands() {
+        ImmutableMap<String, String> toRegister = remapCommand();
+        if (!toRegister.isEmpty()) {
+            CommentedConfigurationNode ccn = SimpleCommentedConfigurationNode.root();
+            for (Map.Entry<String, String> map : toRegister.entrySet()) {
+                if (this.commandsConfig.getCommandNode(map.getKey()).getNode("enabled").getBoolean(true)) {
+                    getServiceUnchecked(CommandRemapperService.class).addMapping(map.getKey().toLowerCase(), map.getValue().toLowerCase());
+                }
+
+                ccn.getNode(map.getKey(), "enabled").setComment(this.message).setValue(true);
+            }
+
         }
     }
 
@@ -424,6 +445,10 @@ public abstract class StandardModule implements Module {
 
     void configTasks() {
 
+    }
+
+    protected ImmutableMap<String, String> remapCommand() {
+        return ImmutableMap.of();
     }
 
     private <T> T getInstance(Class<T> clazz) {

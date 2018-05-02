@@ -51,6 +51,7 @@ import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusLoggerProxy;
 import io.github.nucleuspowered.nucleus.internal.qsml.QuickStartModuleConstructor;
 import io.github.nucleuspowered.nucleus.internal.qsml.event.BaseModuleEvent;
+import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService;
 import io.github.nucleuspowered.nucleus.internal.services.InventoryReorderService;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
@@ -276,6 +277,7 @@ public class NucleusPlugin extends Nucleus {
         this.nucleusChatService = new NucleusTokenServiceImpl(this);
         this.serviceManager.registerService(NucleusTokenServiceImpl.class, this.nucleusChatService);
         Sponge.getServiceManager().setProvider(this, NucleusMessageTokenService.class, this.nucleusChatService);
+        this.serviceManager.registerService(CommandRemapperService.class, new CommandRemapperService());
 
         try {
             final String he = this.messageProvider.getMessageWithFormat("config.main-header", PluginInfo.VERSION);
@@ -494,6 +496,7 @@ public class NucleusPlugin extends Nucleus {
         if (this.isErrored == null) {
             try {
                 getInternalServiceManager().getServiceUnchecked(UUIDChangeService.class).setStateAndReload();
+                getInternalServiceManager().getServiceUnchecked(CommandRemapperService.class).activate();
                 this.generalService.loadInternal(); // for migration purposes
                 // Save any additions.
                 this.moduleContainer.refreshSystemConfig();
@@ -558,6 +561,7 @@ public class NucleusPlugin extends Nucleus {
             this.gameStartedTime = null;
             this.logger.info(this.messageProvider.getMessageWithFormat("startup.stopped", PluginInfo.NAME));
             saveData();
+            getInternalServiceManager().getServiceUnchecked(CommandRemapperService.class).deactivate();
         }
     }
 
@@ -893,6 +897,7 @@ public class NucleusPlugin extends Nucleus {
         Sponge.getEventManager().unregisterPluginListeners(this);
         Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
         Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
+        getInternalServiceManager().getServiceUnchecked(CommandRemapperService.class).deactivate();
 
         // Re-register this to warn people about the error.
         Sponge.getEventManager().registerListener(this, GameStartedServerEvent.class, e -> errorOnStartup());
