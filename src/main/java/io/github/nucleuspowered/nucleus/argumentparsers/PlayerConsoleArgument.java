@@ -70,7 +70,8 @@ public class PlayerConsoleArgument extends CommandElement {
             return Lists.newArrayList(Sponge.getServer().getConsole());
         }
 
-        List<CommandSource> players = this.onlinePlayersSupplier.get().stream().filter(x -> x.getName().toLowerCase().startsWith(name))
+        List<CommandSource> players = this.onlinePlayersSupplier.get().stream()
+                .filter(x -> x.getName().toLowerCase().startsWith(name))
                 .filter(x -> this.filter.test(src, x))
                 .sorted(Comparator.comparing(User::getName)).collect(Collectors.toList());
         if (players.isEmpty()) {

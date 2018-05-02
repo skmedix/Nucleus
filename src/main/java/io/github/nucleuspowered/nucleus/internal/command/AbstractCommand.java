@@ -1322,6 +1322,22 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         }
 
         @Override public final CommandElement[] getArguments() {
+            CommandElement[] additional = additionalArguments();
+            if (additional.length == 0) {
+                // One element - optional
+                return new CommandElement[] {
+                        GenericArguments.optional(
+                                GenericArguments.requiringPermission(
+                                        new NoModifiersArgument<>(
+                                                NucleusParameters.ONE_PLAYER,
+                                                NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE
+                                        ),
+                                        this.permissions.getOthers()
+                                )
+                        )
+                };
+            }
+
             return ArrayUtils.addAll(new CommandElement[] {
                 GenericArguments.optionalWeak(
                     GenericArguments.requiringPermission(
@@ -1329,10 +1345,10 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                                 NucleusParameters.ONE_PLAYER,
                                 NoModifiersArgument.PLAYER_NOT_CALLER_PREDICATE
                         ),
-                            this.permissions.getOthers()
+                        this.permissions.getOthers()
                     )
                 )
-            }, additionalArguments());
+            }, additional);
         }
 
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {

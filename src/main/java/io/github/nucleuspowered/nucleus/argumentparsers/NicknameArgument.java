@@ -6,11 +6,10 @@ package io.github.nucleuspowered.nucleus.argumentparsers;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
-import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
-import io.github.nucleuspowered.nucleus.modules.nickname.NicknameModule;
-import io.github.nucleuspowered.nucleus.modules.nickname.datamodules.NicknameUserDataModule;
+import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
 import io.github.nucleuspowered.nucleus.util.QuadFunction;
 import io.github.nucleuspowered.nucleus.util.ThrownTriFunction;
 import org.spongepowered.api.Sponge;
@@ -23,16 +22,18 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -45,6 +46,8 @@ public class  NicknameArgument<T extends User> extends CommandElement {
     private final boolean onlyOne;
     private final UnderlyingType type;
     private final BiPredicate<CommandSource, T> filter;
+    @Nullable private final NicknameService nicknameService = Nucleus.getNucleus().getInternalServiceManager().getService(NicknameService.class)
+            .orElse(null);
 
     public NicknameArgument(@Nullable Text key, UnderlyingType<T> type) {
         this(key, type, true);
@@ -84,14 +87,13 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                 if (!s.isEmpty()) {
                     UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
                     List<String> offline = Sponge.getServiceManager().provideUnchecked(UserStorageService.class)
-                            .getAll()
+                            .match(s)
                             .stream()
-                            .filter(x -> x.getName().isPresent())
-                            .filter(x -> !Sponge.getServer().getPlayer(x.getName().get()).isPresent())
-                            .filter(x -> x.getName().get().toLowerCase().startsWith(s))
+                            .filter(x -> !Sponge.getServer().getPlayer(x.getUniqueId()).isPresent())
                             .filter(x -> uss.get(x).map(y -> filter.test(cs, (T) y)).orElse(false))
                             .filter(x -> PlayerConsoleArgument.shouldShow(x.getUniqueId(), cs))
                             .map(x -> x.getName().get())
+                            .limit(20)
                             .collect(Collectors.toList());
 
                     toReturn.addAll(offline);
@@ -139,25 +141,21 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
         // Now check user names
         // TODO: Display name
-        Map<String, ModularUserService> allPlayers;
-        if (Nucleus.getNucleus().isModuleLoaded(NicknameModule.ID)) {
-            allPlayers = this.userDataManager.getOnlineUsers().stream()
-                    .filter(x -> x.getUser().isOnline() && x.get(NicknameUserDataModule.class).getNicknameAsString().isPresent())
-                    .collect(Collectors.toMap(s -> TextSerializers.FORMATTING_CODE.stripCodes(s.get(NicknameUserDataModule.class)
-                    .getNicknameAsString().get().toLowerCase()), s -> s));
+        Map<String, UUID> allPlayers;
+        if (this.nicknameService != null) {
+            Optional<Player> op = this.nicknameService.getFromCache(fName.toLowerCase());
+            if (op.isPresent()) {
+                return Lists.newArrayList(op.get());
+            }
+            allPlayers = this.nicknameService.getAllCached();
         } else {
             allPlayers = Maps.newHashMap();
-        }
-
-        if (allPlayers.containsKey(fName.toLowerCase())) {
-            return Lists.newArrayList(allPlayers.get(fName.toLowerCase()).getUser().getPlayer().get());
         }
 
         List<Player> players = allPlayers.entrySet().stream()
             .filter(x -> x.getKey().toLowerCase().startsWith(fName))
             .sorted(Comparator.comparing(Map.Entry::getKey))
-            .filter(x -> x.getValue().getUser().getPlayer().isPresent())
-            .map(x -> x.getValue().getUser().getPlayer().get())
+            .flatMap(x -> Sponge.getServer().getPlayer(x.getValue()).map(Stream::of).orElseGet(Stream::empty))
             .filter(x -> this.filter.test(src, (T)x))
             .collect(Collectors.toList());
 
@@ -189,21 +187,19 @@ public class  NicknameArgument<T extends User> extends CommandElement {
             fName = name;
         }
 
-        List<String> original = this.completer.accept(fName, src, args, context);
+        Set<String> original = Sets.newHashSet(this.completer.accept(fName, src, args, context));
         if (playerOnly) {
             return original.stream().map(x -> "p:" + x).collect(Collectors.toList());
-        } else if (Nucleus.getNucleus().isModuleLoaded(NicknameModule.ID)) {
-            List<String> toAdd = this.userDataManager.getOnlineUsers().stream()
-                    .filter(x -> x.getUser().isOnline() && x.get(NicknameUserDataModule.class).getNicknameAsString().isPresent() &&
-                            TextSerializers.FORMATTING_CODE.stripCodes(x.get(NicknameUserDataModule.class).getNicknameAsString().get())
-                                    .toLowerCase().startsWith(fName))
-                    .map(x -> TextSerializers.FORMATTING_CODE.stripCodes(x.get(NicknameUserDataModule.class).getNicknameAsString().get()))
-                    .collect(Collectors.toList());
-            toAdd.removeIf(original::contains);
-            original.addAll(toAdd);
+        } else if (this.nicknameService != null) {
+                this.nicknameService
+                    .startsWithGetMap(fName.toLowerCase())
+                    .entrySet()
+                    .stream()
+                    .flatMap(x -> Sponge.getServer().getPlayer(x.getValue()).map(y -> Stream.of(x.getKey())).orElseGet(Stream::empty))
+                    .forEach(original::add);
         }
 
-        return original;
+        return Lists.newArrayList(original);
     }
 
     public static class UnderlyingType<U extends User> {
@@ -222,7 +218,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
             this(onlyOne, userStorageServiceSupplier, (c, s) -> true);
         }
 
-        public UserParser(boolean onlyOne, Supplier<UserStorageService> userStorageServiceSupplier, BiPredicate<CommandSource, User> filter) {
+        UserParser(boolean onlyOne, Supplier<UserStorageService> userStorageServiceSupplier, BiPredicate<CommandSource, User> filter) {
             this.onlyOne = onlyOne;
             this.userStorageServiceSupplier = userStorageServiceSupplier;
             this.filter = filter;
@@ -242,8 +238,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                         // Get the players who start with the string.
                         .map(uss::get)
                         // Remove players who have no user
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
+                        .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
                         .filter(x -> this.filter.test(cs, x))
                         .filter(x -> PlayerConsoleArgument.shouldShow(x.getUniqueId(), cs))
                         .map(x -> x.getPlayer().map(y -> (User) y).orElse(x))

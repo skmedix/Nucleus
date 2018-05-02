@@ -4,6 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.nickname.services;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.NameUtil;
 import io.github.nucleuspowered.nucleus.Nucleus;
@@ -22,6 +24,7 @@ import io.github.nucleuspowered.nucleus.modules.nickname.events.ChangeNicknameEv
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.service.permission.Subject;
@@ -32,10 +35,13 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.Tuple;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -46,6 +52,47 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
     private int max = 16;
     private final Map<String[], Tuple<Matcher, Text>> replacements = Maps.newHashMap();
     private boolean registered = false;
+    private final BiMap<UUID, String> cache = HashBiMap.create();
+    private final BiMap<UUID, Text> textCache = HashBiMap.create();
+
+    public void updateCache(UUID player, Text text) {
+        this.cache.put(player, text.toPlain());
+        this.textCache.put(player, text);
+    }
+
+    public Optional<Player> getFromCache(String text) {
+        UUID u = this.cache.inverse().get(text);
+        if (u != null) {
+            Optional<Player> ret = Sponge.getServer().getPlayer(u);
+            if (!ret.isPresent()) {
+                this.cache.remove(u);
+            }
+
+            return ret;
+        }
+
+        return Optional.empty();
+    }
+
+    public Map<String, UUID> getAllCached() {
+        return Maps.newHashMap(this.cache.inverse());
+    }
+
+    public Map<String, UUID> startsWithGetMap(String text) {
+        return this.cache.inverse().entrySet().stream().filter(x -> x.getKey().startsWith(text.toLowerCase()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public List<UUID> startsWith(String text) {
+        return this.cache.inverse().entrySet().stream().filter(x -> x.getKey().startsWith(text.toLowerCase()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+    }
+
+    public void removeFromCache(UUID player) {
+        this.cache.remove(player);
+        this.textCache.remove(player);
+    }
 
     public void register() {
         if (this.registered) {
@@ -76,6 +123,9 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
 
     @Override
     public Optional<Text> getNickname(User user) {
+        if (user.isOnline()) {
+            return Optional.ofNullable(this.textCache.get(user.getUniqueId()));
+        }
         return Nucleus.getNucleus().getUserDataManager().get(user).map(x -> x.get(NicknameUserDataModule.class).getNicknameAsText().orElse(null));
     }
 
@@ -110,6 +160,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
                                 .getTextMessageWithFormat("standard.error.nouser"),
                         NicknameException.Type.NO_USER
                 )).get(NicknameUserDataModule.class).removeNickname();
+        removeFromCache(user.getUniqueId());
 
         if (user.isOnline()) {
             user.getPlayer().ifPresent(x ->
@@ -195,6 +246,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
         mus.set(nicknameUserDataModule);
         mus.save();
         Text set = nicknameUserDataModule.getNicknameAsText().get();
+        this.updateCache(pl.getUniqueId(), nickname);
 
         if (pl.isOnline()) {
             pl.getPlayer().get().sendMessage(Text.builder().append(
