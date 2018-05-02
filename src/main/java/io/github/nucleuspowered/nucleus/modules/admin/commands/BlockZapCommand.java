@@ -10,10 +10,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
-import io.github.nucleuspowered.nucleus.modules.item.commands.RepairCommand;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
-import jdk.nashorn.internal.ir.Block;
-import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -21,21 +18,13 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
-import java.*;
 import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-
-
-import java.util.EnumMap;
-import java.util.Optional;
 
 @NonnullByDefault
 @Permissions

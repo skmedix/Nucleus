@@ -60,10 +60,7 @@ public class StoreProcessor extends AbstractProcessor {
                     .stream()
                     .filter(x -> x.getKind().isClass())
                     .filter(x -> implementsInterface(x, entry.getKey()))
-                    .forEach(x -> {
-                        System.out.println(x);
-                        classes.put(x, entry.getValue());
-                    });
+                    .forEach(x -> classes.put(x, entry.getValue()));
         }
 
         // Get the root elements
