@@ -267,26 +267,9 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                 }
             }
 
+            // If users is empty, then we should check online players.
             return Lists.newArrayList();
         }
     }
 
-    @Override public void parse(CommandSource source, CommandArgs args, CommandContext context) throws ArgumentParseException {
-        if (context.hasAny(CommandContext.TAB_COMPLETION)) {
-            // Are we at the end (so, is there this arg, and then the next?
-            Object state = args.getState();
-            try {
-                // Should be there.
-                args.next();
-
-                // Should fail here if this is the last element.
-                // We don't want to catch the error, because this will trigger the completion!
-                args.next();
-            } finally {
-                args.setState(state);
-            }
-        }
-
-        super.parse(source, args, context);
-    }
 }
