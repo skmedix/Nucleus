@@ -10,13 +10,19 @@ import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.tests.TestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
 import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.profile.GameProfile;
+import org.spongepowered.api.service.ServiceManager;
 import org.spongepowered.api.service.user.UserStorageService;
 
 import java.util.ArrayList;
@@ -25,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Sponge.class)
 public class NicknameArgumentTests extends TestBase {
 
     @Test
@@ -56,10 +64,18 @@ public class NicknameArgumentTests extends TestBase {
 
     private NicknameArgument.UserParser getParser() {
         // Setup the mock UserStorageService
-        UserStorageService mockUss = getMockUserStorageService();
+        setupSpongeMock();
 
         // We're testing the UserParser
-        return new NicknameArgument.UserParser(false, () -> mockUss);
+        return new NicknameArgument.UserParser(false);
+    }
+
+    private void setupSpongeMock() {
+        PowerMockito.mockStatic(Sponge.class);
+        ServiceManager manager = Mockito.mock(ServiceManager.class);
+        UserStorageService service = getMockUserStorageService();
+        Mockito.when(manager.provideUnchecked(UserStorageService.class)).thenReturn(service);
+        Mockito.when(Sponge.getServiceManager()).thenReturn(manager);
     }
 
     private UserStorageService getMockUserStorageService() {

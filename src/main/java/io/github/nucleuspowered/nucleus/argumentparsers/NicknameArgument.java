@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
 import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
 import io.github.nucleuspowered.nucleus.util.QuadFunction;
 import io.github.nucleuspowered.nucleus.util.ThrownTriFunction;
@@ -31,7 +30,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,7 +38,6 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 public class  NicknameArgument<T extends User> extends CommandElement {
 
-    private final UserDataManager userDataManager;
     private final ThrownTriFunction<String, CommandSource, CommandArgs, List<?>, ArgumentParseException> parser;
     private final QuadFunction<String, CommandSource, CommandArgs, CommandContext, List<String>> completer;
     private final boolean onlyOne;
@@ -63,7 +60,6 @@ public class  NicknameArgument<T extends User> extends CommandElement {
         super(key);
 
         this.onlyOne = onlyOne;
-        this.userDataManager = Nucleus.getNucleus().getUserDataManager();
         this.type = type;
         this.filter = filter;
 
@@ -71,7 +67,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
                 (BiPredicate<CommandSource, Player>)filter);
 
         if (type == UnderlyingType.USER) {
-            UserParser p = new UserParser(onlyOne, () -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class));
+            UserParser p = new UserParser(onlyOne);
             this.parser = (name, cs, a) -> {
                 List<?> i = p.accept(name, cs, a);
                 if (i.isEmpty()) {
@@ -211,26 +207,25 @@ public class  NicknameArgument<T extends User> extends CommandElement {
     public static final class UserParser implements ThrownTriFunction<String, CommandSource, CommandArgs, List<?>, ArgumentParseException> {
 
         private final boolean onlyOne;
-        private final Supplier<UserStorageService> userStorageServiceSupplier;
         private final BiPredicate<CommandSource, User> filter;
 
-        public UserParser(boolean onlyOne, Supplier<UserStorageService> userStorageServiceSupplier) {
-            this(onlyOne, userStorageServiceSupplier, (c, s) -> true);
+        public UserParser(boolean onlyOne) {
+            this(onlyOne, (c, s) -> true);
         }
 
-        UserParser(boolean onlyOne, Supplier<UserStorageService> userStorageServiceSupplier, BiPredicate<CommandSource, User> filter) {
+        UserParser(boolean onlyOne, BiPredicate<CommandSource, User> filter) {
             this.onlyOne = onlyOne;
-            this.userStorageServiceSupplier = userStorageServiceSupplier;
             this.filter = filter;
         }
 
         @Override
         public List<?> accept(String s, CommandSource cs, CommandArgs a) throws ArgumentParseException {
             try {
-                UserStorageService uss = this.userStorageServiceSupplier.get();
+                UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
                 if (this.onlyOne) {
                     return Lists.newArrayList(uss.get(s)
-                        .orElseThrow(() -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
+                            .orElseThrow(
+                                    () -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
                 }
 
                 List<User> users = uss.match(s)
@@ -256,11 +251,9 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
                 // If users is empty, then we should check online players.
 
-            } catch (Exception e) {
+            } catch (ArgumentParseException e) {
                 // We want to rethrow this!
-                if (e instanceof ArgumentParseException) {
-                    throw e;
-                }
+                throw e;
             }
 
             return Lists.newArrayList();
