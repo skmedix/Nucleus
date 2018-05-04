@@ -220,62 +220,37 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
         @Override
         public List<?> accept(String s, CommandSource cs, CommandArgs a) throws ArgumentParseException {
-            try {
-                UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
-                if (this.onlyOne) {
-                    return Lists.newArrayList(uss.get(s)
-                            .orElseThrow(
-                                    () -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
-                }
-
-                List<User> users = uss.match(s)
-                        .stream()
-                        // Get the players who start with the string.
-                        .map(uss::get)
-                        // Remove players who have no user
-                        .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
-                        .filter(x -> this.filter.test(cs, x))
-                        .filter(x -> PlayerConsoleArgument.shouldShow(x.getUniqueId(), cs))
-                        .map(x -> x.getPlayer().map(y -> (User) y).orElse(x))
-                        .limit(20) // stop after 20
-                        .collect(Collectors.toList());
-
-                if (!users.isEmpty()) {
-                    List<User> exactUser = users.stream().filter(x -> x.getName().equalsIgnoreCase(s)).collect(Collectors.toList());
-                    if (exactUser.size() == 1) {
-                        return exactUser;
-                    }
-
-                    return users;
-                }
-
-                // If users is empty, then we should check online players.
-
-            } catch (ArgumentParseException e) {
-                // We want to rethrow this!
-                throw e;
+            UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
+            if (this.onlyOne) {
+                return Lists.newArrayList(uss.get(s)
+                        .orElseThrow(
+                                () -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
             }
 
+            List<User> users = uss.match(s)
+                    .stream()
+                    // Get the players who start with the string.
+                    .map(uss::get)
+                    // Remove players who have no user
+                    .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
+                    .filter(x -> this.filter.test(cs, x))
+                    .filter(x -> PlayerConsoleArgument.shouldShow(x.getUniqueId(), cs))
+                    .map(x -> x.getPlayer().map(y -> (User) y).orElse(x))
+                    .limit(20) // stop after 20
+                    .collect(Collectors.toList());
+
+            if (!users.isEmpty()) {
+                List<User> exactUser = users.stream().filter(x -> x.getName().equalsIgnoreCase(s)).collect(Collectors.toList());
+                if (exactUser.size() == 1) {
+                    return exactUser;
+                }
+
+                return users;
+            }
+
+            // If users is empty, then we should check online players.
             return Lists.newArrayList();
         }
     }
 
-    @Override public void parse(CommandSource source, CommandArgs args, CommandContext context) throws ArgumentParseException {
-        if (context.hasAny(CommandContext.TAB_COMPLETION)) {
-            // Are we at the end (so, is there this arg, and then the next?
-            Object state = args.getState();
-            try {
-                // Should be there.
-                args.next();
-
-                // Should fail here if this is the last element.
-                // We don't want to catch the error, because this will trigger the completion!
-                args.next();
-            } finally {
-                args.setState(state);
-            }
-        }
-
-        super.parse(source, args, context);
-    }
 }
