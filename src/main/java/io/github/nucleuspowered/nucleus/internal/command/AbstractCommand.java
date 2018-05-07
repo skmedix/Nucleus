@@ -1227,13 +1227,34 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                 return CommandResult.empty();
             }
 
+            try {
+                List<Text> textMessages = usage(source, previous);
+
+                // Header
+                String command = getCommandPath().replaceAll("\\.", " ");
+                Text header = plugin.getMessageProvider().getTextMessageWithFormat("command.usage.header", command);
+
+                PaginationService ps = Sponge.getServiceManager().provideUnchecked(PaginationService.class);
+                PaginationList.Builder builder = ps.builder().title(header).contents(textMessages);
+                if (!(source instanceof Player)) {
+                    builder.linesPerPage(-1);
+                }
+
+                builder.sendTo(source);
+                return CommandResult.success();
+            } catch (CommandPermissionException e) {
+                source.sendMessage(AbstractCommand.this.plugin.getMessageProvider().getTextMessageWithFormat("command.usage.nopermission"));
+                return CommandResult.empty();
+            }
+        }
+
+        public List<Text> usage(CommandSource source, @Nullable String previous) throws CommandPermissionException {
+            if (!testPermission(source)) {
+                throw new CommandPermissionException();
+            }
+
             Nucleus plugin = Nucleus.getNucleus();
             AbstractCommand<?> parent = AbstractCommand.this;
-
-            String command = getCommandPath().replaceAll("\\.", " ");
-
-            // Header
-            Text header = plugin.getMessageProvider().getTextMessageWithFormat("command.usage.header", command);
 
             List<Text> textMessages = Lists.newArrayList();
 
@@ -1278,14 +1299,7 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
                 textMessages.add(Text.of(TextColors.WHITE, x));
             });
 
-            PaginationService ps = Sponge.getServiceManager().provideUnchecked(PaginationService.class);
-            PaginationList.Builder builder = ps.builder().title(header).contents(textMessages);
-            if (!(source instanceof Player)) {
-                builder.linesPerPage(-1);
-            }
-
-            builder.sendTo(source);
-            return CommandResult.success();
+            return textMessages;
         }
 
         @Override
@@ -1311,6 +1325,14 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         @Override
         public Text getUsage(CommandSource source) {
             return Text.EMPTY;
+        }
+    }
+
+    public List<Text> getUsageText(CommandSource source) {
+        try {
+            return this.usageCommand.usage(source, null);
+        } catch (CommandPermissionException e) {
+            return Lists.newArrayList();
         }
     }
 
