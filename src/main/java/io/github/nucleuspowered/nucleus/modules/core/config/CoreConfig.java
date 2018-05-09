@@ -70,6 +70,9 @@ public class CoreConfig {
     @Setting(value = "show-warning-on-startup", comment = "config.core.warning-on-startup")
     private boolean warningOnStartup = true;
 
+    @Setting(value = "more-accurate-visitor-count", comment = "config.core.accurate")
+    private boolean moreAccurate = false;
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -140,5 +143,9 @@ public class CoreConfig {
 
     public boolean isWarningOnStartup() {
         return this.warningOnStartup;
+    }
+
+    public boolean isMoreAccurate() {
+        return this.moreAccurate;
     }
 }
