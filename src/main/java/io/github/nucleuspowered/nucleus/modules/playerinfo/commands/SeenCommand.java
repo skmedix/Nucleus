@@ -11,7 +11,6 @@ import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
-import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -58,7 +57,6 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 @Permissions
-@RunAsync
 @RegisterCommand({"seen", "seenplayer", "lookup"})
 @EssentialsEquivalent("seen")
 @NonnullByDefault
@@ -92,10 +90,8 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         User user = args.<User>getOne(uuid).isPresent() ? args.<User>getOne(uuid).get() : args.<User>getOne(playerKey).get();
-        if (user.isOnline()) {
-            // Get the player in case the User is displaying the wrong name.
-            user = user.getPlayer().get();
-        }
+        // Get the player in case the User is displaying the wrong name.
+        user = user.getPlayer().map(x -> (User) x).orElse(user);
 
         ModularUserService iqsu = Nucleus.getNucleus().getUserDataManager().getUnchecked(user);
         CoreUserDataModule coreUserDataModule = iqsu.get(CoreUserDataModule.class);

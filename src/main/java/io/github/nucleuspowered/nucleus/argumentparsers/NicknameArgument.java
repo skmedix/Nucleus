@@ -69,10 +69,10 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
         if (type == UnderlyingType.USER) {
             UserParser p = new UserParser(onlyOne, () -> Sponge.getServiceManager().provideUnchecked(UserStorageService.class));
-            parser = (name, cs, a) -> {
-                List<?> i = p.accept(name, cs, a);
+            parser = (name, commandSource, commandArgs) -> {
+                List<?> i = p.accept(name, commandSource, commandArgs);
                 if (i.isEmpty()) {
-                    i = pca.parseInternal(name, cs, a);
+                    i = pca.parseInternal(name, commandSource, commandArgs);
                 }
 
                 return i;
