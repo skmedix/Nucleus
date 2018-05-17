@@ -87,11 +87,9 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) {
         User user = args.<User>getOne(NucleusParameters.Keys.USER_UUID).isPresent() ?
-                args.<User>getOne(NucleusParameters.Keys.USER_UUID).get() : args.<User>getOne(NucleusParameters.Keys.PLAYER).get();
-        if (user.isOnline()) {
-            // Get the player in case the User is displaying the wrong name.
-            user = user.getPlayer().get();
-        }
+                args.<User>getOne(NucleusParameters.Keys.USER_UUID).get() : args.<User>getOne(NucleusParameters.Keys.USER).get();
+        // Get the player in case the User is displaying the wrong name.
+        user = user.getPlayer().map(x -> (User) x).orElse(user);
 
         ModularUserService iqsu = Nucleus.getNucleus().getUserDataManager().getUnchecked(user);
         CoreUserDataModule coreUserDataModule = iqsu.get(CoreUserDataModule.class);
