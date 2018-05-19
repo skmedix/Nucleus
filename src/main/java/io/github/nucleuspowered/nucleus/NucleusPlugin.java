@@ -476,8 +476,6 @@ public class NucleusPlugin extends Nucleus {
                 return;
             }
 
-            generalService.getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
-
             // Start the user cache walk if required, the user storage service is loaded at this point.
             Task.builder().async().execute(() -> userCacheService.startFilewalkIfNeeded()).submit(this);
             logger.info(messageProvider.getMessageWithFormat("startup.started", PluginInfo.NAME));
@@ -494,7 +492,8 @@ public class NucleusPlugin extends Nucleus {
             }
         }
 
-        if (isErrored == null) {
+        if (this.isErrored == null) {
+            this.generalService.getTransient(UniqueUserCountTransientModule.class).resetUniqueUserCount();
             try {
                 getInternalServiceManager().getServiceUnchecked(UUIDChangeService.class).setStateAndReload();
                 this.generalService.loadInternal(); // for migration purposes
