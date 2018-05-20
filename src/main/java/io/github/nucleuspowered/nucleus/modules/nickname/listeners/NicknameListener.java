@@ -24,12 +24,11 @@ public class NicknameListener implements ListenerBase, InternalServiceManagerTra
     public void onPlayerJoin(ClientConnectionEvent.Join event, @Root Player player) {
         Nucleus.getNucleus().getUserDataManager().get(player).ifPresent(x -> {
             Optional<Text> d = x.get(NicknameUserDataModule.class).getNicknameAsText();
-            if (d.isPresent()) {
-                player.offer(Keys.DISPLAY_NAME, d.get());
-                getServiceUnchecked(NicknameService.class).updateCache(player.getUniqueId(), d.get());
-            } else {
-                player.remove(Keys.DISPLAY_NAME);
-            }
+            d.ifPresent(text -> getServiceUnchecked(NicknameService.class).updateCache(player.getUniqueId(), text));
+
+            player.offer(
+                    Keys.DISPLAY_NAME,
+                    d.orElseGet(() -> Text.of(player.getName())));
         });
     }
 
