@@ -14,19 +14,14 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.text.Text;
 
-import java.util.Optional;
-
 public class NicknameListener extends ListenerBase {
 
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event, @Root Player player) {
         Nucleus.getNucleus().getUserDataManager().get(player).ifPresent(x -> {
-            Optional<Text> d = x.get(NicknameUserDataModule.class).getNicknameAsText();
-            if (d.isPresent()) {
-                player.offer(Keys.DISPLAY_NAME, d.get());
-            } else {
-                player.remove(Keys.DISPLAY_NAME);
-            }
+            player.offer(
+                    Keys.DISPLAY_NAME,
+                    x.get(NicknameUserDataModule.class).getNicknameAsText().orElseGet(() -> Text.of(player.getName())));
         });
     }
 }
