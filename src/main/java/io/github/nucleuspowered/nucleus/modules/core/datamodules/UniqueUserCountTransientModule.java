@@ -22,6 +22,8 @@ import javax.annotation.Nullable;
 
 public class UniqueUserCountTransientModule extends TransientModule<ModularGeneralService> {
 
+    private static boolean ERROR_REPORTED = false;
+
     // This is a session variable - does not get saved on restart.
     private long userCount = 0;
     private boolean userCountIsDirty = false;
@@ -33,6 +35,7 @@ public class UniqueUserCountTransientModule extends TransientModule<ModularGener
     public void resetUniqueUserCount(@Nullable Consumer<Long> resultConsumer) {
         if (!this.userCountIsDirty) {
             this.userCountIsDirty = true;
+            ERROR_REPORTED = false;
             Task.builder().async().execute(task -> {
                 boolean accurate = Nucleus.getNucleus().getInternalServiceManager()
                         .getServiceUnchecked(CoreConfigAdapter.class).getNodeOrDefault().isMoreAccurate();
@@ -43,11 +46,23 @@ public class UniqueUserCountTransientModule extends TransientModule<ModularGener
                 if (accurate) {
                     this.userCount = uss.getAll().stream().filter(GameProfile::isFilled)
                         .map(uss::get).filter(Optional::isPresent)
-                        .filter(x ->
-                                x.get().getPlayer().isPresent() ||
-                                        userDataManager.has(x.get().getUniqueId()) ||
-                                        // Temporary until Data is hooked up properly, I hope.
-                                        x.get().get(JoinData.class).map(y -> y.firstPlayed().getDirect().isPresent()).orElse(false)).count();
+                        .filter(x -> {
+                            boolean ret = x.get().getPlayer().isPresent() || Nucleus.getNucleus().getUserDataManager().has(x.get().getUniqueId());
+                            if (!ret) {
+                                try {
+                                    // Temporary until Data is hooked up properly, I hope.
+                                    return x.get().get(JoinData.class).map(y -> y.firstPlayed().getDirect().isPresent()).orElse(false);
+                                } catch (IllegalStateException e) {
+                                    if (ERROR_REPORTED) {
+                                        ERROR_REPORTED = true;
+                                        Nucleus.getNucleus().getLogger().warn("The Sponge player data provider has not yet been initialised, not "
+                                                + "using join data in this count.");
+                                    }
+                                }
+                            }
+
+                            return ret;
+                        }).count();
                 } else {
                     this.userCount = uss.getAll().stream().filter(GameProfile::isFilled).filter(x -> userDataManager.has(x.getUniqueId())).count();
                 }
