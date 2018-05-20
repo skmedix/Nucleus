@@ -182,7 +182,7 @@ jar {
                 'Git-Hash': gitHash.hash
     }
 
-    archiveName = getVersion
+    archiveName = "Nucleus-${version}-MC${project.ext.minecraftversion}-noshadow.jar"
 }
 
 shadowJar {

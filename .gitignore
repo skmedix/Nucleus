@@ -115,3 +115,5 @@ output/
 gp/
 
 changelogs/dummy
+
+gradle.properties
