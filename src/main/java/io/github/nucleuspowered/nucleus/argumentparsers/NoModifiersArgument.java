@@ -12,6 +12,7 @@ import org.spongepowered.api.command.args.CommandArgs;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class NoModifiersArgument<T> extends WrappedElement {
 
     public static final BiPredicate<CommandSource, Player> PLAYER_NOT_CALLER_PREDICATE =
         (c, o) -> !(c instanceof Player) || !((Player) c).getUniqueId().equals(o.getUniqueId());
+
+    public static final BiPredicate<CommandSource, User> USER_NOT_CALLER_PREDICATE =
+            (c, o) -> !(c instanceof Player) || !((User) c).getUniqueId().equals(o.getUniqueId());
 
     private final BiPredicate<CommandSource, T> test;
     private final List<String> argsToPut = Lists.newArrayList();

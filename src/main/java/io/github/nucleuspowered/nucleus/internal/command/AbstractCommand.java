@@ -1381,4 +1381,50 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         protected abstract CommandResult executeWithPlayer(CommandSource source, Player target, CommandContext args, final boolean isSelf)
                 throws Exception;
     }
+
+    @NonnullByDefault
+    public abstract static class SimpleTargetOtherUser extends AbstractCommand<CommandSource> {
+
+        protected CommandElement[] additionalArguments() {
+            return new CommandElement[] {};
+        }
+
+        @Override public final CommandElement[] getArguments() {
+            CommandElement[] additional = additionalArguments();
+            if (additional.length == 0) {
+                // One element - optional
+                return new CommandElement[] {
+                        GenericArguments.optional(
+                                GenericArguments.requiringPermission(
+                                        new NoModifiersArgument<>(
+                                                NucleusParameters.ONE_USER,
+                                                NoModifiersArgument.USER_NOT_CALLER_PREDICATE
+                                        ),
+                                        this.permissions.getOthers()
+                                )
+                        )
+                };
+            }
+
+            return ArrayUtils.addAll(new CommandElement[] {
+                    GenericArguments.optionalWeak(
+                            GenericArguments.requiringPermission(
+                                    new NoModifiersArgument<>(
+                                            NucleusParameters.ONE_USER,
+                                            NoModifiersArgument.USER_NOT_CALLER_PREDICATE
+                                    ),
+                                    this.permissions.getOthers()
+                            )
+                    )
+            }, additional);
+        }
+
+        @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
+            User target = this.getUserFromArgs(User.class, src, NucleusParameters.Keys.USER, args);
+            return executeWithPlayer(src, target, args, src instanceof Player && ((Player) src).getUniqueId().equals(target.getUniqueId()));
+        }
+
+        protected abstract CommandResult executeWithPlayer(CommandSource source, User target, CommandContext args, final boolean isSelf)
+                throws Exception;
+    }
 }

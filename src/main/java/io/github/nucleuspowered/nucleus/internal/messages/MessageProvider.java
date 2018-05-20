@@ -6,9 +6,13 @@ package io.github.nucleuspowered.nucleus.internal.messages;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextRepresentable;
 import org.spongepowered.api.text.TextTemplate;
+import org.spongepowered.api.text.translation.Translatable;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -33,6 +37,22 @@ public abstract class MessageProvider {
         }
     }
 
+    public final Text getTextMessageWithFormat(String key, Object... substitutions) {
+        return getTextMessageWithTextFormat(key,
+                Arrays.stream(substitutions).map(x -> {
+                    if (x instanceof User) {
+                        return Nucleus.getNucleus().getNameUtil().getName((User) x);
+                    } else if (x instanceof TextRepresentable) {
+                        return (TextRepresentable) x;
+                    } else if (x instanceof Translatable || x instanceof String) {
+                        return Text.of(x);
+                    } else {
+                        return Text.of(x.toString());
+                    }
+                }).collect(Collectors.toList())
+        );
+    }
+
     public final Text getTextMessageWithFormat(String key, String... substitutions) {
         return getTextMessageWithTextFormat(key, Arrays.stream(substitutions).map(TextParsingUtils::oldLegacy).collect(Collectors.toList()));
     }
@@ -41,13 +61,13 @@ public abstract class MessageProvider {
         return getTextMessageWithTextFormat(key, Arrays.asList(substitutions));
     }
 
-    private Text getTextMessageWithTextFormat(String key, List<Text> textList) {
+    private Text getTextMessageWithTextFormat(String key, List<? extends TextRepresentable> textList) {
         TextTemplate template = this.textTemplateMap.computeIfAbsent(key, k -> templateCreator(getMessageWithFormat(k)));
         if (textList.isEmpty()) {
             return template.toText();
         }
 
-        Map<String, Text> objs = Maps.newHashMap();
+        Map<String, TextRepresentable> objs = Maps.newHashMap();
         for (int i = 0; i < textList.size(); i++) {
             objs.put(String.valueOf(i), textList.get(i));
         }
