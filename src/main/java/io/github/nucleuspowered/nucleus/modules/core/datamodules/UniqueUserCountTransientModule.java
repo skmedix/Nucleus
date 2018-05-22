@@ -15,6 +15,7 @@ import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.user.UserStorageService;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -57,6 +58,11 @@ public class UniqueUserCountTransientModule extends TransientModule<ModularGener
                                         ERROR_REPORTED = true;
                                         Nucleus.getNucleus().getLogger().warn("The Sponge player data provider has not yet been initialised, not "
                                                 + "using join data in this count.");
+                                    }
+                                } catch (NoSuchElementException e) {
+                                    if (ERROR_REPORTED) {
+                                        ERROR_REPORTED = true;
+                                        Nucleus.getNucleus().getLogger().warn("The join data can not be constructed on some users.");
                                     }
                                 }
                             }
