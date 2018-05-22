@@ -8,7 +8,6 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularGeneralService;
 import io.github.nucleuspowered.nucleus.dataservices.modular.TransientModule;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.manipulator.mutable.entity.JoinData;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.user.UserStorageService;
@@ -41,8 +40,9 @@ public class UniqueUserCountTransientModule extends TransientModule<ModularGener
                 this.userCount = uss.getAll().stream().filter(GameProfile::isFilled)
                         .map(uss::get).filter(Optional::isPresent)
                         .filter(x -> {
-                            boolean ret = x.get().getPlayer().isPresent() || Nucleus.getNucleus().getUserDataManager().has(x.get().getUniqueId());
-                            if (!ret) {
+                            /* boolean ret = */ return x.get().getPlayer().isPresent() || Nucleus.getNucleus().getUserDataManager().has(x.get()
+                                    .getUniqueId());
+                            /*if (!ret) {
                                 try {
                                     // Temporary until Data is hooked up properly, I hope.
                                     return x.get().get(JoinData.class).map(y -> y.firstPlayed().getDirect().isPresent()).orElse(false);
@@ -55,7 +55,7 @@ public class UniqueUserCountTransientModule extends TransientModule<ModularGener
                                 }
                             }
 
-                            return ret;
+                            return ret;*/
                         }).count();
                 this.userCountIsDirty = false;
                 if (resultConsumer != null) {
