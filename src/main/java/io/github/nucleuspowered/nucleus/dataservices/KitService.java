@@ -45,12 +45,12 @@ public class KitService extends AbstractService<KitConfigDataNode> {
                 .map(x -> new SingleKit(x.getKey(), x.getValue())).collect(Collectors.toList());
     }
 
-    public boolean addKit(Kit kit) {
-        if (this.data.getKits().keySet().stream().anyMatch(x -> kit.getName().equalsIgnoreCase(x))) {
+    public boolean addKit(String name, Kit kit) {
+        if (Util.getKeyIgnoreCase(this.data.getKits(), name).isPresent()) {
             return false;
         }
 
-        this.data.getKits().put(kit.getName(), new KitDataNode(
+        this.data.getKits().put(name, new KitDataNode(
                 kit.getStacks().stream().map(NucleusItemStackSnapshot::new).collect(Collectors.toList()),
                 kit.getCooldown().map(Duration::getSeconds).orElse(0L),
                 kit.getCost(),

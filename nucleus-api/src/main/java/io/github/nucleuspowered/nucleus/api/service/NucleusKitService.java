@@ -77,6 +77,15 @@ public interface NucleusKitService {
     boolean removeKit(String kitName);
 
     /**
+     * Renames a kit.
+     *
+     * @param kitName The name of the kit to rename
+     * @param newKitName The new name of the kit
+     * @throws IllegalArgumentException if either the kit or the target name are unavailable
+     */
+    void renameKit(String kitName, String newKitName) throws IllegalArgumentException;
+
+    /**
      * Saves a kit with the requested name.
      *
      * @param kitName The name of the kit to save.

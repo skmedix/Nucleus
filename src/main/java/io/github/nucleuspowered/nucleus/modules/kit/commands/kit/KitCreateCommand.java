@@ -50,7 +50,9 @@ public class KitCreateCommand extends KitFallbackBase<CommandSource> {
 
     @Override
     public CommandElement[] getArguments() {
-        return new CommandElement[] {GenericArguments.onlyOne(GenericArguments.string(Text.of(this.name)))};
+        return new CommandElement[] {
+                GenericArguments.onlyOne(GenericArguments.string(Text.of(this.name)))
+        };
     }
 
     @Override

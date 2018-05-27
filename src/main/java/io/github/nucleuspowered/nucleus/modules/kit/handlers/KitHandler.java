@@ -19,6 +19,7 @@ import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfig;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
@@ -54,7 +55,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class KitHandler implements NucleusKitService, Reloadable, InternalServiceManagerTrait {
+public class KitHandler implements NucleusKitService, Reloadable, InternalServiceManagerTrait, MessageProviderTrait {
 
     private static final InventoryTransactionResult EMPTY_ITR =
             InventoryTransactionResult.builder().type(InventoryTransactionResult.Type.SUCCESS).build();
@@ -208,10 +209,14 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
     }
 
     @Override
-    public synchronized void saveKit(Kit kit) {
+    public void saveKit(Kit kit) {
+        saveKit(kit.getName(), kit);
+    }
+
+    private synchronized void saveKitInternal(String name, Kit kit) {
         Preconditions.checkArgument(kit instanceof SingleKit);
-        Util.getKeyIgnoreCase(this.store.getKitNames(true), kit.getName()).ifPresent(this.store::removeKit);
-        this.store.addKit(kit);
+        Util.getKeyIgnoreCase(this.store.getKitNames(true), name).ifPresent(this.store::removeKit);
+        this.store.addKit(name, kit);
         this.store.save();
     }
 
@@ -222,6 +227,17 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
             throw new IllegalArgumentException("Kit " + name + " already exists!");
         });
         return new SingleKit(name);
+    }
+
+    @Override
+    public void renameKit(final String kitName, final String newKitName) throws IllegalArgumentException {
+        Kit targetKit = getKit(kitName).orElseThrow(() -> new IllegalArgumentException(getMessageString("kit.noexists", kitName)));
+        if (Util.getKeyIgnoreCase(getKitNames(), newKitName).isPresent()) {
+            throw new IllegalArgumentException(getMessageString("kit.cannotrename", kitName, newKitName));
+        }
+
+        saveKitInternal(newKitName, targetKit);
+        removeKit(kitName);
     }
 
     public Optional<Tuple<Kit, Inventory>> getCurrentlyOpenInventoryKit(Container inventory) {

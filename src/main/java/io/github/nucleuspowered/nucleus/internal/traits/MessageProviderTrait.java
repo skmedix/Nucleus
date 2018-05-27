@@ -6,12 +6,19 @@ package io.github.nucleuspowered.nucleus.internal.traits;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
+
+import java.util.Locale;
 
 public interface MessageProviderTrait {
 
     default MessageProvider getMessageProvider() {
         return Nucleus.getNucleus().getMessageProvider();
+    }
+
+    default String getMessageString(String key, String... replacements) {
+        return getMessageProvider().getMessageWithFormat(key, replacements);
     }
 
     default Text getMessage(String key) {
@@ -29,4 +36,30 @@ public interface MessageProviderTrait {
     default Text getMessage(String key, Object... replacements) {
         return getMessageProvider().getTextMessageWithFormat(key, replacements);
     }
+
+    // for future releases
+    default Text getMessageFor(Locale locale, String key, Object... replacements) {
+        return getMessage(key, replacements);
+    }
+
+    default Text getMessageFor(Locale locale, String key, Text... replacements) {
+        return getMessage(key, replacements);
+    }
+
+    default Text getMessageFor(Locale locale, String key, String... replacements) {
+        return getMessage(key, replacements);
+    }
+
+    default void sendMessageTo(CommandSource receiver, String key, Object... replacements) {
+        receiver.sendMessage(getMessageFor(receiver.getLocale(), key, replacements));
+    }
+
+    default void sendMessageTo(CommandSource receiver, String key, Text... replacements) {
+        receiver.sendMessage(getMessageFor(receiver.getLocale(), key, replacements));
+    }
+
+    default void sendMessageTo(CommandSource receiver, String key, String... replacements) {
+        receiver.sendMessage(getMessageFor(receiver.getLocale(), key, replacements));
+    }
+
 }
