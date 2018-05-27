@@ -38,6 +38,10 @@ public interface MessageProviderTrait {
     }
 
     // for future releases
+    default Text getMessageFor(Locale locale, String key) {
+        return getMessage(key);
+    }
+
     default Text getMessageFor(Locale locale, String key, Object... replacements) {
         return getMessage(key, replacements);
     }
@@ -48,6 +52,10 @@ public interface MessageProviderTrait {
 
     default Text getMessageFor(Locale locale, String key, String... replacements) {
         return getMessage(key, replacements);
+    }
+
+    default void sendMessageTo(CommandSource receiver, String key) {
+        receiver.sendMessage(getMessageFor(receiver.getLocale(), key));
     }
 
     default void sendMessageTo(CommandSource receiver, String key, Object... replacements) {
