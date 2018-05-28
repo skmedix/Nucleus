@@ -9,6 +9,7 @@ import io.github.nucleuspowered.nucleus.config.MessageConfig;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class ConfigMessageProvider extends ResourceMessageProvider {
@@ -16,7 +17,15 @@ public class ConfigMessageProvider extends ResourceMessageProvider {
     private final MessageConfig mc;
 
     public ConfigMessageProvider(Path file, String fallbackResource) throws Exception {
-        super(fallbackResource);
+        this(file, fallbackResource, Locale.getDefault());
+    }
+
+    public ConfigMessageProvider(Path file, String fallbackResource, String locale) throws Exception {
+        this(file, fallbackResource, Locale.forLanguageTag(locale));
+    }
+
+    private ConfigMessageProvider(Path file, String fallbackResource, Locale locale) throws Exception {
+        super(fallbackResource, locale);
         this.mc = new MessageConfig(file, new ResourceMessageProvider(this.rb));
     }
 

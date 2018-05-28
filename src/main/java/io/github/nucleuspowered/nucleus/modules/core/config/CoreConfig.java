@@ -73,6 +73,9 @@ public class CoreConfig {
     @Setting(value = "more-accurate-visitor-count", comment = "config.core.accurate")
     private boolean moreAccurate = false;
 
+    @Setting(value = "override-language", comment = "config.core.language")
+    private String serverLocale = "default";
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -147,5 +150,9 @@ public class CoreConfig {
 
     public boolean isMoreAccurate() {
         return this.moreAccurate;
+    }
+
+    public String getServerLocale() {
+        return serverLocale;
     }
 }

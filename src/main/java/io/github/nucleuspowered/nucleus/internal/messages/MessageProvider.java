@@ -17,6 +17,7 @@ import org.spongepowered.api.text.translation.Translatable;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -26,8 +27,16 @@ import java.util.stream.Collectors;
 
 public abstract class MessageProvider {
 
+    public abstract Locale getLocale();
+
     public abstract Optional<String> getMessageFromKey(String key);
     private final Map<String, TextTemplate> textTemplateMap = Maps.newHashMap();
+
+    public Locale setLocale(String string) {
+        return setLocale(Locale.forLanguageTag(string));
+    }
+
+    public abstract Locale setLocale(Locale locale);
 
     public String getMessageWithFormat(String key, String... substitutions) {
         try {

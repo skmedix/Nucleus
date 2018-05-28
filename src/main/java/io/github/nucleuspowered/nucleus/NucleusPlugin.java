@@ -211,6 +211,17 @@ public class NucleusPlugin extends Nucleus {
             s = new ClientMessageReciever();
         }
 
+        // From the config, get the `core.language` entry, if it exists.
+        HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder().setPath(Paths.get(this.configDir.toString(), "main.conf"));
+        try {
+            String language = builder.build().load().getNode("core", "language").getString("default");
+            if (!language.equalsIgnoreCase("default")) {
+                this.messageProvider.setLocale(language);
+            }
+        } catch (IOException e) {
+            // don't worry about it
+        }
+
         if (this.versionFail != null) {
             s.sendMessage(this.messageProvider.getTextMessageWithFormat("startup.nostart.compat", PluginInfo.NAME,
                     Sponge.getPlatform().getContainer(Platform.Component.IMPLEMENTATION).getName(),
@@ -281,7 +292,6 @@ public class NucleusPlugin extends Nucleus {
 
         try {
             final String he = this.messageProvider.getMessageWithFormat("config.main-header", PluginInfo.VERSION);
-            HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder();
             Optional<Asset> optionalAsset = Sponge.getAssetManager().getAsset(Nucleus.getNucleus(), "classes.json");
             DiscoveryModuleContainer.Builder db = DiscoveryModuleContainer.builder();
             if (optionalAsset.isPresent()) {
@@ -302,11 +312,7 @@ public class NucleusPlugin extends Nucleus {
                         .setStrategy(Strategy.DEFAULT);
             }
             this.moduleContainer = db
-                    .setConfigurationLoader(
-                        builder.setDefaultOptions(
-                                ConfigurateHelper.setOptions(builder.getDefaultOptions()).setHeader(he))
-                            .setPath(Paths.get(this.configDir.toString(), "main.conf"))
-                            .build())
+                    .setConfigurationLoader(builder.setDefaultOptions(ConfigurateHelper.setOptions(builder.getDefaultOptions()).setHeader(he)).build())
                     .setPackageToScan(getClass().getPackage().getName() + ".modules")
                     .setLoggerProxy(new NucleusLoggerProxy(this.logger))
                     .setConfigurationOptionsTransformer(x -> ConfigurateHelper.setOptions(x).setHeader(he))
@@ -420,6 +426,7 @@ public class NucleusPlugin extends Nucleus {
         registerReloadable(CommandPermissionHandler::onReload);
         getDocGenCache().ifPresent(x -> x.addTokenDocs(this.nucleusChatService.getNucleusTokenParser().getTokenNames()));
 
+        logMessageDefault();
         this.logger.info(this.messageProvider.getMessageWithFormat("startup.moduleloaded", PluginInfo.NAME));
         registerPermissions();
         Sponge.getEventManager().post(new BaseModuleEvent.Complete(this));
@@ -651,12 +658,24 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    @Override public boolean reloadMessages() {
+    @Override
+    public boolean reloadMessages() {
         boolean r = true;
-        if (getConfigValue("core", CoreConfigAdapter.class, CoreConfig::isCustommessages).orElse(false)) {
+        CoreConfig config = getInternalServiceManager().getServiceUnchecked(CoreConfigAdapter.class).getNodeOrDefault();
+        // Get the language
+        String language = config.getServerLocale();
+        if (language == null) {
+            language = "default";
+        }
+
+        if (config.isCustommessages()) {
             try {
-                this.messageProvider = new ConfigMessageProvider(this.configDir.resolve("messages.conf"), ResourceMessageProvider.messagesBundle);
-                this.commandMessageProvider = new ConfigMessageProvider(this.configDir.resolve("command-help-messages.conf"), ResourceMessageProvider.commandMessagesBundle);
+                this.messageProvider =
+                        new ConfigMessageProvider(this.configDir.resolve("messages.conf"), ResourceMessageProvider.messagesBundle, language);
+                this.commandMessageProvider =
+                        new ConfigMessageProvider(this.configDir.resolve("command-help-messages.conf"),
+                                ResourceMessageProvider.commandMessagesBundle, language);
+                Sponge.getServer().getConsole().sendMessage(this.messageProvider.getTextMessageWithFormat("language.set", "messages.conf"));
                 return true;
             } catch (Throwable exception) {
                 r = false;
@@ -685,9 +704,16 @@ public class NucleusPlugin extends Nucleus {
             }
         }
 
-        this.messageProvider = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
-        this.commandMessageProvider = new ResourceMessageProvider(ResourceMessageProvider.commandMessagesBundle);
+        this.messageProvider = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle, language);
+        this.commandMessageProvider = new ResourceMessageProvider(ResourceMessageProvider.commandMessagesBundle, language);
+        if (this.hasStarted) {
+            logMessageDefault();
+        }
         return r;
+    }
+
+    private void logMessageDefault() {
+        this.logger.info(this.messageProvider.getMessageWithFormat("language.set", this.messageProvider.getLocale().toLanguageTag()));
     }
 
     @Override
