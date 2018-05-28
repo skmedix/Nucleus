@@ -43,7 +43,7 @@ allprojects {
 project.ext.versionno = '1.4.0'
 project.ext.minecraftversion = '1.12.2'
 project.ext.spongeapiversion = '7.0'
-project.ext.suffix = '-SNAPSHOT'
+project.ext.suffix = '-PR1'
 project.ext.hash = ''
 
 String docVer
@@ -331,7 +331,7 @@ if (!project.hasProperty("nosign")) {
         oreDeploy.setChannel(project.properties.get("oreDeploy.channel").toString())
     } else if (project.properties.containsKey("oreDeploy.select")) {
         if (isPR) {
-            oreDeploy.setChannel("pre-release")
+            oreDeploy.setChannel("prerelease")
         } else if (isSnapshot) {
             oreDeploy.setChannel("testing")
         } else {
