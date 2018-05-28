@@ -43,7 +43,7 @@ allprojects {
 project.ext.versionno = '1.4.0'
 project.ext.minecraftversion = '1.12.2'
 project.ext.spongeapiversion = '7.0'
-project.ext.suffix = '-PR1'
+project.ext.suffix = '-SNAPSHOT'
 project.ext.hash = ''
 
 String docVer
@@ -248,10 +248,10 @@ task relnotes {
                     .replace('{{sponge}}', project.ext.spongeapiversion)
         } else {
             String contents
-            if (isMajor) {
-                contents = new File('changelogs/templates/release-big.md').getText("UTF-8")
-            } else if (isPR) {
+            if (isPR) {
                 contents = new File('changelogs/templates/release-pr.md').getText("UTF-8")
+            } else if (isMajor) {
+                contents = new File('changelogs/templates/release-big.md').getText("UTF-8")
             } else {
                 contents = new File('changelogs/templates/release.md').getText("UTF-8")
             }
