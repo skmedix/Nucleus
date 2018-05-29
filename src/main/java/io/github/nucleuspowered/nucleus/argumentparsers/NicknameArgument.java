@@ -222,9 +222,13 @@ public class  NicknameArgument<T extends User> extends CommandElement {
         public List<?> accept(String s, CommandSource cs, CommandArgs a) throws ArgumentParseException {
             UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
             if (this.onlyOne) {
-                return Lists.newArrayList(uss.get(s)
-                        .orElseThrow(
-                                () -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
+                try {
+                    return Lists.newArrayList(uss.get(s)
+                            .orElseThrow(
+                                    () -> a.createError(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.toomany", s))));
+                } catch (IllegalArgumentException e) {
+                    // ignored
+                }
             }
 
             List<User> users = uss.match(s)
