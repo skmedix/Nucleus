@@ -210,7 +210,7 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
 
     @Override
     public void saveKit(Kit kit) {
-        saveKit(kit.getName(), kit);
+        saveKitInternal(kit.getName(), kit);
     }
 
     private synchronized void saveKitInternal(String name, Kit kit) {
