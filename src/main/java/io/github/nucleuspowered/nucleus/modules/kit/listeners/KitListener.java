@@ -84,6 +84,7 @@ public class KitListener implements Reloadable, ListenerBase {
                     gds.save();
                     player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.edit.success", x.getFirst().getName()));
                     handler.removeKitInventoryFromListener(inventory);
+                    return;
                 }
             } catch (Exception e) {
                 if (Nucleus.getNucleus().isDebugMode()) {
@@ -95,7 +96,11 @@ public class KitListener implements Reloadable, ListenerBase {
         });
 
         if (handler.isViewer(inventory)) {
-            event.setCancelled(true);
+            if (event instanceof InteractInventoryEvent.Close) {
+                this.handler.removeViewer(inventory);
+            } else {
+                event.setCancelled(true);
+            }
         }
     }
 
