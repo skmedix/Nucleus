@@ -342,7 +342,6 @@ if (!project.hasProperty("nosign")) {
         oreDeploy.setChannel("testing")
     }
 
-    oreDeploy.setRecommended(project.properties.containsKey("oreDeploy.recommended"))
     oreDeploy.setDeploy(project.configurations.shadow) // yet another hack
 
 }
