@@ -39,11 +39,14 @@ import org.spongepowered.api.util.Tuple;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -146,7 +149,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
         // Check AFK status.
         entries.stream().filter(x -> !x.getValue().isKnownAfk && x.getValue().timeToAfk > 0).forEach(e -> {
             if (now - e.getValue().lastActivityTime  > e.getValue().timeToAfk) {
-                Sponge.getServer().getPlayer(e.getKey()).ifPresent(this::setAfk);
+                Sponge.getServer().getPlayer(e.getKey()).ifPresent(this::setAfkInternal);
             }
         });
     }
@@ -155,19 +158,15 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
         this.data.forEach((k, v) -> v.cacheValid = false);
     }
 
-    public boolean isAfk(Player player) {
-        return isAfk(player.getUniqueId());
-    }
-
-    public boolean isAfk(UUID uuid) {
+    public boolean isAFK(UUID uuid) {
         return this.data.containsKey(uuid) && this.data.get(uuid).isKnownAfk;
     }
 
-    public boolean setAfk(Player player) {
-        return setAfk(player, CauseStackHelper.createCause(player), false);
+    public boolean setAfkInternal(Player player) {
+        return setAfkInternal(player, CauseStackHelper.createCause(player), false);
     }
 
-    public boolean setAfk(Player player, Cause cause, boolean force) {
+    public boolean setAfkInternal(Player player, Cause cause, boolean force) {
         if (!player.isOnline()) {
             return false;
         }
@@ -241,7 +240,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
         } else {
             // Tell the user in question about them going AFK
             // player.sendMessage(
-            //        NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat(isAfk ? "command.afk.to.vanish" : "command.afk.from.vanish"));
+            //        NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat(isAFK ? "command.afk.to.vanish" : "command.afk.from.vanish"));
             return Tuple.of(Text.EMPTY, MessageChannel.TO_NONE);
         }
     }
@@ -251,7 +250,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
     }
 
     @Override public boolean isAFK(Player player) {
-        return this.data.computeIfAbsent(player.getUniqueId(), AFKData::new).isKnownAfk;
+        return isAFK(player.getUniqueId());
     }
 
     @Override public boolean setAFK(Cause cause, Player player, boolean isAfk) {
@@ -263,7 +262,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
         }
 
         if (isAfk) {
-            return setAfk(player, cause, false);
+            return setAfkInternal(player, cause, false);
         } else {
             return !updateActivity(player.getUniqueId(), data, cause).isKnownAfk;
         }
@@ -331,12 +330,25 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
         return data;
     }
 
+    public Collection<Player> getAfk() {
+        return getAfk(x -> true);
+    }
+
+    public Collection<Player> getAfk(Predicate<Player> filter) {
+        return this.data.entrySet().stream()
+                .filter(x -> x.getValue().isKnownAfk)
+                .map(x -> Sponge.getServer().getPlayer(x.getKey()).orElse(null))
+                .filter(Objects::nonNull)
+                .filter(filter)
+                .collect(Collectors.toList());
+    }
+
     class AFKData {
 
         private final UUID uuid;
 
         private long lastActivityTime = System.currentTimeMillis();
-        private boolean isKnownAfk = false;
+        boolean isKnownAfk = false;
         private boolean willKick = false;
 
         private boolean cacheValid = false;

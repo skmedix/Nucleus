@@ -34,12 +34,13 @@ import java.util.Map;
 public class AFKCommand extends AbstractCommand<Player> {
 
     private final AFKHandler afkHandler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKHandler.class);
+    static final String KICK_EXEMPT_SUFFIX = "exempt.kick";
 
     @Override
     protected Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
         m.put("exempt.toggle", PermissionInformation.getWithTranslation("permission.afk.exempt.toggle", SuggestedLevel.NONE));
-        m.put("exempt.kick", PermissionInformation.getWithTranslation("permission.afk.exempt.kick", SuggestedLevel.ADMIN));
+        m.put(KICK_EXEMPT_SUFFIX, PermissionInformation.getWithTranslation("permission.afk.exempt.kick", SuggestedLevel.ADMIN));
         m.put("notify", PermissionInformation.getWithTranslation("permission.afk.notify", SuggestedLevel.ADMIN));
         return m;
     }
@@ -50,11 +51,11 @@ public class AFKCommand extends AbstractCommand<Player> {
             throw ReturnMessageException.fromKey("command.afk.exempt");
         }
 
-        boolean isAFK = this.afkHandler.isAfk(src);
+        boolean isAFK = this.afkHandler.isAFK(src);
 
         if (isAFK) {
             this.afkHandler.stageUserActivityUpdate(src);
-        } else if (!this.afkHandler.setAfk(src, CauseStackHelper.createCause(src), true)) {
+        } else if (!this.afkHandler.setAfkInternal(src, CauseStackHelper.createCause(src), true)) {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.afk.notset"));
         }
 

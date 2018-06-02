@@ -188,7 +188,7 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                 .sorted((x, y) -> x.getName().compareToIgnoreCase(y.getName())).map(x -> {
                     Text.Builder tb = Text.builder();
                     boolean appendSpace = false;
-                    if (this.handler != null && this.handler.isAfk(x)) {
+                    if (this.handler != null && this.handler.isAFK(x)) {
                         tb.append(this.afk);
                         appendSpace = true;
                     }
