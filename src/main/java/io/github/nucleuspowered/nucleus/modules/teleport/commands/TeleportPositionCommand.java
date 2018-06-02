@@ -4,10 +4,10 @@
  */
 package io.github.nucleuspowered.nucleus.modules.teleport.commands;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.BoundedDoubleArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -67,9 +67,7 @@ public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
                             GenericArguments.optionalWeak(
                                     GenericArguments.requiringPermission(NucleusParameters.ONE_PLAYER, this.permissions.getOthers())),
                             GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.world(Text.of(this.location)))),
-                            GenericArguments.onlyOne(new BoundedDoubleArgument(Text.of(this.x), Integer.MIN_VALUE, Integer.MAX_VALUE)),
-                            GenericArguments.onlyOne(new BoundedDoubleArgument(Text.of(this.y), 0, 255)),
-                            GenericArguments.onlyOne(new BoundedDoubleArgument(Text.of(this.z), Integer.MIN_VALUE, Integer.MAX_VALUE))
+                            NucleusParameters.POSITION
                         )
                 )
         };
@@ -87,10 +85,11 @@ public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
         Player pl = this.getUserFromArgs(Player.class, src, NucleusParameters.Keys.PLAYER, args);
         WorldProperties wp = args.<WorldProperties>getOne(this.location).orElse(pl.getWorld().getProperties());
         World world = Sponge.getServer().loadWorld(wp.getUniqueId()).get();
+        Vector3d location = args.<Vector3d>getOne(NucleusParameters.Keys.XYZ).get();
 
-        double xx = args.<Double>getOne(this.x).get();
-        double  zz = args.<Double>getOne(this.z).get();
-        double  yy = args.<Double>getOne(this.y).get();
+        double xx = location.getX();
+        double  zz = location.getZ();
+        double  yy = location.getY();
         if (yy < 0) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tppos.ysmall"));
             return CommandResult.empty();

@@ -5,6 +5,7 @@
 package io.github.nucleuspowered.nucleus.internal.command;
 
 import static io.github.nucleuspowered.nucleus.internal.command.NucleusParameters.Keys.WORLD;
+import static io.github.nucleuspowered.nucleus.internal.command.NucleusParameters.Keys.XYZ;
 
 import io.github.nucleuspowered.nucleus.argumentparsers.GameProfileArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
@@ -32,6 +33,7 @@ public class NucleusParameters {
         public static final String COMMAND = "command";
         public static final String DESCRIPTION = "description";
         public static final String DURATION = "duration";
+        public static final String LOCATION = "location";
         public static final String LORE = "lore";
         public static final String MESSAGE = "message";
         public static final String PLAYER = "player";
@@ -41,6 +43,7 @@ public class NucleusParameters {
         public static final String USER = "user";
         public static final String USER_UUID = "user uuid";
         public static final String WORLD = "world";
+        public static final String XYZ = "x y z";
     }
 
     private NucleusParameters() {} // entirely static
@@ -137,4 +140,6 @@ public class NucleusParameters {
     public static final CommandElement OPTIONAL_DURATION = GenericArguments.optional(DURATION);
 
     public static final CommandElement OPTIONAL_WEAK_DURATION = GenericArguments.optionalWeak(DURATION);
+
+    public static final CommandElement POSITION = GenericArguments.onlyOne(GenericArguments.vector3d(Text.of(XYZ)));
 }
