@@ -88,10 +88,14 @@ public class UnloadWorldCommand extends AbstractCommand<CommandSource> {
                 Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.unload.players", worldProperties.getWorldName()));
     }
 
+    @SuppressWarnings("ConstantConditions")
     private static void disable(WorldProperties worldProperties, CommandSource sender, MessageProvider provider, boolean messageOnError) {
         if (worldProperties.isEnabled()) {
-            worldProperties.setEnabled(false);
-            sender.sendMessage(provider.getTextMessageWithFormat("command.world.disable.success", worldProperties.getWorldName()));
+            try {
+                DisableWorldCommand.disableWorld(sender, worldProperties);
+            } catch (ReturnMessageException e) {
+                sender.sendMessage(e.getText());
+            }
         } else if (messageOnError) {
             sender.sendMessage(provider.getTextMessageWithFormat("command.world.disable.alreadydisabled", worldProperties.getWorldName()));
         }

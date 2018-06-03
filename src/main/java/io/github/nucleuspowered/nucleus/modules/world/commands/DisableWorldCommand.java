@@ -46,6 +46,11 @@ public class DisableWorldCommand extends AbstractCommand<CommandSource> {
                     Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.disable.warnloaded", worldProperties.getWorldName()));
         }
 
+        disableWorld(src, worldProperties);
+        return CommandResult.success();
+    }
+
+    static void disableWorld(CommandSource src, WorldProperties worldProperties) throws ReturnMessageException {
         worldProperties.setEnabled(false);
         if (worldProperties.isEnabled()) {
             throw new ReturnMessageException(
@@ -53,6 +58,5 @@ public class DisableWorldCommand extends AbstractCommand<CommandSource> {
         }
 
         src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.disable.success", worldProperties.getWorldName()));
-        return CommandResult.success();
     }
 }
