@@ -52,6 +52,7 @@ public class GenerateChunksCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
                 GenericArguments.flags()
                     .flag("a")
+                    .flag("r")
                     .valueFlag(new TimespanArgument(Text.of(saveTimeKey)), "-save")
                     .valueFlag(new BoundedIntegerArgument(Text.of(ticksKey), 0, 100), "t", "-tickpercent")
                     .valueFlag(new BoundedIntegerArgument(Text.of(tickFrequency), 1, 100), "f", "-frequency")
@@ -72,7 +73,8 @@ public class GenerateChunksCommand extends AbstractCommand<CommandSource> {
                 args.hasAny("a"),
                 args.<Long>getOne(Text.of(GenerateChunksCommand.saveTimeKey)).orElse(20L) * 1000L,
                 args.<Integer>getOne(ticksKey).orElse(null),
-                args.<Integer>getOne(tickFrequency).orElse(null));
+                args.<Integer>getOne(tickFrequency).orElse(null),
+                args.hasAny("r"));
 
         src.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.gen.started", wp.getWorldName()));
 

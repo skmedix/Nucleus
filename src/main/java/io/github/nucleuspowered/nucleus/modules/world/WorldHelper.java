@@ -8,10 +8,12 @@ import com.flowpowered.math.GenericMath;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
+import io.github.nucleuspowered.nucleus.dataservices.modular.ModularWorldService;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.modules.world.commands.border.GenerateChunksCommand;
 import io.github.nucleuspowered.nucleus.modules.world.config.WorldConfig;
 import io.github.nucleuspowered.nucleus.modules.world.config.WorldConfigAdapter;
+import io.github.nucleuspowered.nucleus.modules.world.datamodules.WorldgenWorldDataModule;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.spongepowered.api.event.world.ChunkPreGenerationEvent;
 import org.spongepowered.api.text.Text;
@@ -40,8 +42,6 @@ public class WorldHelper implements Reloadable {
     private static final String notifyPermission = Nucleus.getNucleus().getPermissionRegistry()
         .getPermissionsForNucleusCommand(GenerateChunksCommand.class).getPermissionWithSuffix("notify");
 
-    private final Nucleus plugin = Nucleus.getNucleus();
-
     private final Map<UUID, ChunkPreGenerate> pregen = Maps.newHashMap();
 
     public boolean isPregenRunningForWorld(UUID uuid) {
@@ -57,7 +57,8 @@ public class WorldHelper implements Reloadable {
         this.timeToNotify = config.getNotificationInterval() * 1000L;
     }
 
-    public boolean startPregenningForWorld(World world, boolean aggressive, long saveTime, @Nullable Integer tickPercent, @Nullable Integer tickFrequency) {
+    public boolean startPregenningForWorld(World world, boolean aggressive, long saveTime, @Nullable Integer tickPercent,
+            @Nullable Integer tickFrequency, boolean onRestart) {
         cleanup();
         if (!isPregenRunningForWorld(world.getUniqueId())) {
             WorldProperties wp = world.getProperties();
@@ -69,10 +70,24 @@ public class WorldHelper implements Reloadable {
 
             if (tickPercent != null) {
                 wbcp.tickPercentLimit(Math.max(0f, Math.min(tickPercent / 100.0f, 1f)));
+            } else {
+                tickPercent = aggressive ? 90 : 80;
             }
 
             if (tickFrequency != null) {
                 wbcp.tickInterval(Math.max(1, tickFrequency));
+            } else {
+                tickFrequency = 4;
+            }
+
+            if (onRestart) {
+                ModularWorldService service = Nucleus.getNucleus().getWorldDataManager().get(world.getUniqueId(), true).get();
+                WorldgenWorldDataModule module = service.get(WorldgenWorldDataModule.class);
+                module.setStart(true).setAggressive(aggressive).setSaveTime(saveTime)
+                        .setTickFreq(tickFrequency)
+                        .setTickPercent(tickPercent);
+                service.set(module);
+                service.save();
             }
 
             this.pregen.put(world.getUniqueId(), wbcp.start());
@@ -195,6 +210,9 @@ public class WorldHelper implements Reloadable {
                         DurationFormatUtils.formatDuration(this.time, TIME_FORMAT, false),
                         DurationFormatUtils.formatDuration(cpg.getTotalTime().toMillis(), TIME_FORMAT, false)
                     ));
+                ModularWorldService m = Nucleus.getNucleus().getWorldDataManager().getWorld(event.getTargetWorld()).get();
+                m.set(m.get(WorldgenWorldDataModule.class).setStart(false));
+                m.save();
             }
         }
 

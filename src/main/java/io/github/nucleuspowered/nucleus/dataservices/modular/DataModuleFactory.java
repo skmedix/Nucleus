@@ -14,12 +14,12 @@ import io.github.nucleuspowered.nucleus.modules.fly.datamodules.FlyUserDataModul
 import io.github.nucleuspowered.nucleus.modules.freezeplayer.datamodules.FreezePlayerUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.home.datamodules.HomeUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.ignore.datamodules.IgnoreUserDataModule;
+import io.github.nucleuspowered.nucleus.modules.invulnerability.datamodules.InvulnerabilityUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.jail.datamodules.JailGeneralDataModule;
 import io.github.nucleuspowered.nucleus.modules.jail.datamodules.JailUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.mail.datamodules.MailUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.message.datamodules.MessageUserDataModule;
-import io.github.nucleuspowered.nucleus.modules.invulnerability.datamodules.InvulnerabilityUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.mute.datamodules.MuteUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.nickname.datamodules.NicknameUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.note.datamodules.NoteUserDataModule;
@@ -32,6 +32,7 @@ import io.github.nucleuspowered.nucleus.modules.teleport.datamodules.TeleportUse
 import io.github.nucleuspowered.nucleus.modules.vanish.datamodules.VanishUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.warn.datamodules.WarnUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.warp.datamodules.WarpGeneralDataModule;
+import io.github.nucleuspowered.nucleus.modules.world.datamodules.WorldgenWorldDataModule;
 
 import java.util.Map;
 import java.util.Optional;
@@ -69,6 +70,7 @@ final class DataModuleFactory {
 
         world.put(EnvironmentWorldDataModule.class, x -> new EnvironmentWorldDataModule());
         world.put(SpawnWorldDataModule.class, x -> new SpawnWorldDataModule());
+        world.put(WorldgenWorldDataModule.class, x -> new WorldgenWorldDataModule());
 
         usert.put(BackUserTransientModule.class, x -> new BackUserTransientModule());
         usert.put(StaffChatTransientModule.class, x -> new StaffChatTransientModule());
