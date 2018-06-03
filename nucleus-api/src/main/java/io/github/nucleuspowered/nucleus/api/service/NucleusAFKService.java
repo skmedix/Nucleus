@@ -12,6 +12,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -26,6 +27,13 @@ public interface NucleusAFKService {
      * @return Whether or not the player can go AFK.
      */
     boolean canGoAFK(User user);
+
+    /**
+     * Returns a collection of players who are currently AFK.
+     *
+     * @return A {@link Collection} of {@link Player}s
+     */
+    Collection<Player> getAfk();
 
     /**
      * Returns whether a player is AFK

@@ -330,6 +330,7 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
         return data;
     }
 
+    @Override
     public Collection<Player> getAfk() {
         return getAfk(x -> true);
     }
