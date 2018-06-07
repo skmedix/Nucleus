@@ -40,10 +40,10 @@ allprojects {
     apply plugin: 'java'
 }
 
-project.ext.versionno = '1.4.1'
+project.ext.versionno = '1.4.2'
 project.ext.minecraftversion = '1.12.2'
 project.ext.spongeapiversion = '7.0'
-project.ext.suffix = ''
+project.ext.suffix = '-SNAPSHOT'
 project.ext.hash = ''
 
 String docVer
