@@ -47,7 +47,7 @@ public abstract class MarkdownGenerator<T> {
             lhm.put("Command", t -> "`/" + t.getCommandName() + "`");
             lhm.put("Permission", x -> {
                 if (!x.getPermissionbase().isEmpty()) {
-                    return x.getPermissionbase().concat("base");
+                    return x.getPermissionbase().concat(".base");
                 }
 
                 return "";
