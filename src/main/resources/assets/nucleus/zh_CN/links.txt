@@ -2,5 +2,4 @@
 您可以在此添加不同类型的链接以丰富信息文件。
 
 * &a[这个链接指向Nucleus官网。点我！](http://nucleuspowered.org)
-* &a[汉化不准确？点我汇报！](http://www.mcbbs.net/thread-784689-1-1.html)
 * &b[这将执行规则指令](/rules)
