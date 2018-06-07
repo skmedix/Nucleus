@@ -675,6 +675,10 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
         return this.commandPath;
     }
 
+    public String getConfigSection() {
+        return this.configSection;
+    }
+
     /**
      * Gets the description for the command.
      *

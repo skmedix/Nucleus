@@ -69,7 +69,7 @@ public class CommandBuilder {
         // If we are using DocGen, add the command information to the system.
         this.plugin.getDocGenCache().ifPresent(x -> x.addCommand(this.moduleID, c));
 
-        String commandSection = c.getAliases()[0].toLowerCase();
+        String commandSection = c.getConfigSection();
         this.sn.getNode(commandSection).setValue(c.getDefaults());
 
         if (this.plugin.getCommandsConfig().getCommandNode(commandSection).getNode("enabled").getBoolean(true)) {
