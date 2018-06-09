@@ -65,6 +65,7 @@ import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.core.config.WarmupConfig;
 import io.github.nucleuspowered.nucleus.modules.core.datamodules.UniqueUserCountTransientModule;
 import io.github.nucleuspowered.nucleus.modules.core.service.UUIDChangeService;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
@@ -114,6 +115,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
@@ -159,6 +161,8 @@ public class NucleusPlugin extends Nucleus {
     private final Logger logger;
     private final Path configDir;
     private final Supplier<Path> dataDir;
+    @Nullable private Path dataFileLocation = null;
+    private Path currentDataDir;
     private boolean isServer = false;
     private WarmupConfig warmupConfig;
     private final String versionFail;
@@ -191,11 +195,11 @@ public class NucleusPlugin extends Nucleus {
         this.configDir = configDir.resolve(PluginInfo.ID);
         Supplier<Path> sp;
         try {
-            Path path = Sponge.getGame().getSavesDirectory().resolve("nucleus");
+            Path path = Sponge.getGame().getSavesDirectory();
             sp = () -> path;
             this.isServer = true;
         } catch (NullPointerException e) {
-            sp = () -> Sponge.getGame().getSavesDirectory().resolve("nucleus");
+            sp = () -> Sponge.getGame().getSavesDirectory();
         }
 
         this.dataDir = sp;
@@ -215,9 +219,15 @@ public class NucleusPlugin extends Nucleus {
         // From the config, get the `core.language` entry, if it exists.
         HoconConfigurationLoader.Builder builder = HoconConfigurationLoader.builder().setPath(Paths.get(this.configDir.toString(), "main.conf"));
         try {
-            String language = builder.build().load().getNode("core", "language").getString("default");
+            CommentedConfigurationNode node = builder.build().load();
+            String language = node.getNode("core", "language").getString("default");
             if (!language.equalsIgnoreCase("default")) {
                 this.messageProvider.setLocale(language);
+            }
+
+            String location = node.getNode("core", "data-file-location").getString("default");
+            if (!location.equalsIgnoreCase("default")) {
+                this.dataFileLocation = Paths.get(location);
             }
         } catch (IOException e) {
             // don't worry about it
@@ -444,7 +454,7 @@ public class NucleusPlugin extends Nucleus {
     public void onGameStartingEarly(GameStartingServerEvent event) {
         if (!this.isServer) {
             try {
-                Files.createDirectories(this.dataDir.get());
+                this.logger.info(this.messageProvider.getMessageWithFormat("startup.loaddata", PluginInfo.NAME));
                 allChange();
             } catch (IOException e) {
                 this.isErrored = e;
@@ -454,7 +464,8 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    private void allChange() {
+    private void allChange() throws IOException {
+        resetDataPath(true);
         this.generalService.changeFile();
         this.kitService.changeFile();
         this.nameBanService.changeFile();
@@ -603,14 +614,56 @@ public class NucleusPlugin extends Nucleus {
         return this.configDir;
     }
 
-    @Override
-    public Path getDataPath() {
-        return this.dataDir.get();
+    private Path resetDataPath(boolean tryCreate) throws IOException {
+        Path path;
+        boolean custom = false;
+        if (this.dataFileLocation == null) {
+            path = this.dataDir.get();
+        } else {
+            custom = true;
+            if (this.dataFileLocation.isAbsolute()) {
+                path = this.dataFileLocation;
+            } else {
+                path = this.dataDir.get().resolve(this.dataFileLocation);
+            }
+
+            if (!Files.isDirectory(path)) {
+                // warning
+                this.logger.error(getMessageProvider().getMessageWithFormat("nucleus.custompath.error",
+                        path.toAbsolutePath().toString(),
+                        this.dataDir.get().toAbsolutePath().toString()));
+                custom = false;
+                path = this.dataDir.get();
+            }
+        }
+
+        this.currentDataDir = path.resolve("nucleus");
+        if (tryCreate) {
+            if (custom) {
+                this.logger.info(getMessageProvider().getMessageWithFormat("nucleus.custompath.info",
+                        this.currentDataDir.toAbsolutePath().toString()));
+            }
+            Files.createDirectories(this.currentDataDir);
+        }
+        return this.currentDataDir;
     }
 
     @Override
-    public Supplier<Path> getDataPathSupplier() {
-        return this.dataDir;
+    @Nonnull
+    public Path getDataPath() {
+        if (this.currentDataDir == null) {
+            try {
+                return resetDataPath(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                this.logger.error(getMessageProvider().getMessageWithFormat("nucleus.couldntcreate"));
+                try {
+                    return resetDataPath(false);
+                } catch (IOException ignored) { }
+            }
+        }
+
+        return this.currentDataDir;
     }
 
     @Override

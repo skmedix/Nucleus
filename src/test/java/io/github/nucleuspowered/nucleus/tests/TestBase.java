@@ -48,7 +48,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public abstract class TestBase {
 
@@ -118,10 +117,6 @@ public abstract class TestBase {
         }
 
         @Override public Path getDataPath() {
-            return null;
-        }
-
-        @Override public Supplier<Path> getDataPathSupplier() {
             return null;
         }
 

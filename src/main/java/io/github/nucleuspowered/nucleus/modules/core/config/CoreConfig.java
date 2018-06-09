@@ -76,6 +76,9 @@ public class CoreConfig {
     @Setting(value = "override-language", comment = "config.core.language")
     private String serverLocale = "default";
 
+    @Setting(value = "data-file-location", comment = "config.core.datafilelocation")
+    private String dataFileLocation = "default";
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -153,6 +156,6 @@ public class CoreConfig {
     }
 
     public String getServerLocale() {
-        return serverLocale;
+        return this.serverLocale;
     }
 }
