@@ -30,7 +30,6 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.mutable.entity.JoinData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
@@ -152,18 +151,17 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
                                 .withLocale(src.getLocale())
                                 .withZone(ZoneId.systemDefault()).format(x))));
 
+                user.get(Keys.LAST_DATE_PLAYED).ifPresent(x -> messages.add(messageProvider.getTextMessageWithFormat("command.seen.lastplayed",
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                                .withLocale(src.getLocale())
+                                .withZone(ZoneId.systemDefault()).format(x))));
+
+
                 Optional<Location<World>> olw = coreUserDataModule.getLogoutLocation();
 
                 olw.ifPresent(worldLocation -> messages
                     .add(getLocationString("command.seen.lastlocation", worldLocation, src)));
 
-                user.get(JoinData.class).ifPresent(x -> {
-                    Optional<Instant> oi = x.firstPlayed().getDirect();
-                    oi.ifPresent(instant -> messages.add(messageProvider.getTextMessageWithFormat("command.seen.firstplayed",
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                            .withLocale(src.getLocale())
-                            .withZone(ZoneId.systemDefault()).format(instant))));
-                });
             }
         }
 
