@@ -14,8 +14,8 @@ import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEq
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
-import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfig;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusHelpOpEvent;
 import io.github.nucleuspowered.nucleus.util.PermissionMessageChannel;
@@ -30,6 +30,8 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 @RunAsync
 @Permissions(suggestedLevel = SuggestedLevel.USER)
 @RegisterCommand({"helpop"})
@@ -37,14 +39,12 @@ import java.util.Map;
 @NonnullByDefault
 public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable {
 
-    private final String messageKey = "message";
-
-    private MessageConfig messageConfig = new MessageConfig();
+    @Nullable private NucleusTextTemplateImpl prefix = null;
 
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-                NucleusParameters.LORE
+                NucleusParameters.MESSAGE
         };
     }
 
@@ -57,7 +57,7 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) {
-        String message = args.<String>getOne(this.messageKey).get();
+        String message = args.<String>getOne(NucleusParameters.Keys.REASON).get();
 
         // Message is about to be sent. Send the event out. If canceled, then
         // that's that.
@@ -66,7 +66,7 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
             return CommandResult.empty();
         }
 
-        Text prefix = this.messageConfig.getHelpOpPrefix().getForCommandSource(src);
+        Text prefix = this.prefix == null ? Text.EMPTY : this.prefix.getForCommandSource(src);
 
         new PermissionMessageChannel(this.permissions.getPermissionWithSuffix("receive"))
                 .send(src, TextParsingUtils.joinTextsWithColoursFlowing(prefix, Text.of(message)));
@@ -77,6 +77,6 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
     }
 
     @Override public void onReload() {
-        this.messageConfig = getServiceUnchecked(MessageConfigAdapter.class).getNodeOrDefault();
+        this.prefix = getServiceUnchecked(MessageConfigAdapter.class).getNodeOrDefault().getHelpOpPrefix();
     }
 }
