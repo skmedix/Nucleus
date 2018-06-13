@@ -57,7 +57,7 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
 
     @Override
     public CommandResult executeCommand(Player src, CommandContext args) {
-        String message = args.<String>getOne(NucleusParameters.Keys.REASON).get();
+        String message = args.<String>getOne(NucleusParameters.Keys.MESSAGE).get();
 
         // Message is about to be sent. Send the event out. If canceled, then
         // that's that.
