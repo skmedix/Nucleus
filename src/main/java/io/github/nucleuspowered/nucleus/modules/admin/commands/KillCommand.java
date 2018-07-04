@@ -9,7 +9,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.command.NucleusParameters;
-import io.github.nucleuspowered.nucleus.internal.command.ReturnMessageException;
 import io.github.nucleuspowered.nucleus.internal.docgen.annotations.EssentialsEquivalent;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -20,8 +19,6 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.gamemode.GameMode;
-import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Collection;
@@ -47,18 +44,6 @@ public class KillCommand extends AbstractCommand<CommandSource> {
         int entityKillCount = 0;
         int playerKillCount = 0;
         for (Entity x : entities) {
-            if (x instanceof Player) {
-                Player pl = (Player)x;
-                GameMode gm = pl.gameMode().getDirect().orElseGet(() -> pl.gameMode().getDefault());
-                if (gm != GameModes.SURVIVAL && gm != GameModes.NOT_SET) {
-                    if (entities.size() == 1) {
-                        throw ReturnMessageException.fromKey("command.kill.wronggm", pl.getName());
-                    } else {
-                        continue;
-                    }
-                }
-            }
-
             DataTransactionResult dtr = x.offer(Keys.HEALTH, 0d);
             if (!dtr.isSuccessful() && !(x instanceof Living)) {
                 x.remove();
