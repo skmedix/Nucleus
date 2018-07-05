@@ -37,7 +37,7 @@ public class FirstSpawnCommand extends AbstractCommand<Player> implements Reload
             return CommandResult.empty();
         }
 
-        if (Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, olwr.get(), this.isSafeTeleport).isSuccess()) {
+        if (Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, olwr.get(), this.isSafeTeleport, true).isSuccess()) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.firstspawn.success"));
             return CommandResult.success();
         }

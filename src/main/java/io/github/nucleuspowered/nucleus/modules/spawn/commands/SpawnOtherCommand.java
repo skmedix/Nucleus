@@ -92,7 +92,8 @@ public class SpawnOtherCommand extends AbstractCommand<CommandSource> implements
 
         // If we don't have a rotation, then use the current rotation
         Player player = target.getPlayer().get();
-        NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, worldTransform, this.safeTeleport);
+        NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler().teleportPlayer(player, worldTransform, this
+                .safeTeleport, true);
         if (result.isSuccess()) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.success.source", target.getName(), world.getWorldName()));
             player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawnother.success.target", world.getWorldName()));

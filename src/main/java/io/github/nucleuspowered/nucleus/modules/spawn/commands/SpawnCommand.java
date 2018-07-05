@@ -99,7 +99,7 @@ public class SpawnCommand extends AbstractCommand<Player> implements Reloadable 
         NucleusTeleportHandler.TeleportResult result = Nucleus.getNucleus().getTeleportHandler()
                 .teleportPlayer(src,
                     SpawnHelper.getSpawn(ow.get().getProperties(), src),
-                    !force && this.sc.isSafeTeleport());
+                    !force && this.sc.isSafeTeleport(), true);
         if (result.isSuccess()) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.spawn.success", wp.getWorldName()));
             return CommandResult.success();

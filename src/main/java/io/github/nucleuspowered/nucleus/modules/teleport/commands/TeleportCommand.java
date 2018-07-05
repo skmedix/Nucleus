@@ -65,6 +65,7 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
     public Map<String, PermissionInformation> permissionSuffixesToRegister() {
         Map<String, PermissionInformation> m = new HashMap<>();
         m.put("offline", PermissionInformation.getWithTranslation("permission.teleport.offline", SuggestedLevel.ADMIN));
+        m.put("exempt.bordercheck", PermissionInformation.getWithTranslation("permission.tppos.border", SuggestedLevel.ADMIN));
         m.put("quiet", PermissionInformation.getWithTranslation("permission.teleport.quiet", SuggestedLevel.ADMIN));
         return m;
     }
@@ -73,6 +74,7 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
     public CommandElement[] getArguments() {
        return new CommandElement[]{
                 GenericArguments.flags().flag("f")
+                    .permissionFlag(this.permissions.getPermissionWithSuffix("exempt.bordercheck"),"b", "-border")
                     .setAnchorFlags(true)
                     .valueFlag(GenericArguments.requiringPermission(GenericArguments.bool(Text.of(this.quietKey)), this.permissions.getPermissionWithSuffix("quiet")), "q")
                     .buildWith(GenericArguments.none()),
@@ -144,8 +146,11 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
         }
 
         if (to.getPlayer().isPresent()) {
-            if (this.handler.getBuilder().setSource(src).setFrom(from).setTo(to.getPlayer().get()).setSafe(!args.<Boolean>getOne("f").orElse(false))
-                    .setSilentTarget(beQuiet).startTeleport()) {
+            if (this.handler.getBuilder().setSource(src).setFrom(from).setTo(to.getPlayer().get())
+                    .setSafe(!args.hasAny("f"))
+                    .setSilentTarget(beQuiet)
+                    .setBorderCheck(!args.hasAny("b"))
+                    .startTeleport()) {
                 return CommandResult.success();
             }
 

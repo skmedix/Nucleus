@@ -82,12 +82,6 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
                 .forEach(x -> cancel(this.ask.remove(x)));
     }
 
-    public boolean getAndExecute(UUID uuid) {
-        Optional<TeleportPrep> otp = get(uuid);
-        return otp.isPresent() && otp.get().tpbuilder.startTeleport();
-
-    }
-
     public Optional<TeleportPrep> get(UUID uuid) {
         clearExpired();
         return Optional.ofNullable(this.ask.remove(uuid));
@@ -196,13 +190,15 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
         private final CommandSource source;
         private final boolean silentSource;
         private final boolean silentTarget;
+        private final boolean borderCheck;
 
-        private TeleportTask(CommandSource source, Player playerToTeleport, Player playerToTeleportTo, boolean safe, boolean silentSource, boolean silentTarget) {
-            this(source, playerToTeleport, playerToTeleportTo, null, 0, safe, silentSource, silentTarget);
+        private TeleportTask(CommandSource source, Player playerToTeleport, Player playerToTeleportTo, boolean safe, boolean silentSource,
+                boolean silentTarget, boolean borderCheck) {
+            this(source, playerToTeleport, playerToTeleportTo, null, 0, safe, silentSource, silentTarget, borderCheck);
         }
 
         private TeleportTask(CommandSource source, Player playerToTeleport, Player playerToTeleportTo, User charged, double cost, boolean safe,
-                             boolean silentSource, boolean silentTarget) {
+                             boolean silentSource, boolean silentTarget, boolean borderCheck) {
             this.source = source;
             this.playerToTeleport = playerToTeleport;
             this.playerToTeleportTo = playerToTeleportTo;
@@ -211,6 +207,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
             this.safe = safe;
             this.silentSource = silentSource;
             this.silentTarget = silentTarget;
+            this.borderCheck = borderCheck;
         }
 
         private void run() {
@@ -221,7 +218,8 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
                     NucleusTeleportHandler.StandardTeleportMode.NO_CHECK;
 
                 NucleusTeleportHandler.TeleportResult result =
-                        tpHandler.teleportPlayer(this.playerToTeleport, this.playerToTeleportTo.getTransform(), mode, CauseStackHelper.createCause(this.source));
+                        tpHandler.teleportPlayer(this.playerToTeleport, this.playerToTeleportTo.getTransform(), mode,
+                                CauseStackHelper.createCause(this.source));
                 if (!result.isSuccess()) {
                     if (!this.silentSource) {
                         this.source.sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat(result ==
@@ -280,6 +278,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
         private boolean safe;
         private boolean silentSource = false;
         private boolean silentTarget = false;
+        private boolean borderCheck = true;
 
         private TeleportBuilder() {
             this.safe = getService(TeleportConfigAdapter.class).map(x -> x.getNodeOrDefault().isUseSafeTeleport()).orElse(true);
@@ -287,6 +286,11 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
 
         public TeleportBuilder setSafe(boolean safe) {
             this.safe = safe;
+            return this;
+        }
+
+        public TeleportBuilder setBorderCheck(boolean borderCheck) {
+            this.borderCheck = borderCheck;
             return this;
         }
 
@@ -395,14 +399,16 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
                         this.cost,
                         this.safe,
                         this.silentSource,
-                        this.silentTarget);
+                        this.silentTarget,
+                        this.borderCheck);
             } else {
                 tt = new TeleportTask(source,
                         fromPlayer.getPlayer().get(),
                         toPlayer.getPlayer().get(),
                         this.safe,
                         this.silentSource,
-                        this.silentTarget);
+                        this.silentTarget,
+                        this.borderCheck);
             }
 
             if (this.warmupTime > 0) {

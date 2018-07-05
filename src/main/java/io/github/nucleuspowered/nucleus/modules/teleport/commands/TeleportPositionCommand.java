@@ -45,9 +45,6 @@ import java.util.Map;
 public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
 
     private final String location = "world";
-    private final String x = "x";
-    private final String y = "y";
-    private final String z = "z";
 //    private final String p = "pitch";
 //    private final String yaw = "yaw";
 
@@ -112,16 +109,13 @@ public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
 
         // Create the location
         Location<World> loc = new Location<>(world, xx, yy, zz);
-        if (!args.hasAny("b") && !Util.isLocationInWorldBorder(loc)) {
-            throw ReturnMessageException.fromKey("command.tppos.worldborder");
-        }
-
         NucleusTeleportHandler teleportHandler = Nucleus.getNucleus().getTeleportHandler();
         Cause cause = CauseStackHelper.createCause(src);
 
         // Don't bother with the safety if the flag is set.
         if (args.<Boolean>getOne("f").orElse(false)) {
-            if (teleportHandler.teleportPlayer(pl, loc, NucleusTeleportHandler.StandardTeleportMode.NO_CHECK, cause).isSuccess()) {
+            if (teleportHandler.teleportPlayer(pl, loc, pl.getRotation(),
+                    NucleusTeleportHandler.StandardTeleportMode.NO_CHECK, cause, false, !args.hasAny("b")).isSuccess()) {
                 pl.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tppos.success.self"));
                 if (!src.equals(pl)) {
                     src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.tppos.success.other", pl.getName()));
@@ -139,7 +133,8 @@ public class TeleportPositionCommand extends AbstractCommand<CommandSource> {
             mode = NucleusTeleportHandler.StandardTeleportMode.FLYING_THEN_SAFE_CHUNK;
         }
 
-        NucleusTeleportHandler.TeleportResult result = teleportHandler.teleportPlayer(pl, loc, mode, cause, true);
+        NucleusTeleportHandler.TeleportResult result = teleportHandler.teleportPlayer(pl, loc, pl.getRotation(), mode, cause,
+                true, !args.hasAny("b"));
         if (result.isSuccess()) {
 /*            Vector3d rotation = pl.getHeadRotation();
             pl.setHeadRotation(

@@ -37,12 +37,13 @@ public class BackCommand extends AbstractCommand<Player> {
 
     private final BackHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(BackHandler.class);
 
-    private final String key = "force";
-
     @Override
     public CommandElement[] getArguments() {
         return new CommandElement[] {
-            GenericArguments.optional(GenericArguments.literal(Text.of(this.key), "-f"))
+                GenericArguments.flags()
+                    .permissionFlag(this.permissions.getPermissionWithSuffix("exempt.bordercheck"),"b", "-border")
+                    .flag("f", "-force")
+                    .buildWith(GenericArguments.none())
         };
     }
 
@@ -52,6 +53,7 @@ public class BackCommand extends AbstractCommand<Player> {
         m.put(BackListeners.ON_DEATH, PermissionInformation.getWithTranslation("permission.back.ondeath", SuggestedLevel.USER));
         m.put(BackListeners.ON_TELEPORT, PermissionInformation.getWithTranslation("permission.back.onteleport", SuggestedLevel.USER));
         m.put(BackListeners.ON_PORTAL, PermissionInformation.getWithTranslation("permission.back.onportal", SuggestedLevel.USER));
+        m.put("exempt.bordercheck", PermissionInformation.getWithTranslation("permission.tppos.border", SuggestedLevel.ADMIN));
         return m;
     }
 
@@ -65,9 +67,9 @@ public class BackCommand extends AbstractCommand<Player> {
         }
 
         Transform<World> loc = ol.get();
-        NucleusTeleportHandler.TeleportResult result = args.hasAny(this.key)
-                ? Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, loc, NucleusTeleportHandler.StandardTeleportMode.NO_CHECK)
-                : Nucleus.getNucleus().getTeleportHandler().teleportPlayer(src, loc);
+        NucleusTeleportHandler.TeleportResult result =
+                Nucleus.getNucleus().getTeleportHandler()
+                    .teleportPlayer(src, loc, !args.hasAny("f"), !args.hasAny("b"));
         if (result.isSuccess()) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.back.success"));
             return CommandResult.success();

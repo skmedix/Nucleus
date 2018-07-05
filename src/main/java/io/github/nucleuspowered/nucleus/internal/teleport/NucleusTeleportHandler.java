@@ -90,27 +90,39 @@ public class NucleusTeleportHandler {
      */
     public TeleportResult teleportPlayer(Player player, Location<World> worldLocation, Vector3d rotation, boolean safe) {
         StandardTeleportMode mode = safe ? getTeleportModeForPlayer(player) : StandardTeleportMode.NO_CHECK;
-        return CauseStackHelper.createFrameWithCausesWithReturn(c -> teleportPlayer(player, worldLocation, rotation, mode, c), player);
+        return CauseStackHelper.createFrameWithCausesWithReturn(c -> teleportPlayer(player, worldLocation, rotation, mode, c, true), player);
     }
 
     public TeleportResult teleportPlayer(Player player, Transform<World> worldTransform) {
         return CauseStackHelper.createFrameWithCausesWithReturn(c ->
-                teleportPlayer(player, worldTransform.getLocation(), worldTransform.getRotation(), getTeleportModeForPlayer(player), c), player);
+                teleportPlayer(player, worldTransform.getLocation(), worldTransform.getRotation(), getTeleportModeForPlayer(player), c, true),
+                player);
     }
 
-    public TeleportResult teleportPlayer(Player player, Transform<World> worldTransform, boolean safe) {
+    public TeleportResult teleportPlayer(Player player, Transform<World> worldTransform, boolean safe, boolean borderCheck) {
         StandardTeleportMode mode = safe ? getTeleportModeForPlayer(player) : StandardTeleportMode.NO_CHECK;
         return CauseStackHelper.createFrameWithCausesWithReturn(c ->
-                teleportPlayer(player, worldTransform.getLocation(), worldTransform.getRotation(), mode, c), player);
+                teleportPlayer(player, worldTransform.getLocation(), worldTransform.getRotation(), mode, c, borderCheck), player);
     }
 
     public TeleportResult teleportPlayer(Player player, Transform<World> locationToTeleportTo, StandardTeleportMode teleportMode) {
         return CauseStackHelper.createFrameWithCausesWithReturn(c ->
-                teleportPlayer(player, locationToTeleportTo.getLocation(), locationToTeleportTo.getRotation(), teleportMode, c), player);
+                teleportPlayer(player, locationToTeleportTo.getLocation(), locationToTeleportTo.getRotation(), teleportMode, c, true), player);
+    }
+
+    public TeleportResult teleportPlayer(Player player, Transform<World> locationToTeleportTo, StandardTeleportMode teleportMode,
+            boolean borderCheck) {
+        return CauseStackHelper.createFrameWithCausesWithReturn(c ->
+                teleportPlayer(player, locationToTeleportTo.getLocation(), locationToTeleportTo.getRotation(), teleportMode, c, borderCheck), player);
     }
 
     public TeleportResult teleportPlayer(Player player, Transform<World> locationToTeleportTo, TeleportMode teleportMode, Cause cause) {
-        return teleportPlayer(player, locationToTeleportTo.getLocation(), locationToTeleportTo.getRotation(), teleportMode, cause);
+        return teleportPlayer(player, locationToTeleportTo.getLocation(), locationToTeleportTo.getRotation(), teleportMode, cause, true);
+    }
+
+    public TeleportResult teleportPlayer(Player player, Transform<World> locationToTeleportTo, TeleportMode teleportMode, Cause cause,
+            boolean borderCheck) {
+        return teleportPlayer(player, locationToTeleportTo.getLocation(), locationToTeleportTo.getRotation(), teleportMode, cause, borderCheck);
     }
 
     public TeleportResult teleportPlayer(Player pl, Location<World> loc, TeleportMode mode) {
@@ -118,23 +130,23 @@ public class NucleusTeleportHandler {
     }
 
     public TeleportResult teleportPlayer(Player pl, Location<World> loc, TeleportMode mode, Cause of) {
-        return teleportPlayer(pl, loc, pl.getRotation(), mode, of);
+        return teleportPlayer(pl, loc, pl.getRotation(), mode, of, true);
     }
 
     public TeleportResult teleportPlayer(Player pl, Location<World> loc, TeleportMode mode, Cause of, boolean addOffset) {
-        return teleportPlayer(pl, loc, pl.getRotation(), mode, of, addOffset);
+        return teleportPlayer(pl, loc, pl.getRotation(), mode, of, addOffset, true);
     }
 
     public TeleportResult teleportPlayer(Player player, Location<World> locationToTeleportTo, Vector3d rotation, TeleportMode teleportMode,
-            Cause cause) {
-        return teleportPlayer(player, locationToTeleportTo, rotation, teleportMode, cause, false);
+            Cause cause, boolean borderCheck) {
+        return teleportPlayer(player, locationToTeleportTo, rotation, teleportMode, cause, false, borderCheck);
     }
 
-    private TeleportResult teleportPlayer(Player player, Location<World> locationToTeleportTo, Vector3d rotation, TeleportMode teleportMode,
-            Cause cause, boolean addOffset) {
+    public TeleportResult teleportPlayer(Player player, Location<World> locationToTeleportTo, Vector3d rotation, TeleportMode teleportMode,
+            Cause cause, boolean addOffset, boolean borderCheck) {
         Optional<Location<World>> targetLocation = getSafeLocation(player, locationToTeleportTo, teleportMode);
 
-        if (targetLocation.isPresent() && Util.isLocationInWorldBorder(targetLocation.get())) {
+        if (targetLocation.isPresent() && (!borderCheck || Util.isLocationInWorldBorder(targetLocation.get()))) {
             AboutToTeleportEvent event = new AboutToTeleportEvent(
                     cause,
                     new Transform<>(targetLocation.get().getExtent(), targetLocation.get().getPosition(), rotation),
