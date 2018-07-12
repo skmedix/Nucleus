@@ -26,8 +26,6 @@ import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.storage.WorldProperties;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -44,7 +42,7 @@ import javax.annotation.Nullable;
 @NonnullByDefault
 public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
 
-    @Nullable private Tuples.Quad<Instant, UUID, WorldProperties, Path> confirm = null;
+    @Nullable private Tuples.Tri<Instant, UUID, WorldProperties> confirm = null;
 
     @Override
     public CommandElement[] getArguments() {
@@ -56,8 +54,9 @@ public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
     @Override
     public CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         WorldProperties properties = args.<WorldProperties>getOne(NucleusParameters.Keys.WORLD).get();
-        if (this.confirm != null && this.confirm.getFirst().isAfter(Instant.now()) && this.confirm
-                .getSecond().equals(Util.getUUID(src)) && this.confirm.getThird().getUniqueId().equals(properties.getUniqueId())) {
+        if (this.confirm != null && this.confirm.getFirst().isAfter(Instant.now()) &&
+                this.confirm.getSecond().equals(Util.getUUID(src)) &&
+                this.confirm.getThird().getUniqueId().equals(properties.getUniqueId())) {
             try {
                 completeDeletion(src, properties);
             } finally {
@@ -71,17 +70,12 @@ public class DeleteWorldCommand extends AbstractCommand<CommandSource> {
         runChecks(properties);
 
         // Scary warning.
-        Path path = Nucleus.getNucleus().getDataPath().getParent().resolve("world").resolve(properties.getWorldName());
-        if (Files.exists(path)) {
-            this.confirm = Tuples.of(Instant.now().plus(30, ChronoUnit.SECONDS), Util.getUUID(src), properties, path);
-            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning1", properties.getWorldName()));
-            src.sendMessage(
-                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning2", path.toAbsolutePath().toString()));
-            src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning3", properties.getWorldName()));
-            return CommandResult.success();
-        } else {
-            throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.notfound", properties.getWorldName()));
-        }
+        this.confirm = Tuples.of(Instant.now().plus(30, ChronoUnit.SECONDS), Util.getUUID(src), properties);
+        src.sendMessage(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning1", properties.getWorldName()));
+        src.sendMessage(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.world.delete.warning3", properties.getWorldName()));
+        return CommandResult.success();
     }
 
     private void completeDeletion(CommandSource src, WorldProperties properties) throws Exception {
