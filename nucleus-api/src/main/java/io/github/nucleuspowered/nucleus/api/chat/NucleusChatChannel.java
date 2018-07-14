@@ -20,4 +20,9 @@ public interface NucleusChatChannel extends MessageChannel {
      * Indicates that the channel is a /me message.
      */
     interface ActionMessage extends NucleusChatChannel, NucleusNoFormatChannel {}
+
+    /**
+     * Indicates that the channel is a /helpop messages
+     */
+    interface HelpOp extends NucleusChatChannel, NucleusNoFormatChannel {}
 }

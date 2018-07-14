@@ -16,9 +16,9 @@ import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformati
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
+import io.github.nucleuspowered.nucleus.modules.message.HelpOpMessageChannel;
 import io.github.nucleuspowered.nucleus.modules.message.config.MessageConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusHelpOpEvent;
-import io.github.nucleuspowered.nucleus.util.PermissionMessageChannel;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.args.CommandContext;
@@ -68,8 +68,7 @@ public class HelpOpCommand extends AbstractCommand<Player> implements Reloadable
 
         Text prefix = this.prefix == null ? Text.EMPTY : this.prefix.getForCommandSource(src);
 
-        new PermissionMessageChannel(this.permissions.getPermissionWithSuffix("receive"))
-                .send(src, TextParsingUtils.joinTextsWithColoursFlowing(prefix, Text.of(message)));
+        HelpOpMessageChannel.INSTANCE.send(src, TextParsingUtils.joinTextsWithColoursFlowing(prefix, Text.of(message)));
 
         src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.helpop.success"));
 
