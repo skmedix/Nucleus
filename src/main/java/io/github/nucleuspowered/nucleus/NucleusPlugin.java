@@ -36,7 +36,6 @@ import io.github.nucleuspowered.nucleus.internal.InternalServiceManager;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.PreloadTasks;
 import io.github.nucleuspowered.nucleus.internal.TextFileController;
-import io.github.nucleuspowered.nucleus.internal.WorldCorrector;
 import io.github.nucleuspowered.nucleus.internal.client.ClientMessageReciever;
 import io.github.nucleuspowered.nucleus.internal.docgen.DocGenCache;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
@@ -67,7 +66,6 @@ import io.github.nucleuspowered.nucleus.modules.core.datamodules.UniqueUserCount
 import io.github.nucleuspowered.nucleus.modules.core.service.UUIDChangeService;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameState;
@@ -479,15 +477,6 @@ public class NucleusPlugin extends Nucleus {
     public void onGameStarting(GameStartingServerEvent event) {
         if (this.isErrored == null) {
             this.logger.info(this.messageProvider.getMessageWithFormat("startup.gamestart", PluginInfo.NAME));
-            try {
-                if (this.getConfigValue(CoreModule.ID, CoreConfigAdapter.class, CoreConfig::isTrackWorldUUIDs).orElse(true)) {
-                    WorldCorrector.worldCheck();
-                } else {
-                    WorldCorrector.delete();
-                }
-            } catch (IOException | ObjectMappingException e) {
-                e.printStackTrace();
-            }
 
             // Load up the general data files now, mods should have registered items by now.
             try {

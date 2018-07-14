@@ -57,9 +57,6 @@ public class CoreConfig {
     @Setting(value = "print-file-save-load")
     private boolean printSaveLoad = false;
 
-    @Setting(value = "track-world-uuids", comment = "config.core.track")
-    private boolean trackWorldUUIDs = true;
-
     @NoMergeIfPresent
     @Setting(value = "world-uuid-migration", comment = "config.core.worlduuidmigration")
     private Map<UUID, String> uuidMigration = Maps.newHashMap();
@@ -133,10 +130,6 @@ public class CoreConfig {
 
     public boolean isPrintSaveLoad() {
         return this.printSaveLoad;
-    }
-
-    public boolean isTrackWorldUUIDs() {
-        return this.trackWorldUUIDs;
     }
 
     public Map<UUID, String> getUuidMigration() {
