@@ -144,7 +144,7 @@ public class NucleusPlugin extends Nucleus {
 
     private final List<Text> startupMessages = Lists.newArrayList();
 
-    private final InternalServiceManager serviceManager = new InternalServiceManager(this);
+    private final InternalServiceManager serviceManager = new InternalServiceManager();
     private MessageProvider messageProvider = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
     private MessageProvider commandMessageProvider = new ResourceMessageProvider(ResourceMessageProvider.commandMessagesBundle);
 
@@ -274,8 +274,10 @@ public class NucleusPlugin extends Nucleus {
             this.nameBanService = new NameBanService(d.getNameBanDataProvider());
             this.userCacheService = new UserCacheService(d.getUserCacheDataProvider());
             this.warmupManager = new WarmupManager();
-            this.textParsingUtils = new TextParsingUtils(this);
-            this.nameUtil = new NameUtil(this);
+            this.textParsingUtils = new TextParsingUtils();
+            registerReloadable(this.textParsingUtils);
+
+            this.nameUtil = new NameUtil();
 
             if (this.isServer) {
                 allChange();

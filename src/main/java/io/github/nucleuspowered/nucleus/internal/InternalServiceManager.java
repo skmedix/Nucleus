@@ -5,7 +5,6 @@
 package io.github.nucleuspowered.nucleus.internal;
 
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.NucleusPlugin;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -13,12 +12,7 @@ import java.util.Optional;
 
 public final class InternalServiceManager {
 
-    private final NucleusPlugin plugin;
     private final Map<Class<?>, Object> serviceMap = Maps.newConcurrentMap();
-
-    public InternalServiceManager(NucleusPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     public <I, C extends I> void registerService(Class<I> key, C service) {
         registerService(key, service, false);

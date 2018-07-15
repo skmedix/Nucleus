@@ -12,6 +12,7 @@ import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.service.NucleusPrivateMessagingService;
 import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class MessageHandler implements NucleusPrivateMessagingService {
+public class MessageHandler implements NucleusPrivateMessagingService, Reloadable {
 
     private final MessageConfigAdapter mca;
     private final UserDataManager ucl;
@@ -79,6 +80,7 @@ public class MessageHandler implements NucleusPrivateMessagingService {
         onReload();
     }
 
+    @Override
     public void onReload() {
         this.messageConfig = this.mca.getNodeOrDefault();
         this.useLevels = this.messageConfig.isSocialSpyLevels();

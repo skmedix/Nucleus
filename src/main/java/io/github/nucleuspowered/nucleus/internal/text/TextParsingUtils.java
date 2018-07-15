@@ -8,8 +8,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.NucleusPlugin;
-import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
+import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
+import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.util.Tuples;
 import org.spongepowered.api.command.CommandSource;
@@ -29,8 +30,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,9 +41,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-public class TextParsingUtils {
-
-    private final NucleusPlugin plugin;
+public class TextParsingUtils implements Reloadable, MessageProviderTrait, InternalServiceManagerTrait {
 
     private static final Pattern colours = Pattern.compile(".*?(?<colour>(&[0-9a-flmnrok])+)$");
 
@@ -55,17 +52,12 @@ public class TextParsingUtils {
                 + "(?<specialCmd>(\\[(?<sMsg>.+?)](?<optionsscmd>\\{[a-z]+})?\\((?<sCmd>/.+?)\\))))",
                 Pattern.CASE_INSENSITIVE);
 
-    private CoreConfigAdapter cca = null;
-
     private static final Pattern urlParser =
             Pattern.compile("(?<first>(^|\\s))(?<reset>&r)?(?<colour>(&[0-9a-flmnrok])+)?"
                             + "(?<options>\\{[a-z]+?})?(?<url>(http(s)?://)?([A-Za-z0-9-]+\\.)+[A-Za-z0-9]{2,}\\S*)",
                     Pattern.CASE_INSENSITIVE);
     private static final StyleTuple EMPTY = new StyleTuple(TextColors.NONE, TextStyles.NONE);
-
-    public TextParsingUtils(NucleusPlugin plugin) {
-        this.plugin = plugin;
-    }
+    private String commandNameOnClick;
 
     public static Text addUrls(String message) {
         if (message == null || message.isEmpty()) {
@@ -253,12 +245,12 @@ public class TextParsingUtils {
 
             if (optionList.contains("s")) {
                 return TextActions.showText(
-                        this.plugin.getMessageProvider().getTextMessageWithFormat("chat.command.clicksuggest", cmd)
+                        getMessage("chat.command.clicksuggest", cmd)
                 );
             }
         }
 
-        return TextActions.showText(this.plugin.getMessageProvider().getTextMessageWithFormat("chat.command.click", cmd));
+        return TextActions.showText(getMessage("chat.command.click", cmd));
     }
 
     private static Text getTextForUrl(String url, String msg, String whiteSpace, StyleTuple st, @Nullable String optionString) {
@@ -300,17 +292,11 @@ public class TextParsingUtils {
     }
 
     public static Text joinTextsWithColoursFlowing(Text... texts) {
-        return joinTextsWithColoursFlowing("", Arrays.asList(texts));
-    }
-
-    private static Text joinTextsWithColoursFlowing(String joining, Iterable<Text> texts) {
         List<Text> result = Lists.newArrayList();
-        Iterator<Text> t = texts.iterator();
         Text last = null;
-        while (t.hasNext()) {
-            Text n = t.next();
+        for (Text n : texts) {
             if (last != null) {
-                getLastColourAndStyle(last, null).applyTo(x -> result.add(Text.of(x.colour, x.style, joining, n)));
+                getLastColourAndStyle(last, null).applyTo(x -> result.add(Text.of(x.colour, x.style, n)));
             } else {
                 result.add(n);
             }
@@ -332,8 +318,8 @@ public class TextParsingUtils {
 
         for (int i = texts.size() - 1; i > -1; i--) {
             // If we have both a Text Colour and a Text Style, then break out.
-            if (tc == TextColors.NONE) {
-                tc = texts.get(i).getColor();
+            tc = texts.get(i).getColor();
+            if (tc != TextColors.NONE) {
                 break;
             }
         }
@@ -377,21 +363,11 @@ public class TextParsingUtils {
     }
 
     private Text addCommandToNameInternal(Text.Builder name, User user) {
-        initCoreConfigAdapter();
-        String cmd = this.cca.getNodeOrDefault().getCommandOnNameClick();
-        if (cmd == null || cmd.isEmpty()) {
+        if (this.commandNameOnClick == null) {
             return name.build();
         }
 
-        if (!cmd.startsWith("/")) {
-            cmd = "/" + cmd;
-        }
-
-        if (!cmd.endsWith(" ")) {
-            cmd = cmd + " ";
-        }
-
-        final String commandToRun = cmd.replace("{{subject}}", user.getName()).replace("{{player}}", user.getName());
+        final String commandToRun = this.commandNameOnClick.replace("{{subject}}", user.getName()).replace("{{player}}", user.getName());
         Optional<HoverAction<?>> ha = name.getHoverAction();
         Text.Builder hoverAction;
         if (ha.isPresent() && (ha.get() instanceof HoverAction.ShowText)) {
@@ -408,15 +384,25 @@ public class TextParsingUtils {
 
     private Text getName(CommandSource cs) {
         if (cs instanceof Player) {
-            return this.plugin.getNameUtil().getName((Player)cs);
+            return Nucleus.getNucleus().getNameUtil().getName((Player)cs);
         }
 
         return Text.of(cs.getName());
     }
 
-    private void initCoreConfigAdapter() {
-        if (this.cca == null) {
-            this.cca = this.plugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get();
+    @Override
+    public void onReload() throws Exception {
+        this.commandNameOnClick = getServiceUnchecked(CoreConfigAdapter.class).getNodeOrDefault().getCommandOnNameClick();
+        if (this.commandNameOnClick == null || this.commandNameOnClick.isEmpty()) {
+            return;
+        }
+
+        if (!this.commandNameOnClick.startsWith("/")) {
+            this.commandNameOnClick = "/" + this.commandNameOnClick;
+        }
+
+        if (!this.commandNameOnClick.endsWith(" ")) {
+            this.commandNameOnClick = this.commandNameOnClick + " ";
         }
     }
 
@@ -430,11 +416,11 @@ public class TextParsingUtils {
             this.style = style;
         }
 
-        public void applyTo(Consumer<StyleTuple> consumer) {
+        void applyTo(Consumer<StyleTuple> consumer) {
             consumer.accept(this);
         }
 
-        public Text getTextOf() {
+        Text getTextOf() {
             Text.Builder tb = Text.builder();
             if (this.colour != TextColors.NONE) {
                 tb.color(this.colour);

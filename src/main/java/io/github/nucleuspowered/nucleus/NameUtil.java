@@ -7,11 +7,10 @@ package io.github.nucleuspowered.nucleus;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
+import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.modules.chat.config.ChatTemplateConfig;
 import io.github.nucleuspowered.nucleus.modules.chat.util.TemplateUtil;
-import io.github.nucleuspowered.nucleus.modules.nickname.NicknameModule;
-import io.github.nucleuspowered.nucleus.modules.nickname.datamodules.NicknameUserDataModule;
+import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.User;
@@ -33,13 +32,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-public class NameUtil {
-
-    NameUtil(NucleusPlugin plugin) {
-        this.plugin = plugin;
-    }
-
-    private final NucleusPlugin plugin;
+public class NameUtil implements InternalServiceManagerTrait {
 
     private final static Map<Character, TextColor> colourMap = Maps.newHashMap();
     private final static Map<Character, TextStyle> styleMap = Maps.newHashMap();
@@ -122,24 +115,12 @@ public class NameUtil {
 
         TextColor tc = getNameColour(player);
         TextStyle ts = getNameStyle(player);
-        Optional<Text> dname = player.getPlayer().map(x -> x.get(Keys.DISPLAY_NAME).orElse(null));
 
-        Text.Builder tb = null;
-        if (this.plugin != null && this.plugin.isModuleLoaded(NicknameModule.ID)) {
-            Optional<ModularUserService> userService = this.plugin.getUserDataManager().get(player);
-            if (userService.isPresent()) {
-                Optional<Text> n = userService.get().get(NicknameUserDataModule.class).getNicknameWithPrefix();
-                if (n.isPresent()) {
-                    tb = n.get().toBuilder();
-                }
-            }
-        } else if (dname.isPresent()) {
-            tb = dname.get().toBuilder();
-        }
-
-        if (tb == null) {
-            tb = Text.builder(player.getName());
-        }
+        Text.Builder tb = getService(NicknameService.class)
+                .map(service -> service.getNickname(player).map(Text::toBuilder).orElse(null))
+                .orElseGet(() ->
+                        player.get(Keys.DISPLAY_NAME)
+                                .map(Text::toBuilder).orElseGet(() -> Text.builder(player.getName())));
 
         tb.onHover(TextActions.showText(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("name.hover.ign", player.getName()))).build();
         if (tc != TextColors.NONE && tb.getColor() == TextColors.NONE) {
@@ -216,8 +197,7 @@ public class NameUtil {
             return returnIfAvailable.apply(os.get());
         }
 
-        Optional<TemplateUtil> optionalTemplateUtil = this.plugin.getInternalServiceManager().getService(TemplateUtil.class);
-        return optionalTemplateUtil.map(templateUtil -> fromTemplate.apply(templateUtil.getTemplateNow(player))).orElse(def);
+        return getService(TemplateUtil.class).map(templateUtil -> fromTemplate.apply(templateUtil.getTemplateNow(player))).orElse(def);
 
     }
 }

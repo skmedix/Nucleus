@@ -4,10 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.tests;
 
-import com.google.inject.Guice;
-import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
-import io.github.nucleuspowered.nucleus.tests.util.TestModule;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,13 +25,9 @@ public class ChatUtilTests extends TestBase {
 
     @BeforeClass
     public static void setup() throws Exception {
-        TestBase.testSetup();
-
-        NucleusPlugin plugin = Guice.createInjector(new TestModule()).getInstance(NucleusPlugin.class);
-
         Field parserToTest = TextParsingUtils.class.getDeclaredField("urlParser");
         parserToTest.setAccessible(true);
-        patternToTest = (Pattern)parserToTest.get(new TextParsingUtils(plugin));
+        patternToTest = (Pattern) parserToTest.get(new TextParsingUtils());
     }
 
     /**
@@ -78,7 +71,7 @@ public class ChatUtilTests extends TestBase {
         public String codes;
 
         @Test
-        public void testRegexIsValid() throws IllegalAccessException, InstantiationException {
+        public void testRegexIsValid() {
             Matcher m = patternToTest.matcher(this.message);
 
             // Do we match?
