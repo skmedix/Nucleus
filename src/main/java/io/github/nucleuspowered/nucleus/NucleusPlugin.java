@@ -972,7 +972,7 @@ public class NucleusPlugin extends Nucleus {
         Sponge.getEventManager().unregisterPluginListeners(this);
         Sponge.getCommandManager().getOwnedBy(this).forEach(Sponge.getCommandManager()::removeMapping);
         Sponge.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
-        getInternalServiceManager().getServiceUnchecked(CommandRemapperService.class).deactivate();
+        getInternalServiceManager().getService(CommandRemapperService.class).ifPresent(CommandRemapperService::deactivate);
 
         // Re-register this to warn people about the error.
         Sponge.getEventManager().registerListener(this, GameStartedServerEvent.class, e -> errorOnStartup());
