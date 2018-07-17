@@ -4,7 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.service.NucleusKitService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
@@ -23,11 +22,4 @@ public class KitModule extends ConfigurableModule<KitConfigAdapter> {
         return new KitConfigAdapter();
     }
 
-    @Override
-    protected void performPostTasks() {
-        if (!getAdapter().getNodeOrDefault().isSeparatePermissions()) {
-            Nucleus.getNucleus().addStartupMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.kit.perm.msg1"));
-            Nucleus.getNucleus().addStartupMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("nucleus.kit.perm.msg2"));
-        }
-    }
 }
