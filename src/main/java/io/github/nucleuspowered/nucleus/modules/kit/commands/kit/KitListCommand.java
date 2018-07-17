@@ -13,10 +13,8 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
-import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.KitFallbackBase;
-import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.kit.datamodules.KitUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.kit.handlers.KitHandler;
 import org.spongepowered.api.Sponge;
@@ -36,7 +34,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -45,12 +42,10 @@ import javax.annotation.Nullable;
 @RunAsync
 @NoModifiers
 @NonnullByDefault
-public class KitListCommand extends KitFallbackBase<CommandSource> implements Reloadable {
+public class KitListCommand extends KitFallbackBase<CommandSource> {
 
     private final CommandPermissionHandler kitPermissionHandler = Nucleus.getNucleus().getPermissionRegistry()
             .getPermissionsForNucleusCommand(KitCommand.class);
-
-    private boolean isSeparatePermissions = false;
 
     @Override
     public CommandResult executeCommand(final CommandSource src, CommandContext args) {
@@ -68,13 +63,9 @@ public class KitListCommand extends KitFallbackBase<CommandSource> implements Re
                         .getUnchecked(((Player)src).getUniqueId()).get(KitUserDataModule.class) : null;
 
         final boolean showHidden = this.kitPermissionHandler.testSuffix(src, "showhidden");
-        Stream<String> kitStream = KIT_HANDLER.getKitNames(showHidden).stream();
-
-        if (this.isSeparatePermissions) {
-            kitStream = kitStream.filter(kit -> src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())));
-        }
-
-        kitStream.forEach(kit -> kitText.add(createKit(src, user, kit, KIT_HANDLER.getKit(kit).get())));
+        KIT_HANDLER.getKitNames(showHidden).stream()
+                .filter(kit -> src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())))
+                .forEach(kit -> kitText.add(createKit(src, user, kit, KIT_HANDLER.getKit(kit).get())));
 
         PaginationList.Builder paginationBuilder = paginationService.builder().contents(kitText)
                 .title(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.kit.list.kits")).padding(Text.of(TextColors.GREEN, "-"));
@@ -124,8 +115,4 @@ public class KitListCommand extends KitFallbackBase<CommandSource> implements Re
         return builder.build();
     }
 
-    @Override
-    public void onReload() {
-        this.isSeparatePermissions = getServiceUnchecked(KitConfigAdapter.class).getNodeOrDefault().isSeparatePermissions();
-    }
 }

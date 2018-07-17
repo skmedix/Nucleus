@@ -4,7 +4,6 @@
  */
 package io.github.nucleuspowered.nucleus.modules.kit.config;
 
-import io.github.nucleuspowered.neutrino.annotations.DoNotGenerate;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 
@@ -17,19 +16,11 @@ public class KitConfig {
     @Setting(value = "drop-items-if-inventory-full", comment = "config.kits.full")
     private boolean dropKitIfFull = false;
 
-    @DoNotGenerate
-    @Setting(value = "separate-permissions", comment = "config.kits.separate")
-    private boolean separatePermissions = true;
-
     @Setting(value = "process-tokens-in-lore", comment = "config.kits.process-tokens")
     private boolean processTokens = false;
 
     public boolean isMustGetAll() {
         return this.mustGetAll;
-    }
-
-    public boolean isSeparatePermissions() {
-        return this.separatePermissions;
     }
 
     public boolean isDropKitIfFull() {

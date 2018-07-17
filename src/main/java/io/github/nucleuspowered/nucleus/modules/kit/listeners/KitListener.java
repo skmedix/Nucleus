@@ -36,7 +36,6 @@ public class KitListener implements Reloadable, ListenerBase {
     private final KitHandler handler = getServiceUnchecked(KitHandler.class);
     private final KitService gds = Nucleus.getNucleus().getKitService();
 
-    private boolean isSepratePermissions;
     private boolean mustGetAll;
 
     @Listener
@@ -59,8 +58,7 @@ public class KitListener implements Reloadable, ListenerBase {
             KitUserDataModule user = loader.get(player.getUniqueId()).get().get(KitUserDataModule.class);
             gds.getAutoRedeemable().stream()
                 .filter(k -> k.ignoresPermission() ||
-                        (!this.isSepratePermissions &&
-                        !player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getName().toLowerCase())))
+                        !player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getName().toLowerCase()))
                 .forEach(k -> {
                     try {
                         handler.redeemKit(k, player, true, this.mustGetAll);
@@ -138,7 +136,6 @@ public class KitListener implements Reloadable, ListenerBase {
 
     @Override public void onReload() throws Exception {
         KitConfigAdapter kca = getServiceUnchecked(KitConfigAdapter.class);
-        this.isSepratePermissions = kca.getNodeOrDefault().isSeparatePermissions();
         this.mustGetAll = kca.getNodeOrDefault().isMustGetAll();
     }
 }

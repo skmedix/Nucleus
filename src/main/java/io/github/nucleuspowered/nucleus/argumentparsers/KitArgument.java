@@ -76,8 +76,7 @@ public class KitArgument extends CommandElement {
     }
 
     private boolean checkPermission(CommandSource src, Kit kit) {
-        if (!this.permissionCheck ||
-                !this.config.getNodeOrDefault().isSeparatePermissions() || kit.ignoresPermission()) {
+        if (!this.permissionCheck) {
             return true;
         }
 
