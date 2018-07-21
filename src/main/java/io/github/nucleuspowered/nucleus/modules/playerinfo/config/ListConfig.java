@@ -7,6 +7,9 @@ package io.github.nucleuspowered.nucleus.modules.playerinfo.config;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import io.github.nucleuspowered.neutrino.annotations.Default;
+import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
+import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -25,6 +28,10 @@ public class ListConfig {
 
     @Setting(value = "server-panel-compatibility", comment = "config.playerinfo.list.panel")
     private boolean panelCompatibility = false;
+
+    @Setting(value = "template", comment = "config.playerinfo.list.template")
+    @Default(value = "{{displayname}}", saveDefaultIfNull = true, useDefaultIfEmpty = true)
+    private NucleusTextTemplateImpl template;
 
     public boolean isGroupByPermissionGroup() {
         return this.groupByPermissionGroup.enabled;
@@ -52,6 +59,10 @@ public class ListConfig {
 
     public boolean isPanelCompatibility() {
         return this.panelCompatibility;
+    }
+
+    public NucleusTextTemplate getListTemplate() {
+        return this.template;
     }
 
     @ConfigSerializable

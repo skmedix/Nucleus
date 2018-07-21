@@ -39,6 +39,10 @@ public class TemplateUtil implements Reloadable {
     private ChatConfig config
             = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(ChatConfigAdapter.class).getNodeOrDefault();
 
+    public ChatTemplateConfig getDefaultTemplate() {
+        return this.config.getDefaultTemplate();
+    }
+
     public ChatTemplateConfig getTemplateNow(Subject subject) {
         if (!this.config.isUseGroupTemplates()) {
             return this.config.getDefaultTemplate();

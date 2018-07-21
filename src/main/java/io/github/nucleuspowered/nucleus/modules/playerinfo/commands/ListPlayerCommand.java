@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
+import io.github.nucleuspowered.nucleus.api.text.NucleusTextTemplate;
 import io.github.nucleuspowered.nucleus.internal.annotations.RunAsync;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -18,6 +19,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.modules.afk.handlers.AFKHandler;
+import io.github.nucleuspowered.nucleus.modules.chat.util.TemplateUtil;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.config.ListConfig;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.config.PlayerInfoConfigAdapter;
 import org.spongepowered.api.Sponge;
@@ -31,6 +33,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.Collection;
@@ -51,6 +54,7 @@ import javax.annotation.Nullable;
 @EssentialsEquivalent({"list", "who", "playerlist", "online", "plist"})
 public class ListPlayerCommand extends AbstractCommand<CommandSource> implements Reloadable {
 
+    @Nullable private final TemplateUtil templateUtil;
     private ListConfig listConfig = new ListConfig();
 
     @Nullable private AFKHandler handler;
@@ -60,9 +64,11 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
     public static final Function<Subject, Integer> weightingFunction = s -> Util.getIntOptionFromSubject(s, "nucleus.list.weight").orElse(0);
 
     public ListPlayerCommand() {
-        this.afk = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.list.afk");
-        this.hidden = Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.list.hidden");
-        this.handler = Nucleus.getNucleus().getInternalServiceManager().getService(AFKHandler.class).orElse(null);
+        Nucleus plugin = Nucleus.getNucleus();
+        this.afk = plugin.getMessageProvider().getTextMessageWithFormat("command.list.afk");
+        this.hidden = plugin.getMessageProvider().getTextMessageWithFormat("command.list.hidden");
+        this.handler = plugin.getInternalServiceManager().getService(AFKHandler.class).orElse(null);
+        this.templateUtil = plugin.getInternalServiceManager().getService(TemplateUtil.class).orElse(null);
     }
 
     @Override
@@ -141,7 +147,11 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                 // Get and put the player list into the map, if there is a
                 // player to show. There might not be, they might be vanished!
                 getPlayerList(plList, showVanished).ifPresent(y ->
-                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW, alias + ": ")).append(y).build()));
+                    messages.add(Text.builder().append(
+                            Text.of(
+                                    TextColors.YELLOW,
+                                    TextSerializers.FORMATTING_CODE.deserialize(alias),
+                                    ": ")).append(y).build()));
             }
 
             groupToPlayer.remove(alias);
@@ -151,7 +161,8 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
             List<Player> playersLeft = groupToPlayer.entrySet().stream().flatMap(x -> x.getValue().stream()).collect(Collectors.toList());
             if (!playersLeft.isEmpty()) {
                 getPlayerList(playersLeft, showVanished).ifPresent(y ->
-                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW, this.listConfig.getDefaultGroupName() + ": ")).append(y).build()));
+                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW,
+                            TextSerializers.FORMATTING_CODE.deserialize(this.listConfig.getDefaultGroupName()), ": ")).append(y).build()));
             }
         } else {
             groupToPlayer.entrySet().stream()
@@ -165,7 +176,8 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
             List<Player> pl = groupToPlayer.get(this.listConfig.getDefaultGroupName());
             if (pl != null && !pl.isEmpty()) {
                 getPlayerList(pl, showVanished).ifPresent(y ->
-                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW, this.listConfig.getDefaultGroupName() + ": ")).append(y).build()));
+                    messages.add(Text.builder().append(Text.of(TextColors.YELLOW,
+                            TextSerializers.FORMATTING_CODE.deserialize(this.listConfig.getDefaultGroupName()), ": ")).append(y).build()));
             }
         }
 
@@ -183,7 +195,9 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
      * @return An {@link Optional} of {@link Text} objects, returning
      *         <code>empty</code> if the player list is of zero length.
      */
+    @SuppressWarnings("ConstantConditions")
     private Optional<Text> getPlayerList(Collection<Player> playersToList, boolean showVanished) {
+        NucleusTextTemplate template = this.listConfig.getListTemplate();
         List<Text> playerList = playersToList.stream().filter(x -> showVanished || !x.get(Keys.VANISH).orElse(false))
                 .sorted((x, y) -> x.getName().compareToIgnoreCase(y.getName())).map(x -> {
                     Text.Builder tb = Text.builder();
@@ -202,7 +216,11 @@ public class ListPlayerCommand extends AbstractCommand<CommandSource> implements
                         tb.append(Text.of(" "));
                     }
 
-                    return tb.append(Nucleus.getNucleus().getNameUtil().getName(x)).build();
+                    if (template != null) { // it shouldn't be, but if it is, fallback...
+                        return tb.append(template.getForCommandSource(x)).build();
+                    } else {
+                        return tb.append(Nucleus.getNucleus().getNameUtil().getName(x)).build();
+                    }
                 }).collect(Collectors.toList());
 
         if (!playerList.isEmpty()) {
