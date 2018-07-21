@@ -82,7 +82,7 @@ public class  NicknameArgument<T extends User> extends CommandElement {
 
                 if (!s.isEmpty()) {
                     UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
-                    List<String> offline = Sponge.getServiceManager().provideUnchecked(UserStorageService.class)
+                    List<String> offline = uss
                             .match(s)
                             .stream()
                             .filter(x -> !Sponge.getServer().getPlayer(x.getUniqueId()).isPresent())

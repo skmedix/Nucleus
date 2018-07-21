@@ -37,10 +37,6 @@ public class PlayerConsoleArgument extends CommandElement {
     private static final String vanishPermission = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(VanishCommand.class).getPermissionWithSuffix("see");
     private final BiPredicate<CommandSource, Player> filter;
 
-    public PlayerConsoleArgument(@Nullable Text key, boolean console) {
-        this(key, console, () -> Sponge.getServer().getOnlinePlayers());
-    }
-
     public PlayerConsoleArgument(@Nullable Text key, boolean console, BiPredicate<CommandSource, Player> filter) {
         this(key, console, () -> Sponge.getServer().getOnlinePlayers(), filter);
     }
