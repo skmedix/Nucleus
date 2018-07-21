@@ -4,6 +4,7 @@ about: Found a bug? Report using this!
 
 ---
 
+<!-- If you do not use this template, your issue may be closed without warning. -->
 **What is the bug?**
 A clear and concise description of what the bug is.
 
