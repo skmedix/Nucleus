@@ -24,6 +24,7 @@ import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfig;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.afk.events.AFKEvents;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
+import io.github.nucleuspowered.nucleus.util.Tuples;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
@@ -35,7 +36,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.TextRepresentable;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.api.util.Tuple;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -185,8 +185,8 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
                 this.activity.remove(uuid);
             }
 
-            Tuple<Text, MessageChannel> ttmc = getAFKMessage(player, true);
-            AFKEvents.To event = new AFKEvents.To(player, ttmc.getFirst(), ttmc.getSecond(), cause);
+            Tuples.NullableTuple<Text, MessageChannel> ttmc = getAFKMessage(player, true);
+            AFKEvents.To event = new AFKEvents.To(player, ttmc.getFirstUnwrapped(), ttmc.getSecondUnwrapped(), cause);
             Sponge.getEventManager().post(event);
             actionEvent(event, "command.afk.to.vanish");
 
@@ -214,8 +214,8 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
             data.isKnownAfk = false;
             data.willKick = false;
             Sponge.getServer().getPlayer(uuid).ifPresent(x -> {
-                Tuple<Text, MessageChannel> ttmc = getAFKMessage(x, false);
-                AFKEvents.From event = new AFKEvents.From(x, ttmc.getFirst(), ttmc.getSecond(), cause);
+                Tuples.NullableTuple<Text, MessageChannel> ttmc = getAFKMessage(x, false);
+                AFKEvents.From event = new AFKEvents.From(x, ttmc.getFirstUnwrapped(), ttmc.getSecondUnwrapped(), cause);
                 Sponge.getEventManager().post(event);
                 actionEvent(event, "command.afk.from.vanish");
             });
@@ -226,22 +226,22 @@ public class AFKHandler implements NucleusAFKService, Reloadable {
     }
 
     private void actionEvent(AFKEvents event, String key) {
-        if (event.getMessage().isPresent()) {
-            event.getChannel().send(event.getTargetEntity(), event.getMessage().get(), ChatTypes.SYSTEM);
+        Optional<Text> message = event.getMessage();
+        if (message.isPresent()) {
+            if (!message.get().isEmpty()) {
+                event.getChannel().send(event.getTargetEntity(), event.getMessage().get(), ChatTypes.SYSTEM);
+            }
         } else {
             event.getTargetEntity().sendMessage(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat(key));
         }
     }
 
-    private Tuple<Text, MessageChannel> getAFKMessage(Player player, boolean isAfk) {
+    private Tuples.NullableTuple<Text, MessageChannel> getAFKMessage(Player player, boolean isAfk) {
         if (this.config.isAfkOnVanish() || !player.get(Keys.VANISH).orElse(false)) {
             NucleusTextTemplateImpl template = isAfk ? this.config.getMessages().getAfkMessage() : this.config.getMessages().getReturnAfkMessage();
-            return Tuple.of(template.getForCommandSource(player), MessageChannel.TO_ALL);
+            return Tuples.ofNullable(template.getForCommandSource(player), MessageChannel.TO_ALL);
         } else {
-            // Tell the user in question about them going AFK
-            // player.sendMessage(
-            //        NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat(isAFK ? "command.afk.to.vanish" : "command.afk.from.vanish"));
-            return Tuple.of(Text.EMPTY, MessageChannel.TO_NONE);
+            return Tuples.ofNullable(null, MessageChannel.TO_NONE);
         }
     }
 

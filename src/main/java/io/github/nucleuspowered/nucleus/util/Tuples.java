@@ -49,6 +49,14 @@ public final class Tuples {
             return Optional.ofNullable(this.second);
         }
 
+        public A getFirstUnwrapped() {
+            return this.first;
+        }
+
+        public B getSecondUnwrapped() {
+            return this.second;
+        }
+
         public void mapIfPresent(Consumer<A> firstConsumer, Consumer<B> secondConsumer) {
             getFirst().ifPresent(firstConsumer);
             getSecond().ifPresent(secondConsumer);

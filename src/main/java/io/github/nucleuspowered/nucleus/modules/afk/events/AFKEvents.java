@@ -30,11 +30,11 @@ public abstract class AFKEvents extends AbstractEvent implements TargetPlayerEve
     @Nullable private final Text originalMessage;
     @Nullable private Text message;
 
-    AFKEvents(Player target, Text message, MessageChannel original) {
+    AFKEvents(Player target, @Nullable Text message, @Nullable MessageChannel original) {
         this(target, message, original, Cause.of(EventContext.builder().add(EventContextKeys.OWNER, target).build(), target));
     }
 
-    AFKEvents(Player target, Text message, MessageChannel original, Cause cause) {
+    AFKEvents(Player target, @Nullable Text message, @Nullable MessageChannel original, Cause cause) {
         this.target = target;
         this.cause = cause;
         this.originalMessage = message;
@@ -85,18 +85,18 @@ public abstract class AFKEvents extends AbstractEvent implements TargetPlayerEve
 
     public static class From extends AFKEvents implements NucleusAFKEvent.ReturningFromAFK {
 
-        public From(Player target, Text message, MessageChannel original, Cause cause) {
+        public From(Player target, @Nullable Text message, @Nullable MessageChannel original, Cause cause) {
             super(target, message, original, cause);
         }
     }
 
     public static class To extends AFKEvents implements NucleusAFKEvent.GoingAFK {
 
-        public To(Player target, Text message, MessageChannel original) {
+        public To(Player target, @Nullable Text message, @Nullable MessageChannel original) {
             super(target, message, original);
         }
 
-        public To(Player target, Text message, MessageChannel original, Cause cause) {
+        public To(Player target, @Nullable Text message, @Nullable MessageChannel original, Cause cause) {
             super(target, message, original, cause);
         }
     }
