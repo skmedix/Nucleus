@@ -104,10 +104,18 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
                 sendMessageTo(player, "command.tpaccept.nothing");
                 return false;
             }
-        } else if (this.ask.get(player.getUniqueId()) == target) {
+        }
+
+        if (this.ask.get(player.getUniqueId()) == target) {
             this.ask.remove(player.getUniqueId());
         }
 
+        if (target.isExpired()) {
+            sendMessageTo(player, "command.tpaccept.nothing");
+            return false;
+        }
+
+        target.setForceExpire(true);
         target.tpbuilder.startTeleport();
         sendMessageTo(player, "command.tpaccept.success");
         return true;
@@ -124,10 +132,18 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
                 sendMessageTo(player, "command.tpdeny.fail");
                 return false;
             }
-        } else if (this.ask.get(player.getUniqueId()) == target) {
+        }
+
+        if (this.ask.get(player.getUniqueId()) == target) {
             this.ask.remove(player.getUniqueId());
         }
 
+        if (target.isExpired()) {
+            sendMessageTo(player, "command.tpdeny.fail");
+            return false;
+        }
+
+        target.setForceExpire(true);
         sendMessageTo(player, "command.tpdeny.deny");
         return true;
     }
@@ -426,6 +442,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
 
     public static class TeleportPrep {
 
+        private boolean forceExpire = false;
         private final Instant expire;
         private final User charged;
         private final double cost;
@@ -439,7 +456,11 @@ public class TeleportHandler implements MessageProviderTrait, PermissionHandlerT
         }
 
         public boolean isExpired() {
-            return Instant.now().isAfter(this.expire);
+            return this.forceExpire || Instant.now().isAfter(this.expire);
+        }
+
+        public void setForceExpire(boolean forceExpire) {
+            this.forceExpire = forceExpire;
         }
 
         public Instant getExpire() {
