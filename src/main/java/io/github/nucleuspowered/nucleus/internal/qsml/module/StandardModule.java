@@ -28,6 +28,7 @@ import io.github.nucleuspowered.nucleus.internal.command.ICommandInterceptor;
 import io.github.nucleuspowered.nucleus.internal.docgen.DocGenCache;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListener;
+import io.github.nucleuspowered.nucleus.internal.registry.NucleusRegistryModule;
 import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
@@ -116,6 +117,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     @Override
     public final void preEnable() {
         try {
+            loadRegistries();
             registerServices();
             performPreTasks();
             registerCommandInterceptors();
@@ -425,6 +427,36 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
                     Nucleus.getNucleus().getLogger().warn("Could not register nucleus token identifier " + k);
                 }
             });
+        }
+    }
+
+    private void loadRegistries() {
+        Set<Class<? extends NucleusRegistryModule>> registries;
+        if (this.msls != null) {
+            registries = new HashSet<>();
+            List<String> l = this.msls.get(Constants.REGISTRY);
+            if (l == null) {
+                return;
+            }
+
+            for (String s : l) {
+                try {
+                    checkPlatformOpt((Class<? extends NucleusRegistryModule>) Class.forName(s)).ifPresent(registries::add);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else {
+            registries = getStreamForModule(NucleusRegistryModule.class).collect(Collectors.toSet());
+        }
+
+        for (Class<? extends NucleusRegistryModule> r : registries) {
+            NucleusRegistryModule instance = getInstance(r);
+            try {
+                instance.init();
+            } catch (Exception e) {
+                Nucleus.getNucleus().getLogger().error("Could not register registry " + r.getName(), e);
+            }
         }
     }
 
