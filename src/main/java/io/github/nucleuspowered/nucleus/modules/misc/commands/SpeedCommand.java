@@ -30,7 +30,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @NonnullByDefault
 @RegisterCommand("speed")
@@ -40,6 +39,7 @@ import java.util.Optional;
 public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implements Reloadable {
 
     private final String speedKey = "speed";
+    private final String resetKey = "reset";
     private final String typeKey = "type";
 
     /**
@@ -72,14 +72,28 @@ public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implem
 
         return new CommandElement[] {
             GenericArguments.optionalWeak(GenericArguments.onlyOne(GenericArguments.choices(Text.of(this.typeKey), keysMap, true))),
-            GenericArguments.optional(GenericArguments.integer(Text.of(this.speedKey)))
+            GenericArguments.optional(
+                    GenericArguments.firstParsing(
+                        GenericArguments.integer(Text.of(this.speedKey)),
+                        GenericArguments.literal(Text.of(this.resetKey), this.resetKey)
+                    )
+            )
         };
     }
 
     @Override
     public CommandResult executeWithPlayer(CommandSource src, Player pl, CommandContext args, boolean isSelf) {
-        Optional<Integer> ospeed = args.getOne(this.speedKey);
-        if (!ospeed.isPresent()) {
+        SpeedType key = args.<SpeedType>getOne(this.typeKey)
+                .orElseGet(() -> pl.get(Keys.IS_FLYING).orElse(false) ? SpeedType.FLYING : SpeedType.WALKING);
+        Integer speed = args.<Integer>getOne(this.speedKey).orElseGet(() -> {
+            if (args.hasAny(this.resetKey)) {
+                return key == SpeedType.WALKING ? 1 : 2;
+            }
+
+            return null;
+        });
+
+        if (speed == null) {
             Text t = Text.builder().append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.walk")).append(Text.of(" "))
                     .append(Text.of(TextColors.YELLOW, Math.round(pl.get(Keys.WALKING_SPEED).orElse(0.1d) * 20)))
                     .append(Text.builder().append(Text.of(TextColors.GREEN, ", ")).append(
@@ -93,9 +107,6 @@ public class SpeedCommand extends AbstractCommand.SimpleTargetOtherPlayer implem
             // Don't trigger cooldowns
             return CommandResult.empty();
         }
-
-        SpeedType key = args.<SpeedType>getOne(this.typeKey).orElseGet(() -> pl.get(Keys.IS_FLYING).orElse(false) ? SpeedType.FLYING : SpeedType.WALKING);
-        int speed = ospeed.get();
 
         if (speed < 0) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.speed.negative"));
