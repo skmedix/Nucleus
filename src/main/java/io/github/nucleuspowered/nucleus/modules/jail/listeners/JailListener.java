@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 public class JailListener implements Reloadable, ListenerBase {
 
     private final JailHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class);
@@ -51,6 +53,7 @@ public class JailListener implements Reloadable, ListenerBase {
 
     private List<String> allowedCommands;
 
+    @Inject
     public JailListener() {
         CommandPermissionHandler cph = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(JailCommand.class);
         this.notify = cph.getPermissionWithSuffix("notify");
@@ -58,29 +61,41 @@ public class JailListener implements Reloadable, ListenerBase {
         this.teleportto = cph.getPermissionWithSuffix("teleporttojailed");
     }
 
+    // fires after spawn login event
     @Listener
     public void onPlayerLogin(final NucleusOnLoginEvent event, @Getter("getTargetUser") User user, @Getter("getUserService") ModularUserService qs) {
         JailUserDataModule userDataModule = qs.get(JailUserDataModule.class);
+        if (!userDataModule.getJailData().isPresent()) {
+            return;
+        }
+
+        JailData jd = userDataModule.getJailData().get();
+
+        // Send them back to where they should be.
+        Optional<NamedLocation> owl = this.handler.getWarpLocation(user);
+        if (!owl.isPresent()) {
+            new PermissionMessageChannel(this.notify)
+                    .send(Text.of(TextColors.RED, "WARNING: No jail is defined. Jailed players are going free!"));
+            this.handler.unjailPlayer(user);
+            return;
+        }
+
+        // always send the player back to the jail location
+        event.setTo(owl.get().getTransform().get());
 
         // Jailing the subject if we need to.
-        if (userDataModule.jailOnNextLogin() && userDataModule.getJailData().isPresent()) {
-            Optional<NamedLocation> owl = this.handler.getWarpLocation(user);
-            if (!owl.isPresent()) {
-                new PermissionMessageChannel(this.notify)
-                    .send(Text.of(TextColors.RED, "WARNING: No jail is defined. Jailed players are going free!"));
-                this.handler.unjailPlayer(user);
-                return;
+        if (userDataModule.jailOnNextLogin()) {
+            // only set previous location if the player hasn't been moved to the jail before.
+            if (event.getFrom().equals(owl.get().getTransform().get())) {
+                jd.setPreviousLocation(event.getFrom().getLocation());
             }
-
-            JailData jd = userDataModule.getJailData().get();
-            jd.setPreviousLocation(event.getFrom().getLocation());
             userDataModule.setJailData(jd);
-            event.setTo(owl.get().getTransform().get());
+            qs.get(FlyUserDataModule.class).setFlying(false);
         }
     }
 
     /**
-     * At the time the subject joins, check to see if the subject is muted.
+     * At the time the subject joins, check to see if the subject is jailed.
      *
      * @param event The event.
      */
@@ -101,22 +116,20 @@ public class JailListener implements Reloadable, ListenerBase {
             NamedLocation owl = this.handler.getWarpLocation(user).get();
             JailData jd = data.get();
             Optional<Duration> timeLeft = jd.getRemainingTime();
-            Text message;
-            message = timeLeft.map(duration -> Nucleus.getNucleus().getMessageProvider()
+            Text message = timeLeft.map(duration -> Nucleus.getNucleus().getMessageProvider()
                 .getTextMessageWithFormat("command.jail.jailed", owl.getName(), Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()),
                         Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.for"), Util.getTimeStringFromSeconds(duration.getSeconds())))
                 .orElseGet(() -> Nucleus.getNucleus().getMessageProvider()
                     .getTextMessageWithFormat("command.jail.jailed", owl.getName(), Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()), "",
                         ""));
 
-            oqs.get().get(FlyUserDataModule.class).setFlying(false);
             user.sendMessage(message);
             user.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reasoncoloured", jd.getReason()));
         }
 
         qs.setJailOnNextLogin(false);
 
-        // Kick off a scheduled task.
+        // Kick off a scheduled task to do jail time checks.
         Sponge.getScheduler().createTaskBuilder().async().delay(500, TimeUnit.MILLISECONDS).execute(() -> {
             Optional<JailData> omd = qs.getJailData();
             if (omd.isPresent()) {
