@@ -90,8 +90,15 @@ public class SpawnListener implements Reloadable, ListenerBase {
         User user = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).getOrCreate(loginEvent.getProfile());
         if (this.spawnConfig.isSpawnOnLogin() && !user.hasPermission(this.spawnExempt)) {
 
-            GlobalSpawnConfig sc = this.spawnConfig.getGlobalSpawn();
             World world = loginEvent.getFromTransform().getExtent();
+            final String worldName = world.getName();
+            final String uuid = world.getUniqueId().toString();
+            if (this.spawnConfig.getOnLoginExemptWorlds().stream().anyMatch(x -> x.equalsIgnoreCase(worldName) || x.equalsIgnoreCase(uuid))) {
+                // we don't do this, exempt
+                return;
+            }
+
+            GlobalSpawnConfig sc = this.spawnConfig.getGlobalSpawn();
             if (sc.isOnLogin() && sc.getWorld().isPresent()) {
                 world = Sponge.getServer().getWorld(sc.getWorld().get().getUniqueId()).orElse(world);
             }

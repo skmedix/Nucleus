@@ -4,8 +4,12 @@
  */
 package io.github.nucleuspowered.nucleus.modules.spawn.config;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
+
+import java.util.List;
 
 @ConfigSerializable
 public class SpawnConfig {
@@ -27,6 +31,9 @@ public class SpawnConfig {
 
     @Setting(value = "affect-bed-spawn", comment = "config.spawn.bedspawn")
     private boolean redirectBedSpawn = true;
+
+    @Setting(value = "spawn-on-login-exempt-worlds", comment = "config.spawn.onloginsameworld")
+    private List<String> spawnOnLoginExemptWorld = Lists.newArrayList();
 
     public boolean isSpawnOnLogin() {
         return this.spawnOnLogin;
@@ -50,5 +57,9 @@ public class SpawnConfig {
 
     public boolean isRedirectBedSpawn() {
         return this.redirectBedSpawn;
+    }
+
+    public List<String> getOnLoginExemptWorlds() {
+        return this.spawnOnLoginExemptWorld == null ? ImmutableList.of() : this.spawnOnLoginExemptWorld;
     }
 }
