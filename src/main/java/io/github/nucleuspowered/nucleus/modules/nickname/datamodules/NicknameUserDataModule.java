@@ -116,6 +116,7 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
         super.saveNode(typeToken, value, path, node);
     }
 
+    @SuppressWarnings("OptionalAssignedToNull")
     private static Optional<Text> getNickPrefix() {
         if (prefix == null) {
             prefix = Nucleus.getNucleus().getConfigValue(NicknameModule.ID, NicknameConfigAdapter.class, NicknameConfig::getPrefix)

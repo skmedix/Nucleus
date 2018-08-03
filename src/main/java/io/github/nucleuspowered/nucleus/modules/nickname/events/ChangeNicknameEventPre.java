@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-public class ChangeNicknameEvent extends AbstractEvent implements NucleusChangeNicknameEvent {
+public class ChangeNicknameEventPre extends AbstractEvent implements NucleusChangeNicknameEvent.Pre {
 
     private final Cause cause;
     private final User target;
@@ -22,7 +22,7 @@ public class ChangeNicknameEvent extends AbstractEvent implements NucleusChangeN
     @Nullable private final Text newNickname;
     private boolean cancel = false;
 
-    public ChangeNicknameEvent(Cause cause, @Nullable Text previousNickname, @Nullable Text newNickname, User target) {
+    public ChangeNicknameEventPre(Cause cause, @Nullable Text previousNickname, @Nullable Text newNickname, User target) {
         this.cause = cause;
         this.previousNickname = previousNickname;
         this.newNickname = newNickname;

@@ -20,7 +20,8 @@ import io.github.nucleuspowered.nucleus.modules.nickname.commands.NicknameComman
 import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfig;
 import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.nickname.datamodules.NicknameUserDataModule;
-import io.github.nucleuspowered.nucleus.modules.nickname.events.ChangeNicknameEvent;
+import io.github.nucleuspowered.nucleus.modules.nickname.events.ChangeNicknameEventPost;
+import io.github.nucleuspowered.nucleus.modules.nickname.events.ChangeNicknameEventPre;
 import io.github.nucleuspowered.nucleus.util.CauseStackHelper;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -146,7 +147,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
 
     private void removeNick(User user, Cause cause) throws NicknameException {
         Text currentNickname = getNickname(user).orElse(null);
-        ChangeNicknameEvent cne = new ChangeNicknameEvent(cause, currentNickname, null, user);
+        ChangeNicknameEventPre cne = new ChangeNicknameEventPre(cause, currentNickname, null, user);
         if (Sponge.getEventManager().post(cne)) {
             throw new NicknameException(
                     Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.eventcancel", user.getName()),
@@ -154,12 +155,17 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
             );
         }
 
-        Nucleus.getNucleus().getUserDataManager().get(user)
+        ModularUserService mus = Nucleus.getNucleus().getUserDataManager().get(user)
                 .orElseThrow(() -> new NicknameException(
                         Nucleus.getNucleus().getMessageProvider()
                                 .getTextMessageWithFormat("standard.error.nouser"),
                         NicknameException.Type.NO_USER
-                )).get(NicknameUserDataModule.class).removeNickname();
+                ));
+
+        NicknameUserDataModule n = mus.get(NicknameUserDataModule.class);
+        n.removeNickname();
+        mus.set(n);
+        mus.save();
         removeFromCache(user.getUniqueId());
 
         if (user.isOnline()) {
@@ -232,7 +238,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
 
         // Send an event
         Text currentNickname = getNickname(pl).orElse(null);
-        ChangeNicknameEvent cne = new ChangeNicknameEvent(cause, currentNickname, nickname, pl);
+        ChangeNicknameEventPre cne = new ChangeNicknameEventPre(cause, currentNickname, nickname, pl);
         if (Sponge.getEventManager().post(cne)) {
             throw new NicknameException(
                     Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.eventcancel", pl.getName()),
@@ -248,10 +254,10 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
         Text set = nicknameUserDataModule.getNicknameAsText().get();
         this.updateCache(pl.getUniqueId(), nickname);
 
-        if (pl.isOnline()) {
-            pl.getPlayer().get().sendMessage(Text.builder().append(
-                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.success.base")).append(Text.of(" - ", TextColors.RESET, set)).build());
-        }
+        Sponge.getEventManager().post(new ChangeNicknameEventPost(cause, currentNickname, nickname, pl));
+        pl.getPlayer().ifPresent(player -> player.sendMessage(Text.builder().append(
+                Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.nick.success.base")).append(Text.of(" - ",
+                TextColors.RESET, set)).build()));
 
     }
 
