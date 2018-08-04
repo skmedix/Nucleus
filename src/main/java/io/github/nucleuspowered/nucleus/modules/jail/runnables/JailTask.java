@@ -5,17 +5,15 @@
 package io.github.nucleuspowered.nucleus.modules.jail.runnables;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.TaskBase;
 import io.github.nucleuspowered.nucleus.modules.jail.handlers.JailHandler;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.scheduler.Task;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 public class JailTask implements TaskBase {
@@ -24,8 +22,12 @@ public class JailTask implements TaskBase {
 
     @Override
     public void accept(Task task) {
-        Collection<Player> pl = Sponge.getServer().getOnlinePlayers().stream().filter(x -> jailHandler.isPlayerJailedCached(x)).collect(Collectors.toList());
-        pl.stream().forEach(x -> Util.testForEndTimestamp(jailHandler.getPlayerJailDataInternal(x), () -> jailHandler.unjailPlayer(x)));
+        Sponge.getServer()
+                .getOnlinePlayers()
+                .stream()
+                .filter(x -> this.jailHandler.isPlayerJailedCached(x))
+                .filter(x -> this.jailHandler.getPlayerJailDataInternal(x).map(y -> y.expired()).orElse(false))
+                .forEach(x -> this.jailHandler.unjailPlayer(x, Cause.of(EventContext.empty(), Nucleus.getNucleus())));
     }
 
     @Override

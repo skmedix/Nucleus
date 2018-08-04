@@ -7,7 +7,6 @@ package io.github.nucleuspowered.nucleus.modules.jail;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.service.NucleusJailService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
@@ -48,22 +47,24 @@ public class JailModule extends ConfigurableModule<JailConfigAdapter> {
                 JailData jd = jh.getPlayerJailDataInternal(u).get();
                 Text.Builder m;
                 if (jd.getRemainingTime().isPresent()) {
-                    m = NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.isjailed.temp", Util.getTimeToNow(jd.getEndTimestamp().get())).toBuilder();
+                    m = getMessageFor(c.getLocale(), "seen.isjailed.temp",
+                                    Util.getTimeStringFromSeconds(jd.getRemainingTime().get().getSeconds())).toBuilder();
                 } else {
-                    m = NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.isjailed.perm").toBuilder();
+                    m = getMessageFor(c.getLocale(), "seen.isjailed.perm").toBuilder();
                 }
 
                 return Lists.newArrayList(
-                        m.onClick(TextActions.runCommand("/checkjail " + u.getName()))
-                                .onHover(TextActions.showText(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.clicktoseemore"))).build(),
-                        NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.reason", jd.getReason()));
+                        m.onClick(TextActions.runCommand("/nucleus:checkjail " + u.getName()))
+                                .onHover(TextActions.showText(getMessageFor(c.getLocale(), "standard.clicktoseemore"))).build(),
+                        getMessageFor(c.getLocale(), "standard.reason", jd.getReason()));
             }
 
-            return Lists.newArrayList(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("seen.notjailed"));
+            return Lists.newArrayList(getMessageFor(c.getLocale(), "seen.notjailed"));
         });
     }
 
-    @Override protected Map<String, Tokens.Translator> tokensToRegister() {
+    @Override
+    protected Map<String, Tokens.Translator> tokensToRegister() {
         return ImmutableMap.<String, Tokens.Translator>builder()
                 .put("jailed", new Tokens.TrueFalseVariableTranslator() {
                     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -75,15 +76,12 @@ public class JailModule extends ConfigurableModule<JailConfigAdapter> {
 
                     @Override protected boolean condition(CommandSource commandSource) {
                         return commandSource instanceof Player &&
-                                Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class)
-                                        .isPlayerJailed((Player) commandSource);
+                                getServiceUnchecked(JailHandler.class).isPlayerJailed((Player) commandSource);
                     }
                 })
                 .put("jail", (source, variableString, variables) -> {
                     if (source instanceof Player) {
-                        return Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(JailHandler.class)
-                                .getPlayerJailData((Player) source)
-                                .map(x -> Text.of(x.getJailName()));
+                        return getServiceUnchecked(JailHandler.class).getPlayerJailData((Player) source).map(x -> Text.of(x.getJailName()));
                     }
 
                     return Optional.empty();

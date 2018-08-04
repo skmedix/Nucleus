@@ -14,7 +14,7 @@ import io.github.nucleuspowered.nucleus.api.nucleusdata.MuteInfo;
 import io.github.nucleuspowered.nucleus.api.service.NucleusMuteService;
 import io.github.nucleuspowered.nucleus.dataservices.loaders.UserDataManager;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
-import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
+import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
 import io.github.nucleuspowered.nucleus.modules.mute.data.MuteData;
 import io.github.nucleuspowered.nucleus.modules.mute.datamodules.MuteUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.mute.events.MuteEvent;
@@ -31,7 +31,6 @@ import org.spongepowered.api.util.Identifiable;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +39,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteService {
+public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteService, MessageProviderTrait {
 
     private final UserDataManager ucl;
 
@@ -54,13 +53,16 @@ public class MuteHandler implements ContextCalculator<Subject>, NucleusMuteServi
         this.ucl = Nucleus.getNucleus().getUserDataManager();
     }
 
+    public void onMute(Player user) {
+        this.getPlayerMuteData(user).ifPresent(x -> onMute(x, user));
+    }
+
     public void onMute(MuteData md, Player user) {
-        MessageProvider messageProvider = Nucleus.getNucleus().getMessageProvider();
-        if (md.getEndTimestamp().isPresent()) {
-            user.sendMessage(messageProvider.getTextMessageWithFormat("mute.playernotify.time",
-                    Util.getTimeStringFromSeconds(Instant.now().until(md.getEndTimestamp().get(), ChronoUnit.SECONDS))));
+        if (md.getRemainingTime().isPresent()) {
+            sendMessageTo(user, "mute.playernotify.time",
+                    Util.getTimeStringFromSeconds(md.getRemainingTime().get().getSeconds()));
         } else {
-            user.sendMessage(messageProvider.getTextMessageWithFormat("mute.playernotify.standard"));
+            sendMessageTo(user, "mute.playernotify.standard");
         }
     }
 

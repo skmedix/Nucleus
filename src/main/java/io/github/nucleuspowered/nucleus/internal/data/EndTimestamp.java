@@ -58,19 +58,33 @@ public abstract class EndTimestamp implements TimedEntry {
         }
     }
 
-    @Override public Optional<Duration> getRemainingTime() {
+    @Override
+    public Optional<Duration> getRemainingTime() {
         if (this.endtimestamp == null && this.timeFromNextLogin == null) {
             return Optional.empty();
         }
 
+        Duration duration;
         if (this.endtimestamp != null) {
-            return Optional.of(Duration.between(Instant.now(), Instant.ofEpochSecond(this.endtimestamp)));
+            duration = Duration.between(Instant.now(), Instant.ofEpochSecond(this.endtimestamp));
+        } else {
+            duration = Duration.of(this.timeFromNextLogin, ChronoUnit.SECONDS);
         }
 
-        return Optional.of(Duration.of(this.timeFromNextLogin, ChronoUnit.SECONDS));
+        if (duration.isNegative()) {
+            return Optional.of(Duration.ZERO);
+        }
+
+        return Optional.of(duration);
     }
 
-    @Override public boolean isCurrentlyTicking() {
+    @Override
+    public boolean expired() {
+        return getRemainingTime().map(Duration::isZero).orElse(false);
+    }
+
+    @Override
+    public boolean isCurrentlyTicking() {
         return this.endtimestamp != null;
     }
 }

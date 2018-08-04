@@ -8,6 +8,7 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.events.NucleusMessageEvent;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
+import io.github.nucleuspowered.nucleus.internal.data.EndTimestamp;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.modules.message.events.InternalNucleusHelpOpEvent;
 import io.github.nucleuspowered.nucleus.modules.mute.commands.MuteCommand;
@@ -21,6 +22,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -53,9 +55,7 @@ public class MuteListener implements Reloadable, ListenerBase {
                 MuteData md = omd.get();
                 md.nextLoginToTimestamp();
 
-                omd = Util.testForEndTimestamp(this.handler.getPlayerMuteData(user), () -> this.handler.unmutePlayer(user));
-                if (omd.isPresent()) {
-                    md = omd.get();
+                if (isMuted(user)) {
                     this.handler.onMute(md, event.getTargetEntity());
                 }
             }
@@ -69,12 +69,10 @@ public class MuteListener implements Reloadable, ListenerBase {
 
     private void onChat(MessageChannelEvent.Chat event, Player player) {
         boolean cancel = false;
-        Optional<MuteData> omd = Util.testForEndTimestamp(this.handler.getPlayerMuteData(player), () -> this.handler.unmutePlayer(player));
-        if (omd.isPresent()) {
-            this.handler.onMute(omd.get(), player);
+        if (isMuted(player)) {
+            this.handler.onMute(player);
             MessageChannel.TO_CONSOLE.send(Text.builder().append(Text.of(player.getName() + " (")).append(
-                    Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.muted"))
-                    .append(Text.of("): ")).append(event.getRawMessage()).build());
+                    getMessage("standard.muted")).append(Text.of("): ")).append(event.getRawMessage()).build());
             cancel = true;
         }
 
@@ -99,42 +97,34 @@ public class MuteListener implements Reloadable, ListenerBase {
     }
 
     @Listener
-    public void onPlayerMessage(NucleusMessageEvent event) {
-        if (!(event.getSender() instanceof Player)) {
-            return;
-        }
-
+    public void onPlayerMessage(NucleusMessageEvent event, @Getter("getSender") Player source) {
         boolean isCancelled = false;
-        Player user = (Player)event.getSender();
-        Optional<MuteData> omd = Util.testForEndTimestamp(this.handler.getPlayerMuteData(user), () -> this.handler.unmutePlayer(user));
-        if (omd.isPresent()) {
-            if (user.isOnline()) {
-                this.handler.onMute(omd.get(), user.getPlayer().get());
+        if (isMuted(source)) {
+            if (source.isOnline()) {
+                this.handler.onMute(source);
             }
 
             isCancelled = true;
         }
 
-        if (cancelOnGlobalMute(user, isCancelled)) {
+        if (cancelOnGlobalMute(source, isCancelled)) {
             isCancelled = true;
         }
-
         event.setCancelled(isCancelled);
     }
 
     @Listener
-    public void onPlayerHelpOp(InternalNucleusHelpOpEvent event, @Root Player user) {
-        Optional<MuteData> omd = Util.testForEndTimestamp(this.handler.getPlayerMuteData(user), () -> this.handler.unmutePlayer(user));
-        omd.ifPresent(muteData -> {
-            if (user.isOnline()) {
-                this.handler.onMute(muteData, user.getPlayer().get());
+    public void onPlayerHelpOp(InternalNucleusHelpOpEvent event, @Root Player source) {
+        if (isMuted(source)) {
+            if (source.isOnline()) {
+                this.handler.onMute(source);
             }
 
             event.setCancelled(true);
-        });
+        }
 
         //noinspection IsCancelled
-        if (cancelOnGlobalMute(user, event.isCancelled())) {
+        if (cancelOnGlobalMute(source, event.isCancelled())) {
             event.setCancelled(true);
         }
     }
@@ -155,5 +145,16 @@ public class MuteListener implements Reloadable, ListenerBase {
     @Override
     public void onReload() {
         this.muteConfig = getServiceUnchecked(MuteConfigAdapter.class).getNodeOrDefault();
+    }
+
+    private boolean isMuted(Player player) {
+        if (!this.handler.isMutedCached(player)) {
+            return false;
+        } else if (this.handler.getPlayerMuteData(player).map(EndTimestamp::expired).orElse(true)) { // true indicates expiry
+            this.handler.unmutePlayer(player);
+            return false;
+        }
+
+        return true;
     }
 }

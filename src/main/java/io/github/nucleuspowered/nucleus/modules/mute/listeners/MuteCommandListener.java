@@ -5,8 +5,6 @@
 package io.github.nucleuspowered.nucleus.modules.mute.listeners;
 
 import com.google.common.collect.Sets;
-import io.github.nucleuspowered.nucleus.Nucleus;
-import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.ListenerBase;
 import io.github.nucleuspowered.nucleus.modules.mute.config.MuteConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.mute.data.MuteData;
@@ -40,6 +38,10 @@ public class MuteCommandListener implements ListenerBase.Conditional {
      */
     @Listener(order = Order.FIRST)
     public void onPlayerSendCommand(SendCommandEvent event, @Root Player player) {
+        if (!this.handler.isMutedCached(player)) {
+            return;
+        }
+
         String command = event.getCommand().toLowerCase();
         Optional<? extends CommandMapping> oc = Sponge.getCommandManager().get(command, player);
         Set<String> cmd;
@@ -50,14 +52,16 @@ public class MuteCommandListener implements ListenerBase.Conditional {
 
         // If the command is in the list, block it.
         if (this.blockedCommands.stream().map(String::toLowerCase).anyMatch(cmd::contains)) {
-            Optional<MuteData> omd = Util.testForEndTimestamp(this.handler.getPlayerMuteData(player), () -> this.handler.unmutePlayer(player));
-            omd.ifPresent(muteData -> {
+            MuteData muteData = this.handler.getPlayerMuteData(player).orElse(null);
+            if (muteData == null || muteData.expired()) {
+                this.handler.unmutePlayer(player);
+            } else {
                 this.handler.onMute(muteData, player);
                 MessageChannel.TO_CONSOLE.send(Text.builder().append(Text.of(player.getName() + " ("))
-                        .append(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("standard.muted"))
+                        .append(getMessage("standard.muted"))
                         .append(Text.of("): ")).append(Text.of("/" + event.getCommand() + " " + event.getArguments())).build());
                 event.setCancelled(true);
-            });
+            }
         }
     }
 

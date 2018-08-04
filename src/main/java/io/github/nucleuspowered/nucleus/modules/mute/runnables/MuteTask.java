@@ -4,17 +4,13 @@
  */
 package io.github.nucleuspowered.nucleus.modules.mute.runnables;
 
-import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.internal.TaskBase;
 import io.github.nucleuspowered.nucleus.modules.mute.handler.MuteHandler;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 public class MuteTask implements TaskBase {
@@ -23,9 +19,12 @@ public class MuteTask implements TaskBase {
 
     @Override
     public void accept(Task task) {
-        Collection<Player> pl = Sponge.getServer().getOnlinePlayers().stream().filter(x -> muteHandler.isMutedCached(x))
-                .collect(Collectors.toList());
-        pl.stream().forEach(x -> Util.testForEndTimestamp(muteHandler.getPlayerMuteData(x), () -> muteHandler.unmutePlayer(x)));
+        Sponge.getServer()
+                .getOnlinePlayers()
+                .stream()
+                .filter(x -> this.muteHandler.isMutedCached(x))
+                .filter(x -> this.muteHandler.getPlayerMuteData(x).map(y -> y.expired()).orElse(false))
+                .forEach(this.muteHandler::unmutePlayer);
     }
 
     @Override

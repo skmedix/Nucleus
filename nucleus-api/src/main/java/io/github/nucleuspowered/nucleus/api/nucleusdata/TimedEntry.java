@@ -20,6 +20,13 @@ public interface TimedEntry {
     Optional<Duration> getRemainingTime();
 
     /**
+     * Returns whether this entry can be considered expired.
+     *
+     * @return if expired.
+     */
+    boolean expired();
+
+    /**
      * Denotes whether the timer is currently ticking down (that is, if {@link #getRemainingTime()} should be decreasing with
      * each call.
      *

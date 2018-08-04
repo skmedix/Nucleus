@@ -31,6 +31,7 @@ import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListen
 import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.handlers.BasicSeenInformationProvider;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.handlers.SeenHandler;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -67,7 +68,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 @Store(isRoot = true)
-public abstract class StandardModule implements Module, InternalServiceManagerTrait {
+public abstract class StandardModule implements Module, InternalServiceManagerTrait, MessageProviderTrait {
 
     private final String moduleId;
     private final String moduleName;

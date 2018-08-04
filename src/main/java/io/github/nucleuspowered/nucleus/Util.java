@@ -7,10 +7,8 @@ package io.github.nucleuspowered.nucleus;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import io.github.nucleuspowered.nucleus.internal.data.EndTimestamp;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.services.InventoryReorderService;
-import io.github.nucleuspowered.nucleus.util.Action;
 import io.github.nucleuspowered.nucleus.util.PaginationBuilderWrapper;
 import io.github.nucleuspowered.nucleus.util.ThrownFunction;
 import org.spongepowered.api.CatalogType;
@@ -192,20 +190,6 @@ public class Util {
         } else {
             return messageProvider.getMessageWithFormat("standard.unknown");
         }
-    }
-
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <T extends EndTimestamp> Optional<T> testForEndTimestamp(Optional<T> omd, Action function) {
-        if (omd.isPresent()) {
-            T md = omd.get();
-            if (md.getEndTimestamp().isPresent() && md.getEndTimestamp().get().isBefore(Instant.now())) {
-                // Mute expired.
-                function.action();
-                return Optional.empty();
-            }
-        }
-
-        return omd;
     }
 
     public static String getTimeFromTicks(long ticks) {

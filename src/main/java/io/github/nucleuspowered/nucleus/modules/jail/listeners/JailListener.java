@@ -136,9 +136,11 @@ public class JailListener implements Reloadable, ListenerBase {
                 JailData md = omd.get();
                 md.nextLoginToTimestamp();
 
-                omd = Util.testForEndTimestamp(qs.getJailData(), () -> this.handler.unjailPlayer(user));
-                if (omd.isPresent()) {
-                    md = omd.get();
+                if (md.expired()) {
+                    // free.
+                    this.handler.unjailPlayer(user);
+                } else {
+                    // ensure jailing is current
                     this.handler.onJail(md, event.getTargetEntity());
                 }
             }
