@@ -6,8 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.message.commands;
 
 import io.github.nucleuspowered.nucleus.argumentparsers.MessageTargetArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.PlayerConsoleArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.SelectorArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NotifyIfAFK;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -58,8 +57,7 @@ public class MessageCommand extends AbstractCommand<CommandSource> {
         return new CommandElement[] {
             GenericArguments.firstParsing(
                     new MessageTargetArgument(Text.of(TO)),
-                    SelectorWrapperArgument.nicknameSelector(Text.of(TO), NicknameArgument.UnderlyingType.PLAYER_CONSOLE,
-                            true, Player.class, (c, p) -> PlayerConsoleArgument.shouldShow(p, c))
+                    new SelectorArgument(new NicknameArgument(Text.of(TO), NicknameArgument.Target.PLAYER_CONSOLE), Player.class)
             ),
             NucleusParameters.MESSAGE
         };

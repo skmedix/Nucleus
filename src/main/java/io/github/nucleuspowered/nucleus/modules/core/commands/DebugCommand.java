@@ -6,7 +6,6 @@ package io.github.nucleuspowered.nucleus.modules.core.commands;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.Util;
-import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.NoModifiers;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
@@ -64,16 +63,14 @@ public class DebugCommand extends AbstractCommand<CommandSource> {
     @RegisterCommand(value = "getuuids", subcommandOf = DebugCommand.class)
     public static class GetUUIDSCommand extends AbstractCommand<CommandSource> {
 
-        private final String userName = "user";
-
         @Override public CommandElement[] getArguments() {
             return new CommandElement[] {
-                new NicknameArgument<>(Text.of(this.userName), NicknameArgument.UnderlyingType.USER, false)
+                    NucleusParameters.MANY_USER_NO_SELECTOR
             };
         }
 
         @Override protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
-            Collection<User> users = args.getAll(this.userName);
+            Collection<User> users = args.getAll(NucleusParameters.Keys.USER);
             if (users.isEmpty()) {
                 throw ReturnMessageException.fromKey("command.nucleus.debug.uuid.none");
             }

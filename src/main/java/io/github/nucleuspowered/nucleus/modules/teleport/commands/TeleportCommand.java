@@ -8,8 +8,7 @@ import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.argumentparsers.AlternativeUsageArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.IfConditionElseArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.PlayerConsoleArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.SelectorArgument;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.Permissions;
 import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCommand;
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
@@ -87,8 +86,7 @@ public class TeleportCommand extends AbstractCommand<CommandSource> implements R
 
                             new IfConditionElseArgument(
                                 GenericArguments.optionalWeak(
-                                    SelectorWrapperArgument.nicknameSelector(Text.of(this.playerToKey), NicknameArgument.UnderlyingType.PLAYER,
-                                    true, Player.class, (c, p) -> PlayerConsoleArgument.shouldShow(p, c))),
+                                        new SelectorArgument(new NicknameArgument(Text.of(this.playerToKey), NicknameArgument.Target.PLAYER), Player.class)),
                                 GenericArguments.none(),
                                 this::testForSecondPlayer)),
 

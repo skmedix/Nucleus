@@ -96,6 +96,7 @@ public abstract class TestBase {
 
         private final MessageProvider mp = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
         private final PermissionRegistry permissionRegistry = new PermissionRegistry();
+        private final InternalServiceManager serviceManager = new InternalServiceManager();
 
         @Override
         public void addX(List<Text> messages, int spacing) {
@@ -182,7 +183,7 @@ public abstract class TestBase {
 
         @Override
         public InternalServiceManager getInternalServiceManager() {
-            return null;
+            return this.serviceManager;
         }
 
         @Override public Optional<Instant> getGameStartedTime() {

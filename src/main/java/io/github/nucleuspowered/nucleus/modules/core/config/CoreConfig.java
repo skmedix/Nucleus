@@ -76,6 +76,9 @@ public class CoreConfig {
     @Setting(value = "data-file-location", comment = "config.core.datafilelocation")
     private String dataFileLocation = "default";
 
+    @Setting(value = "offline-user-tab-limit", comment = "config.core.offlineusertablimit")
+    private int nicknameArgOfflineLimit = 20;
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -150,5 +153,9 @@ public class CoreConfig {
 
     public String getServerLocale() {
         return this.serverLocale;
+    }
+
+    public int getNicknameArgOfflineLimit() {
+        return this.nicknameArgOfflineLimit;
     }
 }

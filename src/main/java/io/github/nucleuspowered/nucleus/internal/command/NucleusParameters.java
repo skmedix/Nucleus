@@ -10,7 +10,7 @@ import static io.github.nucleuspowered.nucleus.internal.command.NucleusParameter
 import io.github.nucleuspowered.nucleus.argumentparsers.GameProfileArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NicknameArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.NucleusWorldPropertiesArgument;
-import io.github.nucleuspowered.nucleus.argumentparsers.SelectorWrapperArgument;
+import io.github.nucleuspowered.nucleus.argumentparsers.SelectorArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.TimespanArgument;
 import io.github.nucleuspowered.nucleus.argumentparsers.UUIDArgument;
 import org.spongepowered.api.command.args.CommandElement;
@@ -53,40 +53,34 @@ public class NucleusParameters {
     public static final CommandElement OPTIONAL_ONE_TRUE_FALSE = GenericArguments.optional(ONE_TRUE_FALSE);
 
     public static final CommandElement MANY_ENTITY =
-            SelectorWrapperArgument.nicknameSelector(Text.of(Keys.SUBJECT), NicknameArgument.UnderlyingType.PLAYER, false, Entity.class);
+            new SelectorArgument(new NicknameArgument(Text.of(Keys.SUBJECT), NicknameArgument.Target.PLAYER), Entity.class);
 
     public static final CommandElement MANY_LIVING =
-            SelectorWrapperArgument.nicknameSelector(Text.of(Keys.SUBJECT), NicknameArgument.UnderlyingType.PLAYER, false, Living.class);
+            new SelectorArgument(new NicknameArgument(Text.of(Keys.SUBJECT), NicknameArgument.Target.PLAYER), Living.class);
 
     // users
-    public static final CommandElement ONE_PLAYER =
-            GenericArguments.onlyOne(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(Keys.PLAYER), NicknameArgument.UnderlyingType.PLAYER)
-            );
+    public static final CommandElement MANY_PLAYER_NO_SELECTOR = new NicknameArgument(Text.of(Keys.PLAYER), NicknameArgument.Target.PLAYER);
+
+    public static final CommandElement MANY_USER_NO_SELECTOR = new NicknameArgument(Text.of(Keys.USER), NicknameArgument.Target.USER);
+
+    public static final CommandElement ONE_PLAYER_NO_SELECTOR = GenericArguments.onlyOne(MANY_PLAYER_NO_SELECTOR);
+
+    public static final CommandElement MANY_PLAYER = new SelectorArgument(MANY_PLAYER_NO_SELECTOR, Player.class);
+
+    public static final CommandElement ONE_PLAYER = GenericArguments.onlyOne(MANY_PLAYER);
 
     public static final CommandElement OPTIONAL_ONE_PLAYER = GenericArguments.optionalWeak(ONE_PLAYER);
 
-    public static final CommandElement MANY_PLAYER =
-            SelectorWrapperArgument.nicknameSelector(Text.of(Keys.PLAYER), NicknameArgument.UnderlyingType.PLAYER, false, Player.class);
-
-    public static final CommandElement ONE_PLAYER_OR_CONSOLE =
-            GenericArguments.onlyOne(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(Keys.PLAYER_OR_CONSOLE), NicknameArgument.UnderlyingType.PLAYER_CONSOLE)
-            );
-
     public static final CommandElement MANY_PLAYER_OR_CONSOLE =
-            SelectorWrapperArgument.nicknameSelector(Text.of(Keys.PLAYER_OR_CONSOLE), NicknameArgument.UnderlyingType.PLAYER_CONSOLE, false, Player
-                    .class);
+            new SelectorArgument(new NicknameArgument(Text.of(Keys.PLAYER_OR_CONSOLE), NicknameArgument.Target.PLAYER), Player.class);
+
+    public static final CommandElement ONE_PLAYER_OR_CONSOLE = GenericArguments.onlyOne(MANY_PLAYER_OR_CONSOLE);
 
     public static final CommandElement ONE_USER =
-            GenericArguments.onlyOne(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(Keys.USER), NicknameArgument.UnderlyingType.USER)
-            );
+            GenericArguments.onlyOne(new SelectorArgument(new NicknameArgument(Text.of(Keys.USER), NicknameArgument.Target.USER), Player.class));
 
     public static final CommandElement ONE_USER_PLAYER_KEY =
-            GenericArguments.onlyOne(
-                    SelectorWrapperArgument.nicknameSelector(Text.of(Keys.PLAYER), NicknameArgument.UnderlyingType.USER)
-            );
+            GenericArguments.onlyOne(new SelectorArgument(new NicknameArgument(Text.of(Keys.PLAYER), NicknameArgument.Target.USER), Player.class));
 
     public static final CommandElement ONE_USER_UUID = GenericArguments.onlyOne(UUIDArgument.user(Text.of(Keys.USER_UUID)));
 

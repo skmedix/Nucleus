@@ -7,6 +7,7 @@ package io.github.nucleuspowered.nucleus.argumentparsers;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.NucleusPlugin;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
+import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
 import io.github.nucleuspowered.nucleus.modules.home.commands.HomeOtherCommand;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
@@ -19,18 +20,19 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-public class HomeOtherArgument extends HomeArgument {
+public class HomeOtherArgument extends HomeArgument implements MessageProviderTrait {
 
     private final NicknameArgument nickArg;
     private final CommandPermissionHandler reg;
 
     public HomeOtherArgument(@Nullable Text key, Nucleus plugin) {
         super(key, plugin);
-        this.nickArg = new NicknameArgument<>(key, NicknameArgument.UnderlyingType.USER);
+        this.nickArg = new NicknameArgument(key, NicknameArgument.Target.USER);
         this.reg = plugin.getPermissionRegistry().getPermissionsForNucleusCommand(HomeOtherCommand.class);
     }
 
@@ -46,9 +48,15 @@ public class HomeOtherArgument extends HomeArgument {
         }
 
         // We know it's an instance of a user.
-        User user = ((List<User>) this.nickArg.parseInternal(player.toLowerCase(), source, args)).get(0);
+        Set<?> users = this.nickArg.parseValue(source, player.toLowerCase(),
+                (key, entry) -> args.createError(getMessageFor(source.getLocale(), key, entry)));
+        if (users.size() != 1) {
+            throw args.createError(getMessageFor(source.getLocale(), "args.homeother.ambiguous"));
+        }
+
+        User user = (User) users.iterator().next();
         if (this.reg.testSuffix(user, HomeOtherCommand.OTHER_EXEMPT_PERM_SUFFIX, source, false)) {
-            throw args.createError(NucleusPlugin.getNucleus().getMessageProvider().getTextMessageWithFormat("args.homeother.exempt"));
+            throw args.createError(getMessageFor(source.getLocale(), "args.homeother.exempt"));
         }
 
         return this.getHome(user, ohome.get(), args);
@@ -66,11 +74,14 @@ public class HomeOtherArgument extends HomeArgument {
             Optional<String> arg2 = args.nextIfPresent();
             if (arg2.isPresent()) {
                 // Get the user
-                List<?> u = this.nickArg.parseInternal(arg1, src, args);
-                if (!u.isEmpty()) {
-                    User user = (User)(u.get(0));
-                    return this.complete(user, arg2.get());
+                Set<?> u = this.nickArg.parseValue(src, arg1.toLowerCase(),
+                        (key, entry) -> args.createError(getMessageFor(src.getLocale(), key, entry)));
+                if (u.size() != 1) {
+                    throw args.createError(getMessageFor(src.getLocale(), "args.homeother.ambiguous"));
                 }
+
+                User user = (User) (u.iterator().next());
+                return this.complete(user, arg2.get());
             } else {
                 args.setState(saveState);
                 return this.nickArg.complete(src, args, context);
