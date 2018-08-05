@@ -130,10 +130,18 @@ public class Util {
     }
 
     public static String getTimeToNow(Instant time) {
-        return getTimeStringFromSeconds(Instant.now().getEpochSecond() - time.getEpochSecond());
+        return getTimeToNow(time, "standard.inamoment");
+    }
+
+    public static String getTimeToNow(Instant time, String nowkey) {
+        return getTimeStringFromSeconds(Instant.now().getEpochSecond() - time.getEpochSecond(), nowkey);
     }
 
     public static String getTimeStringFromSeconds(long time) {
+        return getTimeStringFromSeconds(time, "standard.inamoment");
+    }
+
+    public static String getTimeStringFromSeconds(long time, String nowkey) {
         time = Math.abs(time);
         long sec = time % 60;
         long min = (time / 60) % 60;
@@ -142,7 +150,7 @@ public class Util {
 
         MessageProvider messageProvider = Nucleus.getNucleus().getMessageProvider();
         if (time == 0) {
-            return messageProvider.getMessageWithFormat("standard.inamoment");
+            return messageProvider.getMessageWithFormat(nowkey);
         }
 
         StringBuilder sb = new StringBuilder();

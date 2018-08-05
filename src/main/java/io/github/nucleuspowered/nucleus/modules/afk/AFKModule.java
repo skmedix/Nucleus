@@ -4,29 +4,37 @@
  */
 package io.github.nucleuspowered.nucleus.modules.afk;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.Util;
 import io.github.nucleuspowered.nucleus.api.service.NucleusAFKService;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterCommandInterceptors;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
+import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionHandlerTrait;
+import io.github.nucleuspowered.nucleus.modules.afk.commands.AFKCommand;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.afk.handlers.AFKHandler;
 import io.github.nucleuspowered.nucleus.modules.afk.interceptors.AFKCommandInterceptor;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @RegisterService(value = AFKHandler.class, apiService = NucleusAFKService.class)
 @RegisterCommandInterceptors(AFKCommandInterceptor.class)
 @ModuleData(id = AFKModule.ID, name = "AFK")
-public class AFKModule extends ConfigurableModule<AFKConfigAdapter> {
+public class AFKModule extends ConfigurableModule<AFKConfigAdapter> implements PermissionHandlerTrait, MessageProviderTrait {
 
     public static final String ID = "afk";
 
@@ -50,5 +58,35 @@ public class AFKModule extends ConfigurableModule<AFKConfigAdapter> {
                     }
                 })
                 .build();
+    }
+
+    @Override
+    protected void performEnableTasks() throws Exception {
+        super.performEnableTasks();
+
+        final String perm = getPermissionHandlerFor(AFKCommand.class).getPermissionWithSuffix("notify");
+        createSeenModule(perm, this::createAFKSeenData);
+    }
+
+    private List<Text> createAFKSeenData(CommandSource source, User user) {
+        AFKHandler handler = Nucleus.getNucleus().getInternalServiceManager().getServiceUnchecked(AFKHandler.class);
+        if (user.isOnline()) {
+            Player player = user.getPlayer().get();
+            String timeToNow = Util.getTimeToNow(handler.lastActivity(player), "standard.now");
+            if (handler.canGoAFK(player)) {
+                if (handler.isAFK(player)) {
+                    return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
+                            getMessageFor(source.getLocale(), "standard.yes"), timeToNow));
+                } else {
+                    return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk.false",
+                            getMessageFor(source.getLocale(), "standard.no"), timeToNow));
+                }
+            } else {
+                return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk.disabled",
+                        getMessageFor(source.getLocale(), "standard.disabled"), timeToNow));
+            }
+        } else {
+            return ImmutableList.of();
+        }
     }
 }
