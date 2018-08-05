@@ -43,7 +43,7 @@ allprojects {
 project.ext.versionno = '1.5.0'
 project.ext.minecraftversion = '1.12.2'
 project.ext.spongeapiversion = '7.0'
-project.ext.suffix = '-SNAPSHOT'
+project.ext.suffix = ''
 project.ext.hash = ''
 
 String docVer
