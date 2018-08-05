@@ -31,6 +31,9 @@ public class AFKConfig {
     @Setting(value = "triggers", comment = "config.afk.triggers.summary")
     private Triggers triggers = new Triggers();
 
+    @Setting(value = "disable-in-spectator-mode", comment = "config.afk.spectatormode")
+    private boolean disableInSpectatorMode = false;
+
     public Triggers getTriggers() {
         return this.triggers;
     }
@@ -57,6 +60,10 @@ public class AFKConfig {
 
     public MessagesConfig getMessages() {
         return this.messages;
+    }
+
+    public boolean isDisableInSpectatorMode() {
+        return this.disableInSpectatorMode;
     }
 
     @ConfigSerializable
