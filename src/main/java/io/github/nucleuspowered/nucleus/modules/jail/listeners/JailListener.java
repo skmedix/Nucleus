@@ -117,10 +117,12 @@ public class JailListener implements Reloadable, ListenerBase {
             JailData jd = data.get();
             Optional<Duration> timeLeft = jd.getRemainingTime();
             Text message = timeLeft.map(duration -> Nucleus.getNucleus().getMessageProvider()
-                .getTextMessageWithFormat("command.jail.jailed", owl.getName(), Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()),
-                        Nucleus.getNucleus().getMessageProvider().getMessageWithFormat("standard.for"), Util.getTimeStringFromSeconds(duration.getSeconds())))
+                .getTextMessageWithFormat("command.jail.jailedfor", owl.getName(),
+                        Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()),
+                        Util.getTimeStringFromSeconds(duration.getSeconds())))
                 .orElseGet(() -> Nucleus.getNucleus().getMessageProvider()
-                    .getTextMessageWithFormat("command.jail.jailed", owl.getName(), Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()), "",
+                    .getTextMessageWithFormat("command.jail.jailedperm", owl.getName(),
+                            Nucleus.getNucleus().getNameUtil().getNameFromUUID(jd.getJailerInternal()), "",
                         ""));
 
             user.sendMessage(message);
