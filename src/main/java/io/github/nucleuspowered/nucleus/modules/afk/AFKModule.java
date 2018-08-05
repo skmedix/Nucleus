@@ -78,12 +78,12 @@ public class AFKModule extends ConfigurableModule<AFKConfigAdapter> implements P
                     return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
                             getMessageFor(source.getLocale(), "standard.yes"), timeToNow));
                 } else {
-                    return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk.false",
+                    return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
                             getMessageFor(source.getLocale(), "standard.no"), timeToNow));
                 }
             } else {
-                return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk.disabled",
-                        getMessageFor(source.getLocale(), "standard.disabled"), timeToNow));
+                return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
+                        getMessageFor(source.getLocale(), "standard.no"), timeToNow));
             }
         } else {
             return ImmutableList.of();
