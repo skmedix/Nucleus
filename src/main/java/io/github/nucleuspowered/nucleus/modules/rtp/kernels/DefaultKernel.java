@@ -37,6 +37,7 @@ public class DefaultKernel implements RTPKernel {
                 TeleportHelper.DEFAULT_HEIGHT,
                 TeleportHelper.DEFAULT_WIDTH,
                 TeleportHelper.DEFAULT_FLOOR_CHECK_DISTANCE,
+                TeleportHelperFilters.CONFIG,
                 filterToUse());
         if (targetLocation.isPresent()) {
             // Is it in the world border?
