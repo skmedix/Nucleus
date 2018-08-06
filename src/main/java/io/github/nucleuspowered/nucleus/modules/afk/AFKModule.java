@@ -76,14 +76,14 @@ public class AFKModule extends ConfigurableModule<AFKConfigAdapter> implements P
             if (handler.canGoAFK(player)) {
                 if (handler.isAFK(player)) {
                     return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
-                            getMessageFor(source.getLocale(), "standard.yes"), timeToNow));
+                            getMessageFor(source.getLocale(), "standard.yesno.false"), timeToNow));
                 } else {
                     return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
-                            getMessageFor(source.getLocale(), "standard.no"), timeToNow));
+                            getMessageFor(source.getLocale(), "standard.yesno.false"), timeToNow));
                 }
             } else {
                 return Lists.newArrayList(getMessageFor(source.getLocale(), "command.seen.afk",
-                        getMessageFor(source.getLocale(), "standard.no"), timeToNow));
+                        getMessageFor(source.getLocale(), "standard.yesno.false"), timeToNow));
             }
         } else {
             return ImmutableList.of();
