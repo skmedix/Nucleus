@@ -27,7 +27,7 @@ public class HelpOpMessageChannel implements NucleusChatChannel.HelpOp {
     @Override
     public Collection<MessageReceiver> getMembers() {
         List<MessageReceiver> members = Lists.newArrayList(Sponge.getServer().getConsole());
-        Sponge.getServer().getOnlinePlayers().stream().filter(x -> !x.hasPermission(PERMISSION)).forEach(members::add);
+        Sponge.getServer().getOnlinePlayers().stream().filter(x -> x.hasPermission(PERMISSION)).forEach(members::add);
         return members;
     }
 }
