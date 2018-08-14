@@ -218,9 +218,14 @@ shadowJar {
 }
 shadowJar.dependsOn(':nucleus-api:build')
 
-task cleanJars() {
-    project.file('output').listFiles().each {
-        x -> if (x.name.endsWith("jar") || x.name.endsWith("asc") || x.name.endsWith("md")) { x.delete() }
+task cleanJars {
+    doLast {
+        project.file('output').listFiles().each {
+            x ->
+                if (x.name.endsWith("jar") || x.name.endsWith("asc") || x.name.endsWith("md")) {
+                    x.delete()
+                }
+        }
     }
 }
 
