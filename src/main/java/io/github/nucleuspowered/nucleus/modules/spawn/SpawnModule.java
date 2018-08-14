@@ -4,6 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.spawn;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.spawn.config.SpawnConfigAdapter;
 import uk.co.drnaylor.quickstart.annotations.ModuleData;
@@ -16,5 +18,11 @@ public class SpawnModule extends ConfigurableModule<SpawnConfigAdapter> {
     @Override
     public SpawnConfigAdapter createAdapter() {
         return new SpawnConfigAdapter();
+    }
+
+    @Override protected void setPermissionPredicates() {
+        Nucleus.getNucleus().getPermissionResolver().registerPermissionPredicate(
+                perm -> perm.toLowerCase().startsWith("nucleus.spawn.worlds."), SuggestedLevel.ADMIN
+        );
     }
 }

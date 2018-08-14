@@ -10,13 +10,13 @@ import io.github.nucleuspowered.nucleus.internal.annotations.EntryPoint;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
-import io.github.nucleuspowered.nucleus.internal.traits.PermissionHandlerTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 
 import java.util.Map;
 
 @EntryPoint
 @Store(Constants.LISTENER)
-public interface ListenerBase extends InternalServiceManagerTrait, PermissionHandlerTrait, MessageProviderTrait {
+public interface ListenerBase extends InternalServiceManagerTrait, PermissionTrait, MessageProviderTrait {
 
     default Map<String, PermissionInformation> getPermissions() {
         return Maps.newHashMap();

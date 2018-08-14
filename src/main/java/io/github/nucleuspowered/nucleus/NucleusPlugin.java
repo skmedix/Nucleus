@@ -42,9 +42,8 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.messages.ConfigMessageProvider;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.messages.ResourceMessageProvider;
-import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
+import io.github.nucleuspowered.nucleus.internal.permissions.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListener;
-import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.qsml.ModuleRegistrationProxyService;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusLoggerProxy;
@@ -88,8 +87,6 @@ import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.economy.EconomyService;
-import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
@@ -140,6 +137,7 @@ public class NucleusPlugin extends Nucleus {
     private KitService kitService;
     private TextParsingUtils textParsingUtils;
     private NameUtil nameUtil;
+    private final PermissionResolver permissionResolver = new PermissionResolver();
     private final List<Reloadable> reloadableList = Lists.newArrayList();
     private DocGenCache docGenCache = null;
     private final NucleusTeleportHandler teleportHandler = new NucleusTeleportHandler();
@@ -461,7 +459,7 @@ public class NucleusPlugin extends Nucleus {
 
         logMessageDefault();
         this.logger.info(this.messageProvider.getMessageWithFormat("startup.moduleloaded", PluginInfo.NAME));
-        registerPermissions();
+        this.permissionResolver.registerPermissions();
         Sponge.getEventManager().post(new BaseModuleEvent.Complete(this));
 
         this.logger.info(this.messageProvider.getMessageWithFormat("startup.completeinit", PluginInfo.NAME));
@@ -949,10 +947,7 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    @Override protected void registerPermissions() {
-        Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
-        ops.ifPresent(permissionService -> {
-            Map<String, PermissionInformation> m = this.getPermissionRegistry().getPermissions();
+    /*
             m.entrySet().stream().filter(x -> {
                 SuggestedLevel lvl = x.getValue().level;
                 return lvl == SuggestedLevel.ADMIN || lvl == SuggestedLevel.OWNER;
@@ -969,6 +964,11 @@ public class NucleusPlugin extends Nucleus {
                     .forEach(k -> permissionService.newDescriptionBuilder(this).assign(PermissionDescription.ROLE_USER, true)
                             .description(k.getValue().description).id(k.getKey()).register());
         });
+    }
+*/
+    @Override
+    public PermissionResolver getPermissionResolver() {
+        return this.permissionResolver;
     }
 
     @Override

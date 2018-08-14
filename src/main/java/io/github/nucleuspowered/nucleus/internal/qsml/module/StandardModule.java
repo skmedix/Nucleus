@@ -227,6 +227,7 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
     @Override
     public final void postEnable() {
         loadTokens();
+        setPermissionPredicates();
         configTasks();
         try {
             performPostTasks();
@@ -235,6 +236,8 @@ public abstract class StandardModule implements Module, InternalServiceManagerTr
             throw new RuntimeException("Cannot perform post enable on module!", e);
         }
     }
+
+    protected void setPermissionPredicates() {}
 
     @SuppressWarnings("unchecked")
     private void loadCommands() {

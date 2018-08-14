@@ -15,7 +15,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.internal.text.Tokens;
 import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
-import io.github.nucleuspowered.nucleus.internal.traits.PermissionHandlerTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.afk.commands.AFKCommand;
 import io.github.nucleuspowered.nucleus.modules.afk.config.AFKConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.afk.handlers.AFKHandler;
@@ -34,7 +34,7 @@ import java.util.Optional;
 @RegisterService(value = AFKHandler.class, apiService = NucleusAFKService.class)
 @RegisterCommandInterceptors(AFKCommandInterceptor.class)
 @ModuleData(id = AFKModule.ID, name = "AFK")
-public class AFKModule extends ConfigurableModule<AFKConfigAdapter> implements PermissionHandlerTrait, MessageProviderTrait {
+public class AFKModule extends ConfigurableModule<AFKConfigAdapter> implements PermissionTrait, MessageProviderTrait {
 
     public static final String ID = "afk";
 

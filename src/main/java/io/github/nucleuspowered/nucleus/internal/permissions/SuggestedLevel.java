@@ -4,23 +4,39 @@
  */
 package io.github.nucleuspowered.nucleus.internal.permissions;
 
+import org.spongepowered.api.service.permission.PermissionDescription;
+
 import javax.annotation.Nullable;
 
 public enum SuggestedLevel {
-    USER(null),
-    MOD(USER),
-    ADMIN(MOD),
-    OWNER(ADMIN),
-    NONE(OWNER);
+    USER(null, "nucleus.user", PermissionDescription.ROLE_USER),
+    MOD(USER, "nucleus.mod", PermissionDescription.ROLE_STAFF),
+    ADMIN(MOD, "nucleus.admin", PermissionDescription.ROLE_ADMIN),
+    OWNER(ADMIN, "nucleus.owner", PermissionDescription.ROLE_ADMIN),
+    NONE(OWNER, null, null);
 
     @Nullable private final SuggestedLevel level;
+    @Nullable private final String permission;
+    @Nullable private final String role;
 
-    SuggestedLevel(@Nullable SuggestedLevel level) {
+    SuggestedLevel(@Nullable SuggestedLevel level, @Nullable String permission, @Nullable String role) {
         this.level = level;
+        this.permission = permission;
+        this.role = role;
     }
 
     @Nullable
     public SuggestedLevel getLowerLevel() {
         return this.level;
+    }
+
+    @Nullable
+    public String getPermission() {
+        return this.permission;
+    }
+
+    @Nullable
+    public String getRole() {
+        return this.role;
     }
 }
