@@ -54,6 +54,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+// TODO: 7.1 cleanup
 @Permissions
 @RunAsync
 @RegisterCommand({"seen", "seenplayer", "lookup"})
@@ -156,11 +157,20 @@ public class SeenCommand extends AbstractCommand<CommandSource> {
                                 .withLocale(src.getLocale())
                                 .withZone(ZoneId.systemDefault()).format(x))));
 
+                user.get(Keys.WALKING_SPEED).ifPresent(x ->
+                    messages.add(messageProvider.getTextMessageWithFormat("command.seen.speed.walk", String.valueOf(x * SpeedCommand.multiplier))));
+                user.get(Keys.FLYING_SPEED).ifPresent(x ->
+                        messages.add(messageProvider.getTextMessageWithFormat("command.seen.speed.fly", String.valueOf(x * SpeedCommand.multiplier))));
 
-                Optional<Location<World>> olw = coreUserDataModule.getLogoutLocation();
-
-                olw.ifPresent(worldLocation -> messages
+                coreUserDataModule.getLogoutLocation().ifPresent(worldLocation -> messages
                     .add(getLocationString("command.seen.lastlocation", worldLocation, src)));
+
+                user.get(Keys.CAN_FLY).ifPresent(x ->
+                        messages.add(messageProvider.getTextMessageWithFormat("command.seen.canfly", getYesNo(x))));
+                user.get(Keys.IS_FLYING).ifPresent(x ->
+                    messages.add(messageProvider.getTextMessageWithFormat("command.seen.isflying", getYesNo(x))));
+                user.get(Keys.GAME_MODE).ifPresent(x ->
+                    messages.add(messageProvider.getTextMessageWithFormat("command.seen.gamemode", x.getName())));
 
             }
         }
