@@ -4,8 +4,8 @@
  */
 package io.github.nucleuspowered.nucleus.modules.world;
 
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.annotations.RegisterService;
+import io.github.nucleuspowered.nucleus.internal.permissions.PermissionResolverImpl;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.qsml.module.ConfigurableModule;
 import io.github.nucleuspowered.nucleus.modules.world.config.WorldConfigAdapter;
@@ -23,8 +23,7 @@ public class WorldModule extends ConfigurableModule<WorldConfigAdapter> {
 
     @Override
     protected void setPermissionPredicates() {
-        Nucleus.getNucleus().getPermissionResolver()
-                .registerPermissionPredicate(perm -> perm.toLowerCase().startsWith("nucleus.worlds."), SuggestedLevel.ADMIN);
+        PermissionResolverImpl.INSTANCE.registerPermissionPredicate(perm -> perm.toLowerCase().startsWith("nucleus.worlds."), SuggestedLevel.ADMIN);
     }
 
 }

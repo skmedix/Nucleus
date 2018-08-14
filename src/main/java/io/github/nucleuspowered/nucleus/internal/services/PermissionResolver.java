@@ -1,15 +1,11 @@
 package io.github.nucleuspowered.nucleus.internal.services;
 
-import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import org.spongepowered.api.service.permission.Subject;
 
-import java.util.function.Predicate;
-
+@FunctionalInterface
 public interface PermissionResolver {
 
-    void registerPermissions();
-
-    void registerPermissionPredicate(Predicate<String> perm, SuggestedLevel level);
+    PermissionResolver SIMPLE = Subject::hasPermission;
 
     boolean hasPermission(Subject subject, String permission);
 }

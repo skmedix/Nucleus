@@ -138,7 +138,7 @@ public class NucleusPlugin extends Nucleus {
     private KitService kitService;
     private TextParsingUtils textParsingUtils;
     private NameUtil nameUtil;
-    private final PermissionResolverImpl permissionResolver = new PermissionResolverImpl();
+    private PermissionResolver permissionResolver = PermissionResolverImpl.INSTANCE;
     private final List<Reloadable> reloadableList = Lists.newArrayList();
     private DocGenCache docGenCache = null;
     private final NucleusTeleportHandler teleportHandler = new NucleusTeleportHandler();
@@ -460,7 +460,9 @@ public class NucleusPlugin extends Nucleus {
 
         logMessageDefault();
         this.logger.info(this.messageProvider.getMessageWithFormat("startup.moduleloaded", PluginInfo.NAME));
-        this.permissionResolver.registerPermissions();
+        PermissionResolverImpl.INSTANCE.registerPermissions();
+        registerReloadable(this::reloadPerm);
+        this.reloadPerm();
         Sponge.getEventManager().post(new BaseModuleEvent.Complete(this));
 
         this.logger.info(this.messageProvider.getMessageWithFormat("startup.completeinit", PluginInfo.NAME));
@@ -724,6 +726,14 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
+    private void reloadPerm() {
+        if (getInternalServiceManager().getServiceUnchecked(CoreConfigAdapter.class).getNodeOrDefault().isUseParentPerms()) {
+            this.permissionResolver = PermissionResolverImpl.INSTANCE;
+        } else {
+            this.permissionResolver = PermissionResolver.SIMPLE;
+        }
+    }
+
     @Override
     public boolean reloadMessages() {
         boolean r = true;
@@ -948,25 +958,6 @@ public class NucleusPlugin extends Nucleus {
         }
     }
 
-    /*
-            m.entrySet().stream().filter(x -> {
-                SuggestedLevel lvl = x.getValue().level;
-                return lvl == SuggestedLevel.ADMIN || lvl == SuggestedLevel.OWNER;
-            })
-                    .filter(x -> x.getValue().isNormal)
-                    .forEach(k -> permissionService.newDescriptionBuilder(this).assign(PermissionDescription.ROLE_ADMIN, true)
-                            .description(k.getValue().description).id(k.getKey()).register());
-            m.entrySet().stream().filter(x -> x.getValue().level == SuggestedLevel.MOD)
-                    .filter(x -> x.getValue().isNormal)
-                    .forEach(k -> permissionService.newDescriptionBuilder(this).assign(PermissionDescription.ROLE_STAFF, true)
-                            .description(k.getValue().description).id(k.getKey()).register());
-            m.entrySet().stream().filter(x -> x.getValue().level == SuggestedLevel.USER)
-                    .filter(x -> x.getValue().isNormal)
-                    .forEach(k -> permissionService.newDescriptionBuilder(this).assign(PermissionDescription.ROLE_USER, true)
-                            .description(k.getValue().description).id(k.getKey()).register());
-        });
-    }
-*/
     @Override
     public PermissionResolver getPermissionResolver() {
         return this.permissionResolver;

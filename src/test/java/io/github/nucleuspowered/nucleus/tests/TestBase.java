@@ -23,7 +23,6 @@ import io.github.nucleuspowered.nucleus.internal.docgen.DocGenCache;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.messages.ResourceMessageProvider;
-import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
 import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
@@ -36,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.FormattingCodeTextSerializer;
 import org.spongepowered.api.text.serializer.SafeTextSerializer;
@@ -51,7 +49,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public abstract class TestBase {
 
@@ -101,19 +98,6 @@ public abstract class TestBase {
         private final MessageProvider mp = new ResourceMessageProvider(ResourceMessageProvider.messagesBundle);
         private final PermissionRegistry permissionRegistry = new PermissionRegistry();
         private final InternalServiceManager serviceManager = new InternalServiceManager();
-        private final PermissionResolver resolver = new PermissionResolver() {
-            @Override public void registerPermissions() {
-
-            }
-
-            @Override public void registerPermissionPredicate(Predicate<String> perm, SuggestedLevel level) {
-
-            }
-
-            @Override public boolean hasPermission(Subject subject, String permission) {
-                return subject.hasPermission(permission);
-            }
-        };
 
         @Override
         public void addX(List<Text> messages, int spacing) {
@@ -298,7 +282,7 @@ public abstract class TestBase {
         }
 
         @Override public PermissionResolver getPermissionResolver() {
-            return this.resolver;
+            return PermissionResolver.SIMPLE;
         }
 
         @Override public boolean isServer() {

@@ -79,6 +79,9 @@ public class CoreConfig {
     @Setting(value = "offline-user-tab-limit", comment = "config.core.offlineusertablimit")
     private int nicknameArgOfflineLimit = 20;
 
+    @Setting(value = "enable-parent-perms", comment = "config.core.parentperms")
+    private boolean useParentPerms = true;
+
     public boolean isDebugmode() {
         return this.debugmode;
     }
@@ -157,5 +160,9 @@ public class CoreConfig {
 
     public int getNicknameArgOfflineLimit() {
         return this.nicknameArgOfflineLimit;
+    }
+
+    public boolean isUseParentPerms() {
+        return useParentPerms;
     }
 }

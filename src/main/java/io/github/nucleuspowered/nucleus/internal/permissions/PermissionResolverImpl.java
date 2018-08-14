@@ -17,14 +17,20 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 
+@Singleton
 public class PermissionResolverImpl implements PermissionResolver {
+
+    public final static PermissionResolverImpl INSTANCE = new PermissionResolverImpl();
+
+    private PermissionResolverImpl() {}
 
     private final Map<String, String> permissions = new HashMap<>();
     private final Map<Predicate<String>, String> permissionPredicates = new HashMap<>();
     private boolean init = false;
 
-    @Override public void registerPermissions() {
+    public void registerPermissions() {
         Preconditions.checkState(!this.init);
         this.init = true;
         PermissionService ps = Sponge.getServiceManager().provide(PermissionService.class).orElse(null);
@@ -52,7 +58,7 @@ public class PermissionResolverImpl implements PermissionResolver {
         }
     }
 
-    @Override public void registerPermissionPredicate(Predicate<String> perm, SuggestedLevel level) {
+    public void registerPermissionPredicate(Predicate<String> perm, SuggestedLevel level) {
         String l = level.getPermission();
         if (l != null) {
             this.permissionPredicates.put(perm, l);
