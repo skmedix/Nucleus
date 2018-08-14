@@ -4,6 +4,7 @@
  */
 package io.github.nucleuspowered.nucleus.argumentparsers;
 
+import io.github.nucleuspowered.nucleus.Nucleus;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.ArgumentParseException;
 import org.spongepowered.api.command.args.CommandArgs;
@@ -23,7 +24,7 @@ public class IfConditionElseArgument extends CommandElement {
 
     public static IfConditionElseArgument permission(String permission,
             CommandElement ifSo, CommandElement ifNot) {
-        return new IfConditionElseArgument(ifSo, ifNot, (s, c) -> s.hasPermission(permission));
+        return new IfConditionElseArgument(ifSo, ifNot, (s, c) -> Nucleus.getNucleus().getPermissionResolver().hasPermission(s, permission));
     }
 
     public IfConditionElseArgument(CommandElement trueElement, CommandElement falseElement,

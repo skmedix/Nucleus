@@ -20,6 +20,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfig;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class KitHandler implements NucleusKitService, Reloadable, InternalServiceManagerTrait, MessageProviderTrait {
+public class KitHandler implements NucleusKitService, Reloadable, InternalServiceManagerTrait, MessageProviderTrait, PermissionTrait {
 
     private static final InventoryTransactionResult EMPTY_ITR =
             InventoryTransactionResult.builder().type(InventoryTransactionResult.Type.SUCCESS).build();
@@ -127,7 +128,7 @@ public class KitHandler implements NucleusKitService, Reloadable, InternalServic
             if (oi.isPresent()) {
 
                 // if it's one time only and the user does not have an exemption...
-                if (kit.isOneTime() && !player.hasPermission(this.cph.getPermissionWithSuffix("exempt.onetime"))) {
+                if (kit.isOneTime() && !hasPermission(player, this.cph.getPermissionWithSuffix("exempt.onetime"))) {
                     throw new KitRedeemException("Already redeemed", KitRedeemException.Reason.ALREADY_REDEEMED);
                 }
 

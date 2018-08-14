@@ -579,8 +579,8 @@ public abstract class AbstractCommand<T extends CommandSource> implements Comman
      * @param source The {@link Subject} to test.
      * @return The result of the check.
      */
-    private boolean testPermissionOnSubject(Subject source) {
-        if (this.additionalPermsToCheck != null && !this.additionalPermsToCheck.stream().allMatch(source::hasPermission)) {
+    private boolean testPermissionOnSubject(final Subject source) {
+        if (this.additionalPermsToCheck != null && !this.additionalPermsToCheck.stream().allMatch(x -> hasPermission(source, x))) {
             return false;
         }
         return this.permissions.isPassthrough() || this.permissions.testBase(source);

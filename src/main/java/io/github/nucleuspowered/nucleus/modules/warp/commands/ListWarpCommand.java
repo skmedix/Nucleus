@@ -75,7 +75,7 @@ public class ListWarpCommand extends AbstractCommand<CommandSource> implements R
     }
 
     private boolean canView(CommandSource src, String warp) {
-        return !this.isSeparatePerms || src.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "warps." + warp.toLowerCase());
+        return !this.isSeparatePerms || hasPermission(src, PermissionRegistry.PERMISSIONS_PREFIX + "warps." + warp.toLowerCase());
     }
 
     private CommandResult categories(final CommandSource src) {

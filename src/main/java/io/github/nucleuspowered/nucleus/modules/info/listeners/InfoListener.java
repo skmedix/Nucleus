@@ -41,7 +41,7 @@ public class InfoListener implements Reloadable, ListenerBase.Conditional {
     public void playerJoin(ClientConnectionEvent.Join event, @Getter("getTargetEntity") Player player) {
         // Send message one second later on the Async thread.
         Sponge.getScheduler().createAsyncExecutor(Nucleus.getNucleus()).schedule(() -> {
-                if (player.hasPermission(this.motdPerm)) {
+                if (hasPermission(player, this.motdPerm)) {
                     Nucleus.getNucleus().getTextFileController(InfoModule.MOTD_KEY).ifPresent(x -> {
                         if (this.usePagination) {
                             x.sendToPlayer(player, this.title);

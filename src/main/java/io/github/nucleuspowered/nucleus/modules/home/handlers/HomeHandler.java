@@ -13,6 +13,7 @@ import io.github.nucleuspowered.nucleus.api.exceptions.NucleusException;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Home;
 import io.github.nucleuspowered.nucleus.api.service.NucleusHomeService;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.home.commands.SetHomeCommand;
 import io.github.nucleuspowered.nucleus.modules.home.datamodules.HomeUserDataModule;
 import io.github.nucleuspowered.nucleus.modules.home.events.AbstractHomeEvent;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class HomeHandler implements NucleusHomeService {
+public class HomeHandler implements NucleusHomeService, PermissionTrait {
 
     private final String unlimitedPermission
             = Nucleus.getNucleus().getPermissionRegistry().getPermissionsForNucleusCommand(SetHomeCommand.class).getPermissionWithSuffix("unlimited");
@@ -120,7 +121,7 @@ public class HomeHandler implements NucleusHomeService {
     }
 
     @Override public int getMaximumHomes(User src) {
-        if (src.hasPermission(this.unlimitedPermission)) {
+        if (hasPermission(src, this.unlimitedPermission)) {
             return Integer.MAX_VALUE;
         }
 

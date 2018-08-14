@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.chat.NucleusChatChannel;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.staffchat.commands.StaffChatCommand;
 import io.github.nucleuspowered.nucleus.modules.staffchat.config.StaffChatConfigAdapter;
 import org.spongepowered.api.Sponge;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat {
+public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat, PermissionTrait {
 
     private static StaffChatMessageChannel INSTANCE = null;
 
@@ -76,7 +77,8 @@ public class StaffChatMessageChannel implements NucleusChatChannel.StaffChat {
     @Override
     @Nonnull
     public Collection<MessageReceiver> getMembers() {
-        List<MessageReceiver> c = Sponge.getServer().getOnlinePlayers().stream().filter(x -> x.hasPermission(this.basePerm)).collect(Collectors.toList());
+        List<MessageReceiver> c =
+                Sponge.getServer().getOnlinePlayers().stream().filter(x -> hasPermission(x, this.basePerm)).collect(Collectors.toList());
         c.add(Sponge.getServer().getConsole());
         return c;
     }

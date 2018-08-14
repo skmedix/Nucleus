@@ -47,7 +47,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
     @Listener(order = Order.LAST)
     public void onCommand(SendCommandEvent event, @Root Player player) {
 
-        if (!player.hasPermission(this.exemptTarget)) {
+        if (!hasPermission(player, this.exemptTarget)) {
             boolean isInList = false;
             if (!this.listIsEmpty) {
                 String command = event.getCommand().toLowerCase();
@@ -65,7 +65,7 @@ public class CommandSpyListener implements Reloadable, ListenerBase.Conditional 
                 List<Player> playerList = Sponge.getServer().getOnlinePlayers()
                     .stream()
                     .filter(x -> !x.getUniqueId().equals(player.getUniqueId()))
-                    .filter(x -> x.hasPermission(this.basePermission))
+                    .filter(x -> hasPermission(x, this.basePermission))
                     .filter(x -> Nucleus.getNucleus().getUserDataManager().getUnchecked(x).get(CommandSpyUserDataModule.class).isCommandSpy())
                     .collect(Collectors.toList());
 

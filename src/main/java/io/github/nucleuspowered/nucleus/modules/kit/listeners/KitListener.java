@@ -58,7 +58,7 @@ public class KitListener implements Reloadable, ListenerBase {
             KitUserDataModule user = loader.get(player.getUniqueId()).get().get(KitUserDataModule.class);
             gds.getAutoRedeemable().stream()
                 .filter(k -> k.ignoresPermission() ||
-                        !player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getName().toLowerCase()))
+                        !hasPermission(player, PermissionRegistry.PERMISSIONS_PREFIX + "kits." + k.getName().toLowerCase()))
                 .forEach(k -> {
                     try {
                         handler.redeemKit(k, player, true, this.mustGetAll);

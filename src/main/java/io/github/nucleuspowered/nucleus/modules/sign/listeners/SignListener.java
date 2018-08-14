@@ -26,7 +26,7 @@ public class SignListener implements ListenerBase {
     public void onPlayerChangeSign(ChangeSignEvent event, @Root Player player) {
         SignData signData = event.getText();
 
-        if (player.hasPermission(this.permission)) {
+        if (hasPermission(player, this.permission)) {
             for (int i = 0; i < signData.lines().size(); i++) {
                 signData = signData.set(signData.lines().set(i, TextSerializers.FORMATTING_CODE.deserialize(signData.lines().get(i).toPlain())));
             }

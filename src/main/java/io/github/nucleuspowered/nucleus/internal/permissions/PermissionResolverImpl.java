@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.internal.permissions;
 
 import com.google.common.base.Preconditions;
 import io.github.nucleuspowered.nucleus.Nucleus;
+import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
@@ -17,13 +18,13 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
-public class PermissionResolver {
+public class PermissionResolverImpl implements PermissionResolver {
 
     private final Map<String, String> permissions = new HashMap<>();
     private final Map<Predicate<String>, String> permissionPredicates = new HashMap<>();
     private boolean init = false;
 
-    public void registerPermissions() {
+    @Override public void registerPermissions() {
         Preconditions.checkState(!this.init);
         this.init = true;
         PermissionService ps = Sponge.getServiceManager().provide(PermissionService.class).orElse(null);
@@ -51,14 +52,14 @@ public class PermissionResolver {
         }
     }
 
-    public void registerPermissionPredicate(Predicate<String> perm, SuggestedLevel level) {
+    @Override public void registerPermissionPredicate(Predicate<String> perm, SuggestedLevel level) {
         String l = level.getPermission();
         if (l != null) {
             this.permissionPredicates.put(perm, l);
         }
     }
 
-    public boolean hasPermission(Subject subject, String permission) {
+    @Override public boolean hasPermission(Subject subject, String permission) {
         Tristate tristate = subject.getPermissionValue(subject.getActiveContexts(), permission);
         if (tristate == Tristate.UNDEFINED) {
             @Nullable String result = this.permissions.get(permission);

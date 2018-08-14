@@ -15,6 +15,7 @@ import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
 import io.github.nucleuspowered.nucleus.internal.CommandPermissionHandler;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.nickname.NicknameModule;
 import io.github.nucleuspowered.nucleus.modules.nickname.commands.NicknameCommand;
 import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfig;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class NicknameService implements NucleusNicknameService, Reloadable {
+public class NicknameService implements NucleusNicknameService, Reloadable, PermissionTrait {
 
     private Pattern pattern;
     private int min = 3;
@@ -274,7 +275,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
         if (m.contains("&")) {
             for (Map.Entry<String[], Tuple<Matcher, Text>> r : this.replacements.entrySet()) {
                 // If we don't have the required permission...
-                if (r.getValue().getFirst().reset(m).find() && Arrays.stream(r.getKey()).noneMatch(source::hasPermission)) {
+                if (r.getValue().getFirst().reset(m).find() && Arrays.stream(r.getKey()).noneMatch(x -> hasPermission(source, x))) {
                     // throw
                     throw new NicknameException(r.getValue().getSecond(), NicknameException.Type.INVALID_STYLE_OR_COLOUR);
                 }

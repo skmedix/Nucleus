@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSet;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
 import io.github.nucleuspowered.nucleus.internal.traits.MessageProviderTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
 import io.github.nucleuspowered.nucleus.modules.vanish.commands.VanishCommand;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class NicknameArgument extends CommandElement implements MessageProviderTrait, InternalServiceManagerTrait {
+public class NicknameArgument extends CommandElement implements MessageProviderTrait, InternalServiceManagerTrait, PermissionTrait {
 
     private static boolean init = false;
     private static int USER_LIMIT = 20;
@@ -201,8 +202,8 @@ public class NicknameArgument extends CommandElement implements MessageProviderT
         }
     }
 
-    private static Predicate<Player> determinePredicate(CommandSource source) {
-        if (source.hasPermission(VANISH_PERMISSION)) {
+    private Predicate<Player> determinePredicate(CommandSource source) {
+        if (hasPermission(source, VANISH_PERMISSION)) {
             return p -> true;
         } else {
             return NicknameArgument::shouldShowPlayer;

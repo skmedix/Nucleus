@@ -18,6 +18,7 @@ import io.github.nucleuspowered.nucleus.internal.annotations.command.RegisterCom
 import io.github.nucleuspowered.nucleus.internal.command.AbstractCommand;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.core.CoreModule;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.nucleus.modules.core.config.CoreConfigAdapter;
@@ -31,7 +32,7 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class CommandPermissionHandler {
+public class CommandPermissionHandler implements PermissionTrait {
 
     private static boolean consoleCanBypass = true;
 
@@ -252,7 +253,7 @@ public class CommandPermissionHandler {
     }
 
     private boolean test(Subject src, String permission) {
-        return this.justReturnTrue || src.hasPermission(permission);
+        return this.justReturnTrue || hasPermission(src, permission);
     }
 
     private <X extends Exception> void check(Subject src, String permission, Supplier<X> exception) throws X {

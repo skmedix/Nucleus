@@ -39,7 +39,7 @@ public class AFKKickCommand extends AbstractCommand<CommandSource> {
     protected CommandResult executeCommand(CommandSource src, CommandContext args) throws Exception {
         Optional<Text> reason = args.<String>getOne(NucleusParameters.Keys.REASON).map(TextSerializers.FORMATTING_CODE::deserialize);
 
-        Collection<Player> playersToKick = getServiceUnchecked(AFKHandler.class).getAfk(x -> !x.hasPermission(this.permission));
+        Collection<Player> playersToKick = getServiceUnchecked(AFKHandler.class).getAfk(x -> !hasPermission(x, this.permission));
         if (playersToKick.isEmpty()) {
             sendMessageTo(src, "command.afkkick.nokick");
             return CommandResult.empty();

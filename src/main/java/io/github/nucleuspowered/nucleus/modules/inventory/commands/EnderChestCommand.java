@@ -53,7 +53,7 @@ public class EnderChestCommand extends AbstractCommand<Player> implements Intern
     private final CommandElement element = new IfConditionElseArgument(
             NucleusParameters.ONE_USER_PLAYER_KEY, // user if permission
             NucleusParameters.ONE_PLAYER, // player if not
-            (source, context) -> source.hasPermission(this.offlinePerm)
+            (source, context) -> hasPermission(source, this.offlinePerm)
     );
 
     @Override

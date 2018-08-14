@@ -86,7 +86,7 @@ public class RepairCommand extends AbstractCommand<Player> implements Reloadable
         }};
         EnumMap<ResultType, ItemStackSnapshot> lastItem = new EnumMap<>(ResultType.class);
 
-        boolean checkRestrictions = !pl.hasPermission(this.permissions.getPermissionWithSuffix("exempt.restriction"));
+        boolean checkRestrictions = !hasPermission(pl, this.permissions.getPermissionWithSuffix("exempt.restriction"));
 
         String location = "inventory";
         if (args.hasAny("a")) {

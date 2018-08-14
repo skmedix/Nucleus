@@ -44,7 +44,7 @@ public class ConnectionMessagesListener implements Reloadable, ListenerBase {
 
     @Listener
     public void onPlayerLogin(ClientConnectionEvent.Join joinEvent, @Getter("getTargetEntity") Player pl) {
-        if (joinEvent.isMessageCancelled() || (this.cmc.isDisableWithPermission() && pl.hasPermission(this.disablePermission))) {
+        if (joinEvent.isMessageCancelled() || (this.cmc.isDisableWithPermission() && hasPermission(pl, this.disablePermission))) {
             joinEvent.setMessageCancelled(true);
             return;
         }
@@ -84,7 +84,7 @@ public class ConnectionMessagesListener implements Reloadable, ListenerBase {
 
     @Listener
     public void onPlayerQuit(ClientConnectionEvent.Disconnect leaveEvent, @Getter("getTargetEntity") Player pl) {
-        if (leaveEvent.isMessageCancelled() || (this.cmc.isDisableWithPermission() && pl.hasPermission(this.disablePermission))) {
+        if (leaveEvent.isMessageCancelled() || (this.cmc.isDisableWithPermission() && hasPermission(pl, this.disablePermission))) {
             leaveEvent.setMessageCancelled(true);
             return;
         }

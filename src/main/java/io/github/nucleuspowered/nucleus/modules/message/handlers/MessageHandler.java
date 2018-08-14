@@ -16,6 +16,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateFactory;
 import io.github.nucleuspowered.nucleus.internal.text.NucleusTextTemplateImpl;
 import io.github.nucleuspowered.nucleus.internal.text.TextParsingUtils;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.message.MessageModule;
 import io.github.nucleuspowered.nucleus.modules.message.commands.MessageCommand;
 import io.github.nucleuspowered.nucleus.modules.message.commands.MsgToggleCommand;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class MessageHandler implements NucleusPrivateMessagingService, Reloadable {
+public class MessageHandler implements NucleusPrivateMessagingService, Reloadable, PermissionTrait {
 
     private final MessageConfigAdapter mca;
     private final UserDataManager ucl;
@@ -222,7 +223,7 @@ public class MessageHandler implements NucleusPrivateMessagingService, Reloadabl
         }
 
         // What about msgtoggle?
-        if (receiver instanceof Player && !sender.hasPermission(this.msgToggleBypass) &&
+        if (receiver instanceof Player && !hasPermission(sender, this.msgToggleBypass) &&
                 this.ucl.get((Player) receiver).map(x -> !x.get(MessageUserDataModule.class).isMsgToggle()).orElse(false)) {
             isCancelled = true;
             isBlocked = true;

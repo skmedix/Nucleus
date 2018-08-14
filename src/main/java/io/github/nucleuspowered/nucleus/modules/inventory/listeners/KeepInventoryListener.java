@@ -11,7 +11,6 @@ import io.github.nucleuspowered.nucleus.internal.annotations.SkipOnError;
 import io.github.nucleuspowered.nucleus.internal.permissions.PermissionInformation;
 import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListener;
 import io.github.nucleuspowered.nucleus.internal.permissions.SuggestedLevel;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
@@ -31,8 +30,8 @@ public class KeepInventoryListener implements ListenerBase.Conditional {
     }
 
     @Listener
-    public void onEntityDeath(DestructEntityEvent.Death event, @Getter("getTargetEntity") Living living) {
-        if (living instanceof Player && ((Player) living).hasPermission("nucleus.inventory.keepondeath")) {
+    public void onEntityDeath(DestructEntityEvent.Death event, @Getter("getTargetEntity") Player living) {
+        if (hasPermission(living, "nucleus.inventory.keepondeath")) {
             event.setKeepInventory(true);
         }
     }

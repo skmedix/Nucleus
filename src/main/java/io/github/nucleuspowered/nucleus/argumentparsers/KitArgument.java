@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.nucleusdata.Kit;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.kit.KitModule;
 import io.github.nucleuspowered.nucleus.modules.kit.commands.kit.KitCommand;
 import io.github.nucleuspowered.nucleus.modules.kit.config.KitConfigAdapter;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class KitArgument extends CommandElement {
+public class KitArgument extends CommandElement implements PermissionTrait {
 
     private final KitConfigAdapter config;
     private final KitHandler kitHandler;
@@ -60,7 +61,7 @@ public class KitArgument extends CommandElement {
     @Override
     public List<String> complete(CommandSource src, CommandArgs args, CommandContext context) {
         try {
-            final boolean showhidden = src.hasPermission(this.showhiddenperm);
+            final boolean showhidden = hasPermission(src, this.showhiddenperm);
             String name = args.peek().toLowerCase();
             return this.kitHandler.getKitNames().stream()
                     .filter(s -> s.toLowerCase().startsWith(name))
@@ -81,7 +82,7 @@ public class KitArgument extends CommandElement {
         }
 
         // No permissions, no entry!
-        return src.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "kits." + kit.getName().toLowerCase());
+        return hasPermission(src, PermissionRegistry.PERMISSIONS_PREFIX + "kits." + kit.getName().toLowerCase());
     }
 
 }

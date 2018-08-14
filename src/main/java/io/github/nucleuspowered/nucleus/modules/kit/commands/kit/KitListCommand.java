@@ -64,7 +64,7 @@ public class KitListCommand extends KitFallbackBase<CommandSource> {
 
         final boolean showHidden = this.kitPermissionHandler.testSuffix(src, "showhidden");
         KIT_HANDLER.getKitNames(showHidden).stream()
-                .filter(kit -> src.hasPermission(KitHandler.getPermissionForKit(kit.toLowerCase())))
+                .filter(kit -> hasPermission(src, KitHandler.getPermissionForKit(kit.toLowerCase())))
                 .forEach(kit -> kitText.add(createKit(src, user, kit, KIT_HANDLER.getKit(kit).get())));
 
         PaginationList.Builder paginationBuilder = paginationService.builder().contents(kitText)

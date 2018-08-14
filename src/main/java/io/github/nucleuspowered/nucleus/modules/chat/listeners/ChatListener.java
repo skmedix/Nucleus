@@ -81,11 +81,11 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
         return t;
     }
 
-    public static String stripPermissionless(Subject source, String message) {
+    public String stripPermissionless(Subject source, String message) {
         if (message.contains("&")) {
             String m = message.toLowerCase();
             for (Map.Entry<String, Tuple<String[], Function<String, String>>> r : replacements.entrySet()) {
-                if (m.contains(r.getKey()) && Arrays.stream(r.getValue().getFirst()).noneMatch(source::hasPermission)) {
+                if (m.contains(r.getKey()) && Arrays.stream(r.getValue().getFirst()).noneMatch(x -> hasPermission(source, x))) {
                     message = r.getValue().getSecond().apply(message);
                 }
             }
@@ -166,7 +166,7 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
         }
 
         Text result;
-        if (player.hasPermission(prefix + "url")) {
+        if (hasPermission(player, prefix + "url")) {
             result = TextParsingUtils.addUrls(m);
         } else {
             result = TextSerializers.FORMATTING_CODE.deserialize(m);

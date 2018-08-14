@@ -43,7 +43,7 @@ public class SendMailCommand extends AbstractCommand<CommandSource> {
                 Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("args.user.none")));
 
         // Only send mails to players that can read them.
-        if (!pl.hasPermission(this.perm)) {
+        if (!hasPermission(pl, this.perm)) {
             src.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.mail.send.error", pl.getName()));
             return CommandResult.empty();
         }

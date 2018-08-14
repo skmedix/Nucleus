@@ -73,7 +73,7 @@ public class ListHomeCommand extends AbstractCommand<CommandSource> {
         Text header;
 
         boolean other = src instanceof User && !((User) src).getUniqueId().equals(user.getUniqueId());
-        if (other && user.hasPermission(this.exempt)) {
+        if (other && hasPermission(user, this.exempt)) {
             throw new ReturnMessageException(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("command.listhome.exempt"));
         }
 

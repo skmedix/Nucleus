@@ -11,6 +11,7 @@ import io.github.nucleuspowered.nucleus.api.service.NucleusWarpService;
 import io.github.nucleuspowered.nucleus.internal.PermissionRegistry;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.warp.config.WarpConfigAdapter;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -24,7 +25,6 @@ import org.spongepowered.api.util.annotation.NonnullByDefault;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
  */
 @NonnullByDefault
 @SuppressWarnings("all")
-public class WarpArgument extends CommandElement implements Reloadable, InternalServiceManagerTrait {
+public class WarpArgument extends CommandElement implements Reloadable, InternalServiceManagerTrait, PermissionTrait {
 
     private NucleusWarpService service;
     private final boolean permissionCheck;
@@ -102,7 +102,7 @@ public class WarpArgument extends CommandElement implements Reloadable, Internal
 
     private boolean checkPermission(CommandSource src, String name) {
         // No permissions, no entry!
-        return src.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "warps." + name.toLowerCase());
+        return hasPermission(src, PermissionRegistry.PERMISSIONS_PREFIX + "warps." + name.toLowerCase());
     }
 
     private void getService() {

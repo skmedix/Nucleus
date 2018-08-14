@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.playerinfo.handlers;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.api.service.NucleusSeenService;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.PlayerInfoModule;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.commands.SeenCommand;
 import io.github.nucleuspowered.nucleus.modules.playerinfo.config.PlayerInfoConfigAdapter;
@@ -19,7 +20,7 @@ import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BasicSeenInformationProvider implements NucleusSeenService.SeenInformationProvider {
+public class BasicSeenInformationProvider implements NucleusSeenService.SeenInformationProvider, PermissionTrait {
 
     private final String permission;
     private final BiFunction<CommandSource, User, Collection<Text>> getterFunction;
@@ -33,9 +34,9 @@ public class BasicSeenInformationProvider implements NucleusSeenService.SeenInfo
     @Override
     public boolean hasPermission(@Nonnull CommandSource source, @Nonnull User user) {
         try {
-            return source.hasPermission(SeenCommand.EXTENDED_PERMISSION) ||
-                (this.permission != null && !getAdapter().getNodeOrDefault().getSeen().isExtendedPermRequired() && source.hasPermission(
-                        this.permission));
+            return hasPermission(source, SeenCommand.EXTENDED_PERMISSION) ||
+                (this.permission != null && !getAdapter().getNodeOrDefault().getSeen().isExtendedPermRequired()
+                        && hasPermission(source, this.permission));
         } catch (Exception e) {
             e.printStackTrace();
 

@@ -163,11 +163,11 @@ public class JailListener implements Reloadable, ListenerBase {
     @Listener
     public void onAboutToTeleport(NucleusTeleportEvent.AboutToTeleport event, @Root CommandSource cause, @Getter("getTargetEntity") Player player) {
         if (this.handler.isPlayerJailed(player)) {
-            if (!cause.hasPermission(this.teleport)) {
+            if (!hasPermission(cause, this.teleport)) {
                 event.setCancelled(true);
                 event.setCancelMessage(
                         Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.abouttoteleporttarget.isjailed", player.getName()));
-            } else if (!player.hasPermission(this.teleportto)) {
+            } else if (!hasPermission(cause, this.teleportto)) {
                 event.setCancelled(true);
                 event.setCancelMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("jail.abouttoteleportcause.targetisjailed",
                         player.getName()));

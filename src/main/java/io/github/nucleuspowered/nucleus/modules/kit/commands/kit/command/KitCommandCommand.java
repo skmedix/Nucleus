@@ -54,7 +54,7 @@ public class KitCommandCommand extends KitFallbackBase<CommandSource> {
             for (int i = 0; i < commands.size(); i++) {
                 Text t = Nucleus.getNucleus()
                         .getMessageProvider().getTextMessageWithFormat("command.kit.command.commands.entry", String.valueOf(i + 1), commands.get(i));
-                if (src.hasPermission(this.removePermission)) {
+                if (hasPermission(src, this.removePermission)) {
                     t = Text.of(
                             Text.builder().append(this.removeIcon)
                                 .onClick(TextActions.runCommand("/nucleus:kit command remove " + kit.getName() + " " + commands.get(i)))

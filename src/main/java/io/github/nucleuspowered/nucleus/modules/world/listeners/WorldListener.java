@@ -35,7 +35,7 @@ public class WorldListener implements ListenerBase.Conditional {
         World target = event.getToTransform().getExtent();
         if (player.getWorld().equals(target)) return;
 
-        if (!player.hasPermission(PermissionRegistry.PERMISSIONS_PREFIX + "worlds." + target.getName().toLowerCase())) {
+        if (!hasPermission(player, PermissionRegistry.PERMISSIONS_PREFIX + "worlds." + target.getName().toLowerCase())) {
             event.setCancelled(true);
             if (!this.messageSent.contains(player.getUniqueId())) {
                 player.sendMessage(Nucleus.getNucleus().getMessageProvider().getTextMessageWithFormat("world.access.denied", target.getName()));

@@ -42,7 +42,7 @@ import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
 import io.github.nucleuspowered.nucleus.internal.messages.ConfigMessageProvider;
 import io.github.nucleuspowered.nucleus.internal.messages.MessageProvider;
 import io.github.nucleuspowered.nucleus.internal.messages.ResourceMessageProvider;
-import io.github.nucleuspowered.nucleus.internal.permissions.PermissionResolver;
+import io.github.nucleuspowered.nucleus.internal.permissions.PermissionResolverImpl;
 import io.github.nucleuspowered.nucleus.internal.permissions.ServiceChangeListener;
 import io.github.nucleuspowered.nucleus.internal.qsml.ModuleRegistrationProxyService;
 import io.github.nucleuspowered.nucleus.internal.qsml.NucleusConfigAdapter;
@@ -53,6 +53,7 @@ import io.github.nucleuspowered.nucleus.internal.services.CommandRemapperService
 import io.github.nucleuspowered.nucleus.internal.services.EnderchestAccessService;
 import io.github.nucleuspowered.nucleus.internal.services.HotbarFirstReorderService;
 import io.github.nucleuspowered.nucleus.internal.services.InventoryReorderService;
+import io.github.nucleuspowered.nucleus.internal.services.PermissionResolver;
 import io.github.nucleuspowered.nucleus.internal.services.UserEnderchestAccessService;
 import io.github.nucleuspowered.nucleus.internal.services.WarmupManager;
 import io.github.nucleuspowered.nucleus.internal.teleport.NucleusTeleportHandler;
@@ -137,7 +138,7 @@ public class NucleusPlugin extends Nucleus {
     private KitService kitService;
     private TextParsingUtils textParsingUtils;
     private NameUtil nameUtil;
-    private final PermissionResolver permissionResolver = new PermissionResolver();
+    private final PermissionResolverImpl permissionResolver = new PermissionResolverImpl();
     private final List<Reloadable> reloadableList = Lists.newArrayList();
     private DocGenCache docGenCache = null;
     private final NucleusTeleportHandler teleportHandler = new NucleusTeleportHandler();

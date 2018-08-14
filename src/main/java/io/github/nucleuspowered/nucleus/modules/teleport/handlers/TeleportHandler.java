@@ -56,7 +56,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait {
     }
 
     public static boolean canBypassTpToggle(Subject from) {
-        return from.hasPermission(tptoggleBypassPermission);
+        return Nucleus.getNucleus().getPermissionResolver().hasPermission(from, tptoggleBypassPermission);
     }
 
     public static boolean canTeleportTo(CommandSource source, User to)  {
@@ -157,7 +157,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait {
                                 .onHover(TextActions.showText(
                                         getMessageFor(forPlayer.getLocale(), "teleport.accept.hover")))
                                 .onClick(TextActions.executeCallback(src -> {
-                                    if (target.isExpired() || !src.hasPermission(this.acceptPerm) || !(src instanceof Player)) {
+                                    if (target.isExpired() || !hasPermission(src, this.acceptPerm) || !(src instanceof Player)) {
                                         sendMessageTo(src, "command.tpaccept.nothing");
                                         return;
                                     }
@@ -171,7 +171,7 @@ public class TeleportHandler implements MessageProviderTrait, PermissionTrait {
                                 .style(TextStyles.UNDERLINE)
                                 .onHover(TextActions.showText(getMessageFor(forPlayer.getLocale(), "teleport.deny.hover")))
                                 .onClick(TextActions.executeCallback(src -> {
-                                    if (target.isExpired() || !src.hasPermission(this.denyPerm) || !(src instanceof Player)) {
+                                    if (target.isExpired() || !hasPermission(src, this.denyPerm) || !(src instanceof Player)) {
                                         sendMessageTo(src, "command.tpdeny.fail");
                                         return;
                                     }

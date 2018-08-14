@@ -88,7 +88,7 @@ public class SpawnListener implements Reloadable, ListenerBase {
 
         // Throw them to the default world spawn if the config suggests so.
         User user = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).getOrCreate(loginEvent.getProfile());
-        if (this.spawnConfig.isSpawnOnLogin() && !user.hasPermission(this.spawnExempt)) {
+        if (this.spawnConfig.isSpawnOnLogin() && !hasPermission(user, this.spawnExempt)) {
 
             World world = loginEvent.getFromTransform().getExtent();
             final String worldName = world.getName();

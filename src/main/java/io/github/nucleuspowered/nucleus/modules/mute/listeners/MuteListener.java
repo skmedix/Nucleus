@@ -130,7 +130,7 @@ public class MuteListener implements Reloadable, ListenerBase {
     }
 
     private boolean cancelOnGlobalMute(Player player, boolean isCancelled) {
-        if (isCancelled || !this.handler.isGlobalMuteEnabled() || player.hasPermission(this.voicePerm)) {
+        if (isCancelled || !this.handler.isGlobalMuteEnabled() || hasPermission(player, this.voicePerm)) {
             return false;
         }
 

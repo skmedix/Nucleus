@@ -30,11 +30,11 @@ public class VanishListener implements Reloadable, ListenerBase {
 
     @Listener
     public void onLogin(ClientConnectionEvent.Join event, @Getter("getTargetEntity") Player player) {
-        boolean shouldVanish = (!ServiceChangeListener.isOpOnly() && player.hasPermission(this.loginVanishPermission))
+        boolean shouldVanish = (!ServiceChangeListener.isOpOnly() && hasPermission(player, this.loginVanishPermission))
                 || this.service.isVanished(player);
 
         if (shouldVanish) {
-            if (!player.hasPermission(this.permission)) {
+            if (!hasPermission(player, this.permission)) {
                 // No permission, no vanish.
                 this.service.unvanishPlayer(player);
                 return;

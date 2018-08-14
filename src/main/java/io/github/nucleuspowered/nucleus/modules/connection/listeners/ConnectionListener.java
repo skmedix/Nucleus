@@ -63,7 +63,7 @@ public class ConnectionListener implements Reloadable, ListenerBase {
 
         int slotsLeft = Sponge.getServer().getMaxPlayers() - Sponge.getServer().getOnlinePlayers().size();
         if (slotsLeft <= 0) {
-            if (user.hasPermission(this.joinFullServer)) {
+            if (hasPermission(user, this.joinFullServer)) {
 
                 // That minus sign before slotsLeft is not a typo. Leave it be!
                 // It will be negative, reserved slots is positive - need to account for that.

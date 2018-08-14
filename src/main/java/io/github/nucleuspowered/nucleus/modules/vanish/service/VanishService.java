@@ -6,6 +6,7 @@ package io.github.nucleuspowered.nucleus.modules.vanish.service;
 
 import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.internal.interfaces.Reloadable;
+import io.github.nucleuspowered.nucleus.internal.traits.PermissionTrait;
 import io.github.nucleuspowered.nucleus.modules.vanish.commands.VanishCommand;
 import io.github.nucleuspowered.nucleus.modules.vanish.config.VanishConfigAdapter;
 import io.github.nucleuspowered.nucleus.modules.vanish.datamodules.VanishUserDataModule;
@@ -16,7 +17,7 @@ import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 
-public class VanishService implements Reloadable {
+public class VanishService implements Reloadable, PermissionTrait {
 
     private final String canseePerm = Nucleus.getNucleus().getPermissionRegistry()
             .getPermissionsForNucleusCommand(VanishCommand.class).getPermissionWithSuffix("see");
@@ -57,7 +58,7 @@ public class VanishService implements Reloadable {
             player.offer(Keys.VANISH_PREVENTS_TARGETING, true);
 
             if (this.isAlter) {
-                Sponge.getServer().getOnlinePlayers().stream().filter(x -> !player.equals(x) || !x.hasPermission(this.canseePerm))
+                Sponge.getServer().getOnlinePlayers().stream().filter(x -> !player.equals(x) || !hasPermission(x, this.canseePerm))
                         .forEach(x -> x.getTabList().removeEntry(player.getUniqueId()));
             }
         }
