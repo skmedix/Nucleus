@@ -6,13 +6,11 @@ package io.github.nucleuspowered.nucleus.modules.nickname.datamodules;
 
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
-import io.github.nucleuspowered.nucleus.Nucleus;
 import io.github.nucleuspowered.nucleus.dataservices.modular.DataKey;
 import io.github.nucleuspowered.nucleus.dataservices.modular.DataModule;
 import io.github.nucleuspowered.nucleus.dataservices.modular.ModularUserService;
-import io.github.nucleuspowered.nucleus.modules.nickname.NicknameModule;
-import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfig;
-import io.github.nucleuspowered.nucleus.modules.nickname.config.NicknameConfigAdapter;
+import io.github.nucleuspowered.nucleus.internal.traits.InternalServiceManagerTrait;
+import io.github.nucleuspowered.nucleus.modules.nickname.services.NicknameService;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.data.key.Keys;
@@ -24,16 +22,7 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-public class NicknameUserDataModule extends DataModule.ReferenceService<ModularUserService> {
-
-    // Transient, null infers that we need to retrieve the value.
-    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
-    private static Optional<Text> prefix = null;
-
-    static {
-        //noinspection OptionalAssignedToNull
-        Nucleus.getNucleus().registerReloadable(() -> prefix = null);
-    }
+public class NicknameUserDataModule extends DataModule.ReferenceService<ModularUserService> implements InternalServiceManagerTrait {
 
     @DataKey("nickname-text")
     @Nullable
@@ -41,19 +30,6 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
 
     public NicknameUserDataModule(ModularUserService modularDataService) {
         super(modularDataService);
-    }
-
-    public Optional<Text> getNicknameWithPrefix() {
-        if (getNicknameAsText().isPresent()) {
-            Optional<Text> p = getNickPrefix();
-            if (!p.isPresent() || p.get().isEmpty()) {
-                return getNicknameAsText();
-            }
-
-            return Optional.of(Text.join(p.get(), getNicknameAsText().get()));
-        }
-
-        return Optional.empty();
     }
 
     public Optional<Text> getNicknameAsText() {
@@ -68,12 +44,8 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
         this.nickname = Preconditions.checkNotNull(nickname);
 
         getService().getPlayer().ifPresent(x -> {
-            Optional<Text> p = getNickPrefix();
-            if (p.isPresent() && !p.get().isEmpty()) {
-                x.offer(Keys.DISPLAY_NAME, Text.join(p.get(), nickname));
-            } else {
-                x.offer(Keys.DISPLAY_NAME, nickname);
-            }
+            Text p = getServiceUnchecked(NicknameService.class).getNickPrefix();
+            x.offer(Keys.DISPLAY_NAME, Text.join(p, nickname));
         });
     }
 
@@ -116,16 +88,4 @@ public class NicknameUserDataModule extends DataModule.ReferenceService<ModularU
         super.saveNode(typeToken, value, path, node);
     }
 
-    @SuppressWarnings("OptionalAssignedToNull")
-    private static Optional<Text> getNickPrefix() {
-        if (prefix == null) {
-            prefix = Nucleus.getNucleus().getConfigValue(NicknameModule.ID, NicknameConfigAdapter.class, NicknameConfig::getPrefix)
-                    .map(TextSerializers.FORMATTING_CODE::deserialize);
-            if (prefix.map(Text::isEmpty).orElse(true)) {
-                prefix = Optional.empty();
-            }
-        }
-
-        return prefix;
-    }
 }

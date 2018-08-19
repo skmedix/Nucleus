@@ -48,6 +48,7 @@ import javax.annotation.Nullable;
 
 public class NicknameService implements NucleusNicknameService, Reloadable {
 
+    private Text prefix = Text.EMPTY;
     private Pattern pattern;
     private int min = 3;
     private int max = 16;
@@ -120,6 +121,11 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
                 Tuple.of(Pattern.compile("[&]+k", Pattern.CASE_INSENSITIVE).matcher(""),
                         mp.getTextMessageWithFormat("command.nick.style.nopermswith", "magic")));
         this.registered = true;
+    }
+
+    @Override
+    public Optional<Text> getNicknameWithPrefix(User user) {
+        return getNickname(user).map(x -> Text.join(this.prefix, x));
     }
 
     @Override
@@ -267,6 +273,7 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
         this.pattern = nc.getPattern();
         this.min = nc.getMinNicknameLength();
         this.max = nc.getMaxNicknameLength();
+        this.prefix = TextSerializers.FORMATTING_CODE.deserialize(nc.getPrefix());
     }
 
     private void stripPermissionless(Subject source, Text message) throws NicknameException {
@@ -280,5 +287,9 @@ public class NicknameService implements NucleusNicknameService, Reloadable {
                 }
             }
         }
+    }
+
+    public Text getNickPrefix() {
+        return this.prefix;
     }
 }

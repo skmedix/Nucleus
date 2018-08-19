@@ -117,7 +117,7 @@ public class NameUtil implements InternalServiceManagerTrait {
         TextStyle ts = getNameStyle(player);
 
         Text.Builder tb = getService(NicknameService.class)
-                .map(service -> service.getNickname(player).map(Text::toBuilder).orElse(null))
+                .map(service -> service.getNicknameWithPrefix(player).map(Text::toBuilder).orElse(null))
                 .orElseGet(() ->
                         player.get(Keys.DISPLAY_NAME)
                                 .map(Text::toBuilder).orElseGet(() -> Text.builder(player.getName())));

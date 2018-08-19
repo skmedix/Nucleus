@@ -18,6 +18,14 @@ import javax.annotation.Nullable;
 public interface NucleusNicknameService {
 
     /**
+     * Gets the current nickname for a user with prefix, if it exists.
+     *
+     * @param user The {@link User} to inspect.
+     * @return The nickname in {@link Text} form, if it exists.
+     */
+    Optional<Text> getNicknameWithPrefix(User user);
+
+    /**
      * Gets the current nickname for a user, if it exists.
      *
      * @param user The {@link User} to inspect.
