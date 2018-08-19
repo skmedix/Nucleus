@@ -17,6 +17,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.TextElement;
 import org.spongepowered.api.text.TextRepresentable;
 import org.spongepowered.api.text.TextTemplate;
 import org.spongepowered.api.text.action.HoverAction;
@@ -60,6 +61,10 @@ public class TextParsingUtils implements Reloadable, MessageProviderTrait, Inter
     private String commandNameOnClick;
 
     public static Text addUrls(String message) {
+        return addUrls(message, false);
+    }
+
+    public static Text addUrls(String message, boolean replaceBlueUnderline) {
         if (message == null || message.isEmpty()) {
             return Text.EMPTY;
         }
@@ -69,7 +74,7 @@ public class TextParsingUtils implements Reloadable, MessageProviderTrait, Inter
             return TextSerializers.FORMATTING_CODE.deserialize(message);
         }
 
-        List<Text> texts = Lists.newArrayList();
+        List<TextElement> texts = Lists.newArrayList();
         String remaining = message;
         TextParsingUtils.StyleTuple st = TextParsingUtils.EMPTY;
         do {
@@ -90,7 +95,9 @@ public class TextParsingUtils implements Reloadable, MessageProviderTrait, Inter
 
             // Get the last colour & styles
             String colourMatch = m.group("colour");
-            if (colourMatch != null && !colourMatch.isEmpty()) {
+            if (replaceBlueUnderline) {
+                st = new StyleTuple(TextColors.BLUE, TextStyles.UNDERLINE);
+            } else if (colourMatch != null && !colourMatch.isEmpty()) {
 
                 // If there is a reset, explicitly do it.
                 TextStyle reset = TextStyles.NONE;
@@ -98,25 +105,40 @@ public class TextParsingUtils implements Reloadable, MessageProviderTrait, Inter
                     reset = TextStyles.RESET;
                 }
 
-                first = Text.of(reset, TextSerializers.FORMATTING_CODE.deserialize(m.group("colour") + " "));
+                st = getLastColourAndStyle(Text.of(reset, TextSerializers.FORMATTING_CODE.deserialize(m.group("colour") + " ")), st);
+            } else {
+                st = getLastColourAndStyle(first, st);
             }
-
-            st = TextParsingUtils.getLastColourAndStyle(first, st);
 
             // Build the URL
             String whiteSpace = m.group("first");
+            if (replaceBlueUnderline) {
+                st = new StyleTuple(TextColors.BLUE, TextStyles.UNDERLINE);
+            } else {
+                st = TextParsingUtils.getLastColourAndStyle(first, st);
+            }
             String url = m.group("url");
-            texts.add(TextParsingUtils.getTextForUrl(url, url, whiteSpace, st, m.group("options")));
+            if (url.endsWith("&r")) {
+                String url2 = url.replaceAll("&r$", "");
+                texts.add(TextParsingUtils.getTextForUrl(url2, url2, whiteSpace, st, m.group("options")));
+            } else {
+                texts.add(TextParsingUtils.getTextForUrl(url, url, whiteSpace, st, m.group("options")));
+            }
+
+            if (replaceBlueUnderline) {
+                st = TextParsingUtils.getLastColourAndStyle(first, st, TextColors.WHITE, TextStyles.NONE);
+            }
         } while (remaining != null && m.find());
 
         // Add the last bit.
         if (remaining != null) {
-            texts.add(Text.builder().color(st.colour).style(st.style)
-                    .append(TextSerializers.FORMATTING_CODE.deserialize(remaining)).build());
+            texts.add(
+                Text.builder().color(st.colour).style(st.style).append(TextSerializers.FORMATTING_CODE.deserialize(remaining)).build());
         }
 
         // Join it all together.
-        return Text.join(texts);
+        //noinspection SuspiciousToArrayCall,ToArrayCallWithZeroLengthArrayArgument
+        return Text.of((Object[]) texts.toArray(new TextElement[texts.size()]));
     }
 
     public static Text oldLegacy(String message) {
@@ -308,9 +330,14 @@ public class TextParsingUtils implements Reloadable, MessageProviderTrait, Inter
     }
 
     public static StyleTuple getLastColourAndStyle(TextRepresentable text, @Nullable StyleTuple current) {
+        return getLastColourAndStyle(text, current, TextColors.NONE, TextStyles.NONE);
+    }
+
+    public static StyleTuple getLastColourAndStyle(TextRepresentable text, @Nullable StyleTuple current, TextColor defaultColour,
+            TextStyle defaultStyle) {
         List<Text> texts = flatten(text.toText());
         if (texts.isEmpty()) {
-            return current == null ? new StyleTuple(TextColors.NONE, TextStyles.NONE) : current;
+            return current == null ? new StyleTuple(defaultColour, defaultStyle) : current;
         }
 
         TextColor tc = TextColors.NONE;
@@ -322,6 +349,10 @@ public class TextParsingUtils implements Reloadable, MessageProviderTrait, Inter
             if (tc != TextColors.NONE) {
                 break;
             }
+        }
+
+        if (tc == TextColors.NONE) {
+            tc = defaultColour;
         }
 
         if (current == null) {

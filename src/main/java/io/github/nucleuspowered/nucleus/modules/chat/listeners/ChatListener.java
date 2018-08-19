@@ -160,14 +160,16 @@ public class ChatListener implements Reloadable, ListenerBase.Conditional {
     }
 
     private Text useMessage(Player player, Text rawMessage, ChatTemplateConfig chatTemplateConfig) {
-        String m = stripPermissionless(player, TextSerializers.FORMATTING_CODE.serialize(rawMessage));
+        String m = TextSerializers.FORMATTING_CODE.serialize(rawMessage);
         if (this.chatConfig.isRemoveBlueUnderline()) {
-            m = m.replaceAll("&9&n([A-Za-z0-9-.]+)", "$1");
+            m = m.replaceAll("&9&n([A-Za-z0-9-.]+)(&r)?", "$1");
         }
+
+        m = stripPermissionless(player, m);
 
         Text result;
         if (player.hasPermission(prefix + "url")) {
-            result = TextParsingUtils.addUrls(m);
+            result = TextParsingUtils.addUrls(m, !this.chatConfig.isRemoveBlueUnderline());
         } else {
             result = TextSerializers.FORMATTING_CODE.deserialize(m);
         }
