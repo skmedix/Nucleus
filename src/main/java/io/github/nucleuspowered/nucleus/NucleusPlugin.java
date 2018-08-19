@@ -84,6 +84,7 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
+import org.spongepowered.api.plugin.Dependency;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
@@ -120,7 +121,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-@Plugin(id = ID, name = NAME, version = VERSION, description = DESCRIPTION)
+@Plugin(id = ID, name = NAME, version = VERSION, description = DESCRIPTION, dependencies = @Dependency(id = "spongeapi", version = "7.0.0"))
 public class NucleusPlugin extends Nucleus {
 
     private static final String divider = "+------------------------------------------------------------+";
